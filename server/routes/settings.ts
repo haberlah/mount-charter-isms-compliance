@@ -1,9 +1,16 @@
-import { aiProviderValues, concreteAiProviderValues, updateProfileSchema } from "@shared/schema";
+import {
+  aiProviderValues,
+  aiRoutingPresetValues,
+  concreteAiProviderValues,
+  updateProfileSchema,
+} from "@shared/schema";
 import { Router } from "express";
 import { z } from "zod";
 import { AIConfigurationError, getAiProviderStatus, testApiConnectivity } from "../ai";
 import {
+  fetchOpenRouterKeyInfo,
   fetchProviderModels,
+  OPENROUTER_PRESET_MODELS,
   probeLocalModels,
   resolveEffectiveProvider,
   saveProviderApiKey,
@@ -22,6 +29,8 @@ settingsRouter.get("/settings/profile", (req, res) => {
     profile,
     aiStatus: getAiProviderStatus(profile),
     tokensUsedToday: storage.getTokensUsedToday(workspaceId),
+    costUsedTodayUsd: storage.getCostUsedTodayUsd(workspaceId),
+    openrouterPresets: OPENROUTER_PRESET_MODELS,
     dataDir: getDataDir(),
   });
 });
@@ -49,6 +58,8 @@ settingsRouter.put("/settings/profile", (req, res) => {
     profile,
     aiStatus: getAiProviderStatus(profile),
     tokensUsedToday: storage.getTokensUsedToday(workspaceId),
+    costUsedTodayUsd: storage.getCostUsedTodayUsd(workspaceId),
+    openrouterPresets: OPENROUTER_PRESET_MODELS,
     dataDir: getDataDir(),
   });
 });
@@ -114,6 +125,10 @@ settingsRouter.get("/settings/models", async (req, res) => {
   }
 
   const forceRefresh = req.query.refresh === "1" || req.query.refresh === "true";
+  const rawPreset = typeof req.query.preset === "string" ? req.query.preset.trim() : undefined;
+  const parsedPreset = rawPreset ? z.enum(aiRoutingPresetValues).safeParse(rawPreset) : null;
+  const preset = parsedPreset?.success ? parsedPreset.data : profile.aiRoutingPreset;
+
   const concreteProvider =
     parsedProvider.data === "auto" ? resolveEffectiveProvider(profile) : parsedProvider.data;
 
@@ -131,9 +146,15 @@ settingsRouter.get("/settings/models", async (req, res) => {
 
   const result = await fetchProviderModels(concreteProvider, {
     baseUrl: baseUrlParam ?? profile.aiBaseUrl,
+    preset,
     forceRefresh,
   });
   res.json(result);
+});
+
+settingsRouter.get("/settings/openrouter-key-info", async (_req, res) => {
+  const info = await fetchOpenRouterKeyInfo();
+  res.json(info);
 });
 
 settingsRouter.get("/settings/local-models", async (req, res) => {
@@ -156,7 +177,11 @@ settingsRouter.post("/settings/test-api", async (req, res) => {
       inputSummary: `${result.provider} connectivity check`,
       outputSummary: "OK",
       modelUsed: result.model,
+      provider: result.provider,
       tokensUsed: result.tokensUsed,
+      promptTokens: result.promptTokens,
+      completionTokens: result.completionTokens,
+      costUsd: result.costUsd,
     });
     res.json(result);
   } catch (err) {

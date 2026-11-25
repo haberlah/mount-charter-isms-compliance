@@ -147,9 +147,12 @@ export const workspaceRepository = {
       hideNonApplicableControls: boolean;
       aiProvider: AiProvider;
       aiBaseUrl: string | null;
+      aiRoutingPreset: WorkspaceProfile["aiRoutingPreset"];
+      aiZdrOnly: boolean;
       aiScreeningModel: string;
       aiSynthesisModel: string;
       aiDailyTokenBudget: number;
+      aiDailyCostBudgetUsd: number;
       aiMaxChunksPerRun: number;
       soaVersion: string;
       soaApprovedBy: string | null;
@@ -180,9 +183,12 @@ export const workspaceRepository = {
         hide_non_applicable_controls = ?,
         ai_provider = ?,
         ai_base_url = ?,
+        ai_routing_preset = ?,
+        ai_zdr_only = ?,
         ai_screening_model = ?,
         ai_synthesis_model = ?,
         ai_daily_token_budget = ?,
+        ai_daily_cost_budget_usd = ?,
         ai_max_chunks_per_run = ?,
         soa_version = ?,
         soa_approved_by = ?,
@@ -219,9 +225,12 @@ export const workspaceRepository = {
       (patch.hideNonApplicableControls ?? current.hideNonApplicableControls) ? 1 : 0,
       patch.aiProvider ?? current.aiProvider,
       patch.aiBaseUrl !== undefined ? patch.aiBaseUrl : current.aiBaseUrl,
+      patch.aiRoutingPreset ?? current.aiRoutingPreset,
+      (patch.aiZdrOnly ?? current.aiZdrOnly) ? 1 : 0,
       patch.aiScreeningModel ?? current.aiScreeningModel,
       patch.aiSynthesisModel ?? current.aiSynthesisModel,
       patch.aiDailyTokenBudget ?? current.aiDailyTokenBudget,
+      patch.aiDailyCostBudgetUsd ?? current.aiDailyCostBudgetUsd,
       patch.aiMaxChunksPerRun ?? current.aiMaxChunksPerRun,
       patch.soaVersion ?? current.soaVersion,
       patch.soaApprovedBy !== undefined ? patch.soaApprovedBy : current.soaApprovedBy,

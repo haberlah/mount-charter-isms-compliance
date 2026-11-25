@@ -12,6 +12,7 @@ interface DocumentsTabProps {
   search: string;
   onSearchChange: (val: string) => void;
   onLinkControls: (doc: DocumentRecord) => void;
+  onMapEverywhere: (doc: DocumentRecord) => void;
   onInspectChunks: (doc: DocumentRecord) => void;
   onEditDoc: (doc: DocumentRecord) => void;
   onDeleteDoc: (doc: DocumentRecord) => void;
@@ -28,6 +29,7 @@ export function DocumentsTab({
   search,
   onSearchChange,
   onLinkControls,
+  onMapEverywhere,
   onInspectChunks,
   onEditDoc,
   onDeleteDoc,
@@ -161,6 +163,17 @@ export function DocumentsTab({
                       </td>
                       <td>
                         <div className="mw-row">
+                          {!doc.mimeType.startsWith("image/") &&
+                            doc.extractionStatus !== "error" && (
+                              <button
+                                type="button"
+                                className="pp-button pp-button--sm"
+                                title="AI fan-out: map this document across all ISO 27001 controls and enabled Australian frameworks"
+                                onClick={() => onMapEverywhere(doc)}
+                              >
+                                Map Everywhere
+                              </button>
+                            )}
                           <button
                             type="button"
                             className="pp-icon-button pp-icon-button--compact"

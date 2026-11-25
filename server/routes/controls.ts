@@ -221,40 +221,63 @@ controlsRouter.post("/controls/:controlNumber/analyse-stream", async (req, res) 
 
   try {
     const profile = storage.getProfile(workspaceId);
-    const { analysis, tokensUsed, model } = await streamControlAnalysis({
-      persona,
-      controlNumber: detail.controlNumber,
-      controlName: detail.name,
-      questions: detail.aiQuestionnaire?.questions || [],
-      responses: detail.responses,
-      comments,
-      linkedDocumentTitles: [
-        ...detail.linkedDocuments.map((d) => `${d.title} (${d.originalFilename})`),
-        ...detail.evidenceLinks.map((e) => e.title),
-      ],
-      previousTests: detail.testRuns.map((t) => ({
-        testDate: t.testDate,
-        status: t.status,
-        comments: t.comments,
-      })),
-      aiContextScope,
-      profile,
-      signal: abortController.signal,
-      onPhase: (message) => sendEvent("phase", { message }),
-      onToken: (text) => sendEvent("token", { text }),
-    });
+    const evidenceExcerpts = detail.linkedDocuments
+      .slice(0, 4)
+      .map((d) => {
+        const chunks = storage.getDocumentChunks(workspaceId, d.id);
+        if (chunks.length === 0) return null;
+        return {
+          title: d.title,
+          evidenceType: d.evidenceType,
+          documentDate: d.documentDate,
+          excerpt: chunks
+            .slice(0, 3)
+            .map((c) => c.content)
+            .join("\n\n"),
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
+    const { analysis, tokensUsed, promptTokens, completionTokens, costUsd, provider, model } =
+      await streamControlAnalysis({
+        persona,
+        controlNumber: detail.controlNumber,
+        controlName: detail.name,
+        questions: detail.aiQuestionnaire?.questions || [],
+        responses: detail.responses,
+        comments,
+        linkedDocumentTitles: [
+          ...detail.linkedDocuments.map((d) => `${d.title} (${d.originalFilename})`),
+          ...detail.evidenceLinks.map((e) => e.title),
+        ],
+        evidenceExcerpts,
+        previousTests: detail.testRuns.map((t) => ({
+          testDate: t.testDate,
+          status: t.status,
+          comments: t.comments,
+        })),
+        aiContextScope,
+        profile,
+        signal: abortController.signal,
+        onPhase: (message) => sendEvent("phase", { message }),
+        onToken: (text) => sendEvent("token", { text }),
+      });
 
     storage.logAiInteraction({
       workspaceId,
       interactionType: "test_analysis",
       controlId: detail.id,
-      inputSummary: `${persona} analysis for ${detail.controlNumber}`,
+      inputSummary: `${persona} analysis for ${detail.controlNumber}${evidenceExcerpts.length ? ` (${evidenceExcerpts.length} evidence doc excerpts)` : ""}`,
       outputSummary: `${analysis.suggested_status} (${Math.round(analysis.confidence * 100)}%)`,
       modelUsed: model,
+      provider,
       tokensUsed,
+      promptTokens,
+      completionTokens,
+      costUsd,
     });
 
-    sendEvent("complete", { analysis, tokensUsed, model });
+    sendEvent("complete", { analysis, tokensUsed, costUsd, model });
   } catch (err) {
     if (!abortController.signal.aborted) {
       sendEvent("error", {

@@ -52,9 +52,11 @@ export function getExportsDir(): string {
 }
 
 export const DEFAULT_AI_PROVIDER = "auto" as const;
+export const DEFAULT_AI_ROUTING_PRESET = "balanced" as const;
 export const DEFAULT_SCREENING_MODEL = "auto";
 export const DEFAULT_SYNTHESIS_MODEL = "auto";
 export const DEFAULT_DAILY_TOKEN_BUDGET = 250_000;
+export const DEFAULT_DAILY_COST_BUDGET_USD = 5.0;
 export const DEFAULT_MAX_CHUNKS_PER_RUN = 25;
 export const MAX_UPLOAD_FILE_SIZE = 25 * 1024 * 1024; // 25 MB per file
 export const MAX_UPLOAD_FILES = 10;

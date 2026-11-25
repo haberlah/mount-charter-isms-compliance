@@ -61,6 +61,8 @@ export function AuditPage() {
     interactions: AiInteraction[];
     tokensUsedToday: number;
     dailyBudget: number;
+    costUsedTodayUsd?: number;
+    dailyCostBudgetUsd?: number;
   }>({
     queryKey: ["ai-interactions"],
     queryFn: () =>
@@ -68,6 +70,8 @@ export function AuditPage() {
         interactions: AiInteraction[];
         tokensUsedToday: number;
         dailyBudget: number;
+        costUsedTodayUsd?: number;
+        dailyCostBudgetUsd?: number;
       }>("GET", "/api/ai-interactions"),
   });
 

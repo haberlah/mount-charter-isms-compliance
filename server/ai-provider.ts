@@ -5,7 +5,9 @@ import path from "node:path";
 import type {
   AiProvider,
   AiProviderStatus,
+  AiRoutingPreset,
   ConcreteAiProvider,
+  ProviderModelMetadata,
   ProviderModelsResponse,
   WorkspaceProfile,
 } from "@shared/schema";
@@ -39,7 +41,55 @@ export interface ProviderMeta {
   description: string;
 }
 
+export const OPENROUTER_PRESET_MODELS: Record<
+  AiRoutingPreset,
+  { screening: string; synthesis: string; longContext: string; label: string; estNote: string }
+> = {
+  balanced: {
+    screening: "google/gemini-2.5-flash",
+    synthesis: "anthropic/claude-sonnet-4.6",
+    longContext: "google/gemini-2.5-pro",
+    label: "Balanced (Recommended)",
+    estNote: "Fast screening + frontier audit reasoning (~$0.03–$0.08 / doc run)",
+  },
+  max_depth: {
+    screening: "anthropic/claude-sonnet-4.6",
+    synthesis: "anthropic/claude-opus-4.6",
+    longContext: "google/gemini-2.5-pro",
+    label: "Maximum Audit Depth",
+    estNote: "Frontier reasoning across triage, SLA checks & reviews (~$0.15–$0.35 / run)",
+  },
+  low_cost: {
+    screening: "google/gemini-2.5-flash",
+    synthesis: "google/gemini-2.5-flash",
+    longContext: "google/gemini-2.5-flash",
+    label: "Low-Cost Fast",
+    estNote: "High-throughput low-cost routing for bulk document intake (<$0.01 / doc)",
+  },
+};
+
 export const PROVIDER_CATALOG: readonly ProviderMeta[] = [
+  {
+    id: "openrouter",
+    name: "OpenRouter (1 Key, All Frontier Models)",
+    mode: "api_key",
+    keychainAccount: "OPENROUTER_API_KEY",
+    envVar: "OPENROUTER_API_KEY",
+    defaultBaseUrl: "https://openrouter.ai/api/v1",
+    defaultScreeningModel: OPENROUTER_PRESET_MODELS.balanced.screening,
+    defaultSynthesisModel: OPENROUTER_PRESET_MODELS.balanced.synthesis,
+    suggestedModels: [
+      "anthropic/claude-opus-4.6",
+      "anthropic/claude-sonnet-4.6",
+      "google/gemini-2.5-pro",
+      "google/gemini-2.5-flash",
+      "openai/gpt-5.4",
+      "openai/gpt-5.4-mini",
+      "deepseek/deepseek-r1",
+    ],
+    description:
+      "Recommended: 1 API key in macOS Keychain with automatic task-tier routing, Zero Data Retention (ZDR), and exact USD cost tracking.",
+  },
   {
     id: "anthropic",
     name: "Anthropic (Claude API)",
@@ -101,25 +151,24 @@ export const PROVIDER_CATALOG: readonly ProviderMeta[] = [
       "Llama-4-Scout-17B-16E-Instruct-FP8",
       "Llama-3.3-70B-Instruct",
     ],
-    description: "Meta Llama API (or override Base URL for OpenRouter/Together/Groq).",
+    description: "Meta Llama API (or override Base URL for Together/Groq).",
   },
   {
     id: "custom_openai",
-    name: "Open-Source / Custom OpenAI-Compatible API",
+    name: "Custom OpenAI-Compatible API",
     mode: "api_key",
     keychainAccount: "CUSTOM_LLM_API_KEY",
     envVar: "CUSTOM_LLM_API_KEY",
-    defaultBaseUrl: "https://openrouter.ai/api/v1",
-    defaultScreeningModel: "meta-llama/llama-3.3-70b-instruct",
-    defaultSynthesisModel: "deepseek/deepseek-r1",
+    defaultBaseUrl: "https://api.together.xyz/v1",
+    defaultScreeningModel: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    defaultSynthesisModel: "deepseek-ai/DeepSeek-R1",
     suggestedModels: [
-      "deepseek/deepseek-r1",
-      "meta-llama/llama-3.3-70b-instruct",
-      "qwen/qwen-2.5-72b-instruct",
-      "mistralai/mistral-large",
+      "deepseek-ai/DeepSeek-R1",
+      "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "Qwen/Qwen2.5-72B-Instruct-Turbo",
     ],
     description:
-      "Any OpenAI-compatible API (OpenRouter, Mistral, Together, Fireworks, Groq, vLLM).",
+      "Any self-hosted or third-party OpenAI-compatible API (Mistral, Together, Groq, vLLM).",
   },
   {
     id: "ollama",
@@ -223,6 +272,53 @@ export function saveProviderApiKey(provider: ConcreteAiProvider, apiKey: string 
   return ok;
 }
 
+export async function fetchOpenRouterKeyInfo(): Promise<{
+  ok: boolean;
+  label?: string;
+  usageUsd?: number;
+  limitUsd?: number | null;
+  limitRemainingUsd?: number | null;
+  isFreeTier?: boolean;
+  error?: string;
+}> {
+  const { key } = resolveProviderApiKey("openrouter");
+  if (!key) return { ok: false, error: "No OpenRouter API key configured." };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4500);
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/auth/key", {
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "HTTP-Referer": "https://github.com/haberlah/mount-charter-isms-compliance",
+        "X-Title": "Mount Charter ISMS",
+      },
+      signal: controller.signal,
+    });
+    if (!res.ok) return { ok: false, error: `OpenRouter key check failed (HTTP ${res.status})` };
+    const json = (await res.json()) as {
+      data?: {
+        label?: string;
+        usage?: number;
+        limit?: number | null;
+        limit_remaining?: number | null;
+        is_free_tier?: boolean;
+      };
+    };
+    return {
+      ok: true,
+      label: json.data?.label,
+      usageUsd: typeof json.data?.usage === "number" ? json.data.usage : 0,
+      limitUsd: json.data?.limit ?? null,
+      limitRemainingUsd: json.data?.limit_remaining ?? null,
+      isFreeTier: Boolean(json.data?.is_free_tier),
+    };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Locate an official CLI binary safely across standard macOS & user PATH directories.
  */
@@ -272,8 +368,8 @@ export function validateLlmBaseUrl(raw: string): string | null {
 /**
  * Resolve the concrete provider to use for a workspace profile.
  * When `aiProvider` is `"auto"` (the provider-agnostic default), checks:
- *   1. First Cloud API key saved in macOS Keychain
- *   2. First Cloud API key present in process environment (e.g. GEMINI_API_KEY)
+ *   1. First Cloud API key saved in macOS Keychain (OpenRouter prioritized when saved)
+ *   2. First Cloud API key present in process environment
  *   3. First signed-in official Subscription CLI found on PATH (claude, codex, gemini)
  *   4. null (unconfigured — never silently defaults to a specific vendor)
  */
@@ -296,7 +392,7 @@ export function resolveEffectiveProvider(
     }
   }
 
-  // 2. Environment Cloud API keys (e.g. GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, XAI_API_KEY)
+  // 2. Environment Cloud API keys
   for (const meta of apiProviders) {
     const { key, source } = resolveProviderApiKey(meta.id);
     if (source === "env" && key && key.length >= 8) {
@@ -316,17 +412,15 @@ export function resolveEffectiveProvider(
   return null;
 }
 
-// ─── Live Model Discovery & Always-Latest Flagship Ranking ───────────────────
+// ─── Live Model Discovery, Preset Selection & Always-Latest Flagship Ranking ──
 
 function extractVersionScore(id: string): number {
   const lower = id.toLowerCase();
-  // Match patterns like 4-6, 4.6, 5.4, 2.5, 3.0, 3-5, or standalone major version after hyphen
   const dashed = lower.match(/(?:^|[-_/])(\d+)[.-](\d+)(?:$|[-_/.:])/);
   let score = 0;
   if (dashed) {
     const major = Number.parseInt(dashed[1], 10);
     const minor = Number.parseInt(dashed[2], 10);
-    // Ignore 8-digit calendar dates like 20250514
     if (major < 100 && minor < 100) {
       score = major * 100 + minor * 10;
     }
@@ -337,9 +431,7 @@ function extractVersionScore(id: string): number {
       if (major < 100) score = major * 100;
     }
   }
-  // Prefer stable releases slightly over preview/exp/beta of the exact same version
   if (/(?:preview|exp|experimental|beta|alpha)/.test(lower)) score -= 2;
-  // Prefer un-dated rolling aliases slightly over pinned dated snapshots of the same version
   if (/-\d{8}$|-\d{4}-\d{2}-\d{2}$/.test(lower)) score -= 1;
   return score;
 }
@@ -360,17 +452,23 @@ function sortByVersionDesc(models: string[]): string[] {
 }
 
 /**
- * Select the newest fast (`screening`) and newest flagship (`synthesis`) models
- * from a provider's discovered `/models` list.
+ * Select the newest fast (`screening`), newest flagship (`synthesis`), and `longContext`
+ * models from a provider's discovered `/models` list, respecting the workspace routing preset.
  */
 export function pickBestModelsForProvider(
   provider: ConcreteAiProvider,
   rawModels: string[],
-): { screening: string; synthesis: string } {
+  preset: AiRoutingPreset = "balanced",
+  modelMeta?: Record<string, ProviderModelMetadata>,
+): { screening: string; synthesis: string; longContext?: string } {
   const meta = getProviderMeta(provider);
 
   if (provider === "claude_cli") {
-    return { screening: "sonnet", synthesis: "opus" };
+    return preset === "max_depth"
+      ? { screening: "opus", synthesis: "opus" }
+      : preset === "low_cost"
+        ? { screening: "haiku", synthesis: "sonnet" }
+        : { screening: "sonnet", synthesis: "opus" };
   }
   if (provider === "codex_cli" || provider === "gemini_cli") {
     return { screening: "auto", synthesis: "auto" };
@@ -378,6 +476,10 @@ export function pickBestModelsForProvider(
 
   const chatModels = rawModels.filter((m) => m && !isNonChatModel(m));
   if (chatModels.length === 0) {
+    if (provider === "openrouter") {
+      const p = OPENROUTER_PRESET_MODELS[preset] || OPENROUTER_PRESET_MODELS.balanced;
+      return { screening: p.screening, synthesis: p.synthesis, longContext: p.longContext };
+    }
     return {
       screening: meta.defaultScreeningModel,
       synthesis: meta.defaultSynthesisModel,
@@ -386,12 +488,71 @@ export function pickBestModelsForProvider(
 
   const sorted = sortByVersionDesc(chatModels);
 
+  if (provider === "openrouter") {
+    // Filter out :free rate-limited proxies for production audit reliability
+    const paid = sorted.filter((m) => !m.endsWith(":free"));
+    const pool = paid.length > 0 ? paid : sorted;
+
+    const pickFirst = (pred: (id: string) => boolean): string | undefined => pool.find(pred);
+
+    const bestFlash =
+      pickFirst((m) => /^google\/gemini-[^:]*flash(?!.*lite)/i.test(m)) ||
+      pickFirst((m) => /^openai\/gpt-[^:]*mini/i.test(m)) ||
+      pickFirst((m) => /^anthropic\/claude-[^:]*haiku/i.test(m));
+
+    const bestSonnet =
+      pickFirst((m) => /^anthropic\/claude-[^:]*sonnet/i.test(m)) ||
+      pickFirst((m) => /^openai\/gpt-5/i.test(m) && !/mini|nano/i.test(m)) ||
+      pickFirst((m) => /^google\/gemini-[^:]*pro/i.test(m));
+
+    const bestOpus =
+      pickFirst((m) => /^anthropic\/claude-[^:]*opus/i.test(m)) ||
+      bestSonnet ||
+      pickFirst((m) => /^openai\/gpt-5/i.test(m) && !/mini|nano/i.test(m));
+
+    const bestLongCtx =
+      pickFirst(
+        (m) =>
+          (modelMeta?.[m]?.contextLength ?? 0) >= 500_000 && /^google\/gemini-[^:]*pro/i.test(m),
+      ) ||
+      pickFirst((m) => /^google\/gemini-[^:]*pro/i.test(m)) ||
+      bestSonnet ||
+      pool[0];
+
+    const defaults = OPENROUTER_PRESET_MODELS[preset] || OPENROUTER_PRESET_MODELS.balanced;
+    if (preset === "max_depth") {
+      return {
+        screening: bestSonnet || defaults.screening,
+        synthesis: bestOpus || defaults.synthesis,
+        longContext: bestLongCtx || defaults.longContext,
+      };
+    }
+    if (preset === "low_cost") {
+      return {
+        screening: bestFlash || defaults.screening,
+        synthesis: bestFlash || defaults.synthesis,
+        longContext: bestFlash || defaults.longContext,
+      };
+    }
+    return {
+      screening: bestFlash || defaults.screening,
+      synthesis: bestSonnet || defaults.synthesis,
+      longContext: bestLongCtx || defaults.longContext,
+    };
+  }
+
   if (provider === "anthropic") {
     const claude = sorted.filter((m) => m.toLowerCase().includes("claude"));
     const pool = claude.length > 0 ? claude : sorted;
     const opus = pool.filter((m) => m.toLowerCase().includes("opus"));
     const sonnet = pool.filter((m) => m.toLowerCase().includes("sonnet"));
     const haiku = pool.filter((m) => m.toLowerCase().includes("haiku"));
+    if (preset === "low_cost") {
+      return {
+        screening: haiku[0] || sonnet[0] || pool[0],
+        synthesis: sonnet[0] || pool[0],
+      };
+    }
     return {
       screening: sonnet[0] || haiku[0] || pool[0],
       synthesis: opus[0] || sonnet[0] || pool[0],
@@ -408,9 +569,16 @@ export function pickBestModelsForProvider(
       (m) => m.toLowerCase().includes("flash") && !m.toLowerCase().includes("lite"),
     );
     const anyFlash = pool.filter((m) => m.toLowerCase().includes("flash"));
+    if (preset === "low_cost") {
+      return {
+        screening: flash[0] || anyFlash[0] || pool[0],
+        synthesis: flash[0] || anyFlash[0] || pool[0],
+      };
+    }
     return {
       screening: flash[0] || anyFlash[0] || pool[0],
       synthesis: pro[0] || pool[0],
+      longContext: pro[0] || flash[0] || pool[0],
     };
   }
 
@@ -421,7 +589,7 @@ export function pickBestModelsForProvider(
     const flagship = pool.filter((m) => !/(?:mini|nano|flash)/i.test(m));
     return {
       screening: fast[0] || pool[0],
-      synthesis: flagship[0] || pool[0],
+      synthesis: preset === "low_cost" ? fast[0] || pool[0] : flagship[0] || pool[0],
     };
   }
 
@@ -460,8 +628,9 @@ export function pickBestModelsForProvider(
 function getCachedModelsSync(
   provider: ConcreteAiProvider,
   baseUrl?: string | null,
+  preset: AiRoutingPreset = "balanced",
 ): ProviderModelsResponse | null {
-  const cacheKey = `${provider}:${baseUrl?.trim() || ""}`;
+  const cacheKey = `${provider}:${baseUrl?.trim() || ""}:${preset}`;
   const entry = modelCache.get(cacheKey);
   if (entry && entry.expiresAt > Date.now()) {
     return entry.data;
@@ -469,29 +638,61 @@ function getCachedModelsSync(
   return null;
 }
 
+export function estimateCostFromPricing(
+  provider: ConcreteAiProvider,
+  model: string,
+  promptTokens: number,
+  completionTokens: number,
+  baseUrl?: string | null,
+  preset: AiRoutingPreset = "balanced",
+): number {
+  const cached = getCachedModelsSync(provider, baseUrl, preset);
+  const meta = cached?.modelMeta?.[model];
+  if (meta?.promptPricePerM != null || meta?.completionPricePerM != null) {
+    const pPrice = meta.promptPricePerM ?? 0;
+    const cPrice = meta.completionPricePerM ?? 0;
+    return (promptTokens / 1_000_000) * pPrice + (completionTokens / 1_000_000) * cPrice;
+  }
+  // Conservative curated fallback rates per 1M tokens when live catalog isn't warm yet
+  const lower = model.toLowerCase();
+  if (provider === "ollama" || provider === "lmstudio" || provider.endsWith("_cli")) return 0;
+  if (lower.includes("opus")) {
+    return (promptTokens / 1_000_000) * 15 + (completionTokens / 1_000_000) * 75;
+  }
+  if (lower.includes("sonnet")) {
+    return (promptTokens / 1_000_000) * 3 + (completionTokens / 1_000_000) * 15;
+  }
+  if (lower.includes("flash") || lower.includes("haiku") || lower.includes("mini")) {
+    return (promptTokens / 1_000_000) * 0.3 + (completionTokens / 1_000_000) * 1.5;
+  }
+  return (promptTokens / 1_000_000) * 2.5 + (completionTokens / 1_000_000) * 10;
+}
+
 /**
- * Query a provider's live `/models` endpoint (all Cloud APIs, Local OSS servers, or CLI aliases)
- * with a 15-minute cache and graceful fallback to curated models.
+ * Query a provider's live `/models` endpoint (all Cloud APIs incl. OpenRouter capability/pricing,
+ * Local OSS servers, or CLI aliases) with a 15-minute cache and graceful fallback.
  */
 export async function fetchProviderModels(
   provider: ConcreteAiProvider,
-  options?: { baseUrl?: string | null; forceRefresh?: boolean },
+  options?: { baseUrl?: string | null; preset?: AiRoutingPreset; forceRefresh?: boolean },
 ): Promise<ProviderModelsResponse> {
   const meta = getProviderMeta(provider);
-  const cacheKey = `${provider}:${options?.baseUrl?.trim() || ""}`;
+  const preset = options?.preset || "balanced";
+  const cacheKey = `${provider}:${options?.baseUrl?.trim() || ""}:${preset}`;
   if (!options?.forceRefresh) {
-    const cached = getCachedModelsSync(provider, options?.baseUrl);
+    const cached = getCachedModelsSync(provider, options?.baseUrl, preset);
     if (cached) return cached;
   }
 
   const nowIso = new Date().toISOString();
   const fallback = (note: string): ProviderModelsResponse => {
-    const rec = pickBestModelsForProvider(provider, meta.suggestedModels);
+    const rec = pickBestModelsForProvider(provider, meta.suggestedModels, preset);
     return {
       provider,
       models: [...meta.suggestedModels],
       recommendedScreening: rec.screening,
       recommendedSynthesis: rec.synthesis,
+      recommendedLongContext: rec.longContext,
       liveFetched: false,
       fetchedAt: nowIso,
       note,
@@ -499,11 +700,12 @@ export async function fetchProviderModels(
   };
 
   if (meta.mode === "subscription_cli") {
+    const rec = pickBestModelsForProvider(provider, meta.suggestedModels, preset);
     const res: ProviderModelsResponse = {
       provider,
       models: [...meta.suggestedModels],
-      recommendedScreening: meta.defaultScreeningModel,
-      recommendedSynthesis: meta.defaultSynthesisModel,
+      recommendedScreening: rec.screening,
+      recommendedSynthesis: rec.synthesis,
       liveFetched: true,
       fetchedAt: nowIso,
       note:
@@ -516,12 +718,60 @@ export async function fetchProviderModels(
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
+  const timer = setTimeout(() => controller.abort(), 6000);
 
   try {
     let discovered: string[] = [];
+    const modelMeta: Record<string, ProviderModelMetadata> = {};
 
-    if (provider === "anthropic") {
+    if (provider === "openrouter") {
+      const headers: Record<string, string> = {
+        "HTTP-Referer": "https://github.com/haberlah/mount-charter-isms-compliance",
+        "X-Title": "Mount Charter ISMS",
+      };
+      const { key } = resolveProviderApiKey("openrouter");
+      if (key) headers.Authorization = `Bearer ${key}`;
+      const res = await fetch("https://openrouter.ai/api/v1/models", {
+        headers,
+        signal: controller.signal,
+      });
+      if (!res.ok) return fallback(`OpenRouter /models returned HTTP ${res.status}.`);
+      const json = (await res.json()) as {
+        data?: Array<{
+          id?: string;
+          context_length?: number;
+          pricing?: { prompt?: string; completion?: string };
+          supported_parameters?: string[];
+        }>;
+      };
+      for (const item of json.data || []) {
+        const id = String(item.id || "").trim();
+        if (!id || isNonChatModel(id)) continue;
+        discovered.push(id);
+        const promptPerTok = Number.parseFloat(item.pricing?.prompt || "NaN");
+        const compPerTok = Number.parseFloat(item.pricing?.completion || "NaN");
+        const params = Array.isArray(item.supported_parameters) ? item.supported_parameters : [];
+        modelMeta[id] = {
+          contextLength: typeof item.context_length === "number" ? item.context_length : undefined,
+          promptPricePerM: Number.isFinite(promptPerTok) ? promptPerTok * 1_000_000 : undefined,
+          completionPricePerM: Number.isFinite(compPerTok) ? compPerTok * 1_000_000 : undefined,
+          supportsTools: params.includes("tools"),
+          supportsStructuredOutputs:
+            params.includes("structured_outputs") || params.includes("response_format"),
+        };
+      }
+      // Prioritize flagship vendors at the top of the selectable dropdown
+      const tierVendors = /^(anthropic|google|openai|x-ai|deepseek|meta-llama|mistralai|qwen)\//i;
+      const featured = sortByVersionDesc(
+        Array.from(
+          new Set(discovered.filter((id) => tierVendors.test(id) && !id.endsWith(":free"))),
+        ),
+      );
+      const rest = sortByVersionDesc(
+        Array.from(new Set(discovered.filter((id) => !featured.includes(id)))),
+      );
+      discovered = [...featured, ...rest];
+    } else if (provider === "anthropic") {
       const { key } = resolveProviderApiKey("anthropic");
       if (!key) return fallback("Save an Anthropic API key to fetch live models.");
       const res = await fetch("https://api.anthropic.com/v1/models?limit=100", {
@@ -579,7 +829,8 @@ export async function fetchProviderModels(
         .filter((id) => id && !isNonChatModel(id));
     }
 
-    const uniqueSorted = sortByVersionDesc(Array.from(new Set(discovered)));
+    const uniqueSorted =
+      provider === "openrouter" ? discovered : sortByVersionDesc(Array.from(new Set(discovered)));
     if (uniqueSorted.length === 0) {
       return fallback(
         meta.mode === "local_oss"
@@ -588,12 +839,20 @@ export async function fetchProviderModels(
       );
     }
 
-    const rec = pickBestModelsForProvider(provider, uniqueSorted);
+    const rec = pickBestModelsForProvider(provider, uniqueSorted, preset, modelMeta);
+    const trimmedModels = uniqueSorted.slice(0, 80);
+    const prunedMeta: Record<string, ProviderModelMetadata> = {};
+    for (const id of [...trimmedModels, rec.screening, rec.synthesis, rec.longContext || ""]) {
+      if (id && modelMeta[id]) prunedMeta[id] = modelMeta[id];
+    }
+
     const result: ProviderModelsResponse = {
       provider,
-      models: uniqueSorted.slice(0, 60),
+      models: trimmedModels,
       recommendedScreening: rec.screening,
       recommendedSynthesis: rec.synthesis,
+      recommendedLongContext: rec.longContext,
+      modelMeta: Object.keys(prunedMeta).length > 0 ? prunedMeta : undefined,
       liveFetched: true,
       fetchedAt: nowIso,
       note: `Fetched ${uniqueSorted.length} live model(s) from ${meta.name}.`,
@@ -634,25 +893,32 @@ function resolveModelSyncPreview(
   savedModel: string | null | undefined,
   tier: "screening" | "synthesis",
   baseUrl?: string | null,
+  preset: AiRoutingPreset = "balanced",
 ): string {
   const trimmed = savedModel?.trim();
   if (trimmed && trimmed !== "auto") return trimmed;
   const meta = getProviderMeta(provider);
   if (provider === "claude_cli") {
-    return tier === "synthesis" ? "opus" : "sonnet";
+    const rec = pickBestModelsForProvider(provider, meta.suggestedModels, preset);
+    return tier === "synthesis" ? rec.synthesis : rec.screening;
   }
   if (provider === "codex_cli" || provider === "gemini_cli") {
     return "CLI default (latest)";
   }
-  const cached = getCachedModelsSync(provider, baseUrl);
+  const cached = getCachedModelsSync(provider, baseUrl, preset);
   if (cached) {
     return tier === "synthesis" ? cached.recommendedSynthesis : cached.recommendedScreening;
+  }
+  if (provider === "openrouter") {
+    const p = OPENROUTER_PRESET_MODELS[preset] || OPENROUTER_PRESET_MODELS.balanced;
+    return tier === "synthesis" ? p.synthesis : p.screening;
   }
   return tier === "synthesis" ? meta.defaultSynthesisModel : meta.defaultScreeningModel;
 }
 
 export function getAiProviderStatus(profile: WorkspaceProfile | null): AiProviderStatus {
   const configuredProvider: AiProvider = profile?.aiProvider || "auto";
+  const preset: AiRoutingPreset = profile?.aiRoutingPreset || "balanced";
   const activeId = resolveEffectiveProvider(profile);
 
   const providers = PROVIDER_CATALOG.map((meta) => {
@@ -721,7 +987,7 @@ export function getAiProviderStatus(profile: WorkspaceProfile | null): AiProvide
       configured: false,
       source: "none",
       message:
-        "No AI provider connected yet. Save a Cloud API key, connect a local Ollama/LM Studio server, or install a signed-in Subscription CLI (claude, codex, or gemini).",
+        "No AI provider connected yet. Save an OpenRouter or vendor Cloud API key, connect a local Ollama/LM Studio server, or install a signed-in Subscription CLI.",
       baseUrl: profile?.aiBaseUrl || null,
       screeningModel: savedScreening,
       synthesisModel: savedSynthesis,
@@ -732,18 +998,23 @@ export function getAiProviderStatus(profile: WorkspaceProfile | null): AiProvide
   }
 
   const active = providers.find((p) => p.id === activeId)!;
-  const effectiveBaseUrl = profile?.aiBaseUrl || active.defaultBaseUrl || null;
+  const effectiveBaseUrl =
+    active.id === "openrouter"
+      ? active.defaultBaseUrl || "https://openrouter.ai/api/v1"
+      : profile?.aiBaseUrl || active.defaultBaseUrl || null;
   const resolvedScreening = resolveModelSyncPreview(
     active.id,
     savedScreening,
     "screening",
     effectiveBaseUrl,
+    preset,
   );
   const resolvedSynthesis = resolveModelSyncPreview(
     active.id,
     savedSynthesis,
     "synthesis",
     effectiveBaseUrl,
+    preset,
   );
 
   const prefix = configuredProvider === "auto" ? "Auto-detected " : "";
@@ -767,7 +1038,7 @@ export function getAiProviderStatus(profile: WorkspaceProfile | null): AiProvide
 
 export interface LlmInvocationParams {
   profile: WorkspaceProfile | null;
-  tier: "screening" | "synthesis";
+  tier: "screening" | "synthesis" | "long_context";
   system?: string;
   user: string;
   maxTokens?: number;
@@ -779,6 +1050,9 @@ export interface LlmInvocationParams {
 export interface LlmInvocationResult {
   text: string;
   tokensUsed: number;
+  promptTokens: number;
+  completionTokens: number;
+  costUsd: number;
   model: string;
   provider: ConcreteAiProvider;
 }
@@ -818,19 +1092,29 @@ function execCliPrompt(
 async function resolveRuntimeModel(
   provider: ConcreteAiProvider,
   profile: WorkspaceProfile | null,
-  tier: "screening" | "synthesis",
+  tier: "screening" | "synthesis" | "long_context",
   modelOverride?: string,
+  totalPromptChars = 0,
 ): Promise<string> {
   const override = modelOverride?.trim();
   if (override && override !== "auto") return override;
 
+  const effectiveTier =
+    tier === "long_context" || totalPromptChars > 48_000 ? "long_context" : tier;
+  const preset: AiRoutingPreset = profile?.aiRoutingPreset || "balanced";
+
   const saved = (
-    tier === "synthesis" ? profile?.aiSynthesisModel : profile?.aiScreeningModel
+    effectiveTier === "screening" ? profile?.aiScreeningModel : profile?.aiSynthesisModel
   )?.trim();
-  if (saved && saved !== "auto") return saved;
+  if (saved && saved !== "auto" && effectiveTier !== "long_context") return saved;
 
   if (provider === "claude_cli") {
-    return tier === "synthesis" ? "opus" : "sonnet";
+    const rec = pickBestModelsForProvider(
+      provider,
+      getProviderMeta(provider).suggestedModels,
+      preset,
+    );
+    return effectiveTier === "screening" ? rec.screening : rec.synthesis;
   }
   if (provider === "codex_cli" || provider === "gemini_cli") {
     return "auto";
@@ -838,25 +1122,35 @@ async function resolveRuntimeModel(
 
   const meta = getProviderMeta(provider);
   const discovered = await fetchProviderModels(provider, {
-    baseUrl: profile?.aiBaseUrl || meta.defaultBaseUrl,
+    baseUrl:
+      provider === "openrouter" ? meta.defaultBaseUrl : profile?.aiBaseUrl || meta.defaultBaseUrl,
+    preset,
   });
-  return tier === "synthesis" ? discovered.recommendedSynthesis : discovered.recommendedScreening;
+  if (effectiveTier === "long_context" && discovered.recommendedLongContext) {
+    return discovered.recommendedLongContext;
+  }
+  return effectiveTier === "screening"
+    ? discovered.recommendedScreening
+    : discovered.recommendedSynthesis;
 }
 
 export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocationResult> {
   const provider = resolveEffectiveProvider(params.profile);
   if (!provider) {
     throw new AIConfigurationError(
-      "No AI provider connected yet. Save a Cloud API key, start a local Ollama/LM Studio server, or install a signed-in Subscription CLI in Settings → AI Providers & Subscriptions.",
+      "No AI provider connected yet. Save an OpenRouter or Cloud API key, start a local Ollama/LM Studio server, or install a signed-in Subscription CLI in Settings → AI Providers & Subscriptions.",
     );
   }
   const meta = getProviderMeta(provider);
+  const totalPromptChars = (params.system?.length || 0) + params.user.length;
   const model = await resolveRuntimeModel(
     provider,
     params.profile,
     params.tier,
     params.modelOverride,
+    totalPromptChars,
   );
+  const preset: AiRoutingPreset = params.profile?.aiRoutingPreset || "balanced";
   const maxTokens = params.maxTokens ?? 2048;
 
   // 1. Anthropic Messages API via native fetch (supports SSE streaming)
@@ -926,7 +1220,23 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
           }
         }
       }
-      return { text: fullText, tokensUsed: inputTokens + outputTokens, model, provider };
+      const costUsd = estimateCostFromPricing(
+        provider,
+        model,
+        inputTokens,
+        outputTokens,
+        null,
+        preset,
+      );
+      return {
+        text: fullText,
+        tokensUsed: inputTokens + outputTokens,
+        promptTokens: inputTokens,
+        completionTokens: outputTokens,
+        costUsd,
+        model,
+        provider,
+      };
     }
 
     const data = (await res.json()) as {
@@ -935,9 +1245,21 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
     };
     const block = data.content?.find((b) => b.type === "text" && typeof b.text === "string");
     if (!block?.text) throw new Error("Unexpected response type from Anthropic");
+    const promptTokens = data.usage?.input_tokens || 0;
+    const completionTokens = data.usage?.output_tokens || 0;
     return {
       text: block.text,
-      tokensUsed: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0),
+      tokensUsed: promptTokens + completionTokens,
+      promptTokens,
+      completionTokens,
+      costUsd: estimateCostFromPricing(
+        provider,
+        model,
+        promptTokens,
+        completionTokens,
+        null,
+        preset,
+      ),
       model,
       provider,
     };
@@ -973,17 +1295,24 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
     }
 
     params.onToken?.(stdout);
-    const approxTokens = Math.ceil((combinedPrompt.length + stdout.length) / 4);
+    const promptTokens = Math.ceil(combinedPrompt.length / 4);
+    const completionTokens = Math.ceil(stdout.length / 4);
     return {
       text: stdout,
-      tokensUsed: approxTokens,
+      tokensUsed: promptTokens + completionTokens,
+      promptTokens,
+      completionTokens,
+      costUsd: 0,
       model: model === "auto" ? `${provider}:default` : model,
       provider,
     };
   }
 
-  // 3. OpenAI-Compatible REST API (OpenAI, Gemini, xAI Grok, Meta Llama, Ollama, LM Studio, Custom)
-  const rawBase = params.profile?.aiBaseUrl?.trim() || meta.defaultBaseUrl || "";
+  // 3. OpenAI-Compatible REST API (OpenRouter, OpenAI, Gemini, xAI Grok, Meta Llama, Ollama, LM Studio, Custom)
+  const rawBase =
+    provider === "openrouter"
+      ? "https://openrouter.ai/api/v1"
+      : params.profile?.aiBaseUrl?.trim() || meta.defaultBaseUrl || "";
   const baseUrl = validateLlmBaseUrl(rawBase);
   if (!baseUrl) {
     throw new AIConfigurationError(
@@ -992,6 +1321,10 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
   }
 
   const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (provider === "openrouter") {
+    headers["HTTP-Referer"] = "https://github.com/haberlah/mount-charter-isms-compliance";
+    headers["X-Title"] = "Mount Charter ISMS";
+  }
   if (meta.mode === "api_key") {
     const { key } = resolveProviderApiKey(provider);
     if (!key && provider !== "custom_openai") {
@@ -1006,16 +1339,24 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
   if (params.system) messages.push({ role: "system", content: params.system });
   messages.push({ role: "user", content: params.user });
 
+  const streaming = Boolean(params.onToken);
+  const bodyObj: Record<string, unknown> = {
+    model,
+    messages,
+    max_tokens: maxTokens,
+    temperature: 0.2,
+    ...(streaming ? { stream: true, stream_options: { include_usage: true } } : {}),
+  };
+
+  if (provider === "openrouter" && params.profile?.aiZdrOnly !== false) {
+    bodyObj.provider = { data_collection: "deny" };
+  }
+
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers,
     signal: params.signal,
-    body: JSON.stringify({
-      model,
-      messages,
-      max_tokens: maxTokens,
-      temperature: 0.2,
-    }),
+    body: JSON.stringify(bodyObj),
   });
 
   if (!response.ok) {
@@ -1025,19 +1366,119 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
     );
   }
 
+  if (streaming && response.body) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let fullText = "";
+    let promptTokens = 0;
+    let completionTokens = 0;
+    let reportedCost: number | null = null;
+    let resolvedModel = model;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (!line.startsWith("data:")) continue;
+        const payload = line.slice(5).trim();
+        if (!payload || payload === "[DONE]") continue;
+        try {
+          const ev = JSON.parse(payload) as {
+            model?: string;
+            choices?: Array<{ delta?: { content?: string } }>;
+            usage?: {
+              prompt_tokens?: number;
+              completion_tokens?: number;
+              total_tokens?: number;
+              cost?: number;
+            };
+          };
+          if (ev.model) resolvedModel = ev.model;
+          const chunk = ev.choices?.[0]?.delta?.content;
+          if (chunk) {
+            fullText += chunk;
+            params.onToken?.(chunk);
+          }
+          if (ev.usage) {
+            if (typeof ev.usage.prompt_tokens === "number") promptTokens = ev.usage.prompt_tokens;
+            if (typeof ev.usage.completion_tokens === "number") {
+              completionTokens = ev.usage.completion_tokens;
+            }
+            if (typeof ev.usage.cost === "number") reportedCost = ev.usage.cost;
+          }
+        } catch {
+          // ignore SSE comments / keepalives
+        }
+      }
+    }
+
+    if (!fullText.trim()) throw new Error(`${meta.name} returned an empty streamed response.`);
+    if (promptTokens === 0) promptTokens = Math.ceil(totalPromptChars / 4);
+    if (completionTokens === 0) completionTokens = Math.ceil(fullText.length / 4);
+    const costUsd =
+      reportedCost !== null
+        ? reportedCost
+        : estimateCostFromPricing(
+            provider,
+            resolvedModel,
+            promptTokens,
+            completionTokens,
+            baseUrl,
+            preset,
+          );
+
+    return {
+      text: fullText.trim(),
+      tokensUsed: promptTokens + completionTokens,
+      promptTokens,
+      completionTokens,
+      costUsd,
+      model: resolvedModel,
+      provider,
+    };
+  }
+
   const json = (await response.json()) as {
+    model?: string;
     choices?: Array<{ message?: { content?: string } }>;
-    usage?: { total_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
+    usage?: {
+      total_tokens?: number;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      cost?: number;
+    };
   };
   const text = String(json.choices?.[0]?.message?.content || "").trim();
   if (!text) throw new Error(`${meta.name} returned an empty response.`);
   params.onToken?.(text);
 
-  const reportedTokens =
-    json.usage?.total_tokens ??
-    (json.usage?.prompt_tokens || 0) + (json.usage?.completion_tokens || 0);
-  const tokensUsed =
-    reportedTokens > 0 ? reportedTokens : Math.ceil((params.user.length + text.length) / 4);
+  const resolvedModel = json.model || model;
+  const promptTokens = json.usage?.prompt_tokens ?? Math.ceil(totalPromptChars / 4);
+  const completionTokens = json.usage?.completion_tokens ?? Math.ceil(text.length / 4);
+  const tokensUsed = json.usage?.total_tokens ?? promptTokens + completionTokens;
+  const costUsd =
+    typeof json.usage?.cost === "number"
+      ? json.usage.cost
+      : estimateCostFromPricing(
+          provider,
+          resolvedModel,
+          promptTokens,
+          completionTokens,
+          baseUrl,
+          preset,
+        );
 
-  return { text, tokensUsed, model, provider };
+  return {
+    text,
+    tokensUsed,
+    promptTokens,
+    completionTokens,
+    costUsd,
+    model: resolvedModel,
+    provider,
+  };
 }

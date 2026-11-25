@@ -99,6 +99,8 @@ auditRouter.get("/ai-interactions", (req, res) => {
     interactions: storage.listAiInteractions(workspaceId, limit),
     tokensUsedToday: storage.getTokensUsedToday(workspaceId),
     dailyBudget: storage.getProfile(workspaceId).aiDailyTokenBudget,
+    costUsedTodayUsd: storage.getCostUsedTodayUsd(workspaceId),
+    dailyCostBudgetUsd: storage.getProfile(workspaceId).aiDailyCostBudgetUsd,
   });
 });
 

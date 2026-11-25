@@ -49,6 +49,7 @@ export function SettingsPage({
     profile: WorkspaceProfile;
     aiStatus: AiProviderStatus;
     tokensUsedToday: number;
+    costUsedTodayUsd?: number;
     dataDir: string;
   }>({
     queryKey: ["settings-profile"],
@@ -101,7 +102,13 @@ export function SettingsPage({
 
       {tab === "profile" && <ProfileTab profile={data?.profile} frameworks={fwList} />}
       {tab === "schedule" && <ScheduleTab profile={data?.profile} />}
-      {tab === "ai" && <AiSettingsTab profile={data?.profile} aiStatus={data?.aiStatus} />}
+      {tab === "ai" && (
+        <AiSettingsTab
+          profile={data?.profile}
+          aiStatus={data?.aiStatus}
+          costUsedTodayUsd={data?.costUsedTodayUsd}
+        />
+      )}
       {tab === "workspaces" && (
         <WorkspacesTab
           activeWorkspace={activeWorkspace}

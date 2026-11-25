@@ -35,10 +35,12 @@ export const interactionTypeValues = [
   "test_analysis",
   "ontology_load",
   "document_analysis",
+  "evidence_fanout",
   "framework_assessment",
   "connectivity_test",
 ] as const;
 export const concreteAiProviderValues = [
+  "openrouter",
   "anthropic",
   "openai",
   "gemini",
@@ -52,6 +54,21 @@ export const concreteAiProviderValues = [
   "gemini_cli",
 ] as const;
 export const aiProviderValues = ["auto", ...concreteAiProviderValues] as const;
+export const aiRoutingPresetValues = ["balanced", "max_depth", "low_cost"] as const;
+export const agentProposalTargetValues = [
+  "question_response",
+  "framework_assessment",
+  "evidence_link",
+  "capa_item",
+  "risk_item",
+  "soa_justification",
+] as const;
+export const agentProposalStatusValues = [
+  "pending",
+  "approved",
+  "edited_approved",
+  "rejected",
+] as const;
 export const riskTreatmentValues = ["Mitigate", "Accept", "Transfer", "Avoid"] as const;
 export const riskStatusValues = ["Open", "InTreatment", "Accepted", "Closed"] as const;
 export const capaFindingTypeValues = ["MajorNC", "MinorNC", "OFI", "AuditFinding"] as const;
@@ -104,6 +121,9 @@ export type DocumentStatus = (typeof documentStatusValues)[number];
 export type InteractionType = (typeof interactionTypeValues)[number];
 export type ConcreteAiProvider = (typeof concreteAiProviderValues)[number];
 export type AiProvider = (typeof aiProviderValues)[number];
+export type AiRoutingPreset = (typeof aiRoutingPresetValues)[number];
+export type AgentProposalTarget = (typeof agentProposalTargetValues)[number];
+export type AgentProposalStatus = (typeof agentProposalStatusValues)[number];
 export type RiskTreatment = (typeof riskTreatmentValues)[number];
 export type RiskStatus = (typeof riskStatusValues)[number];
 export type CapaFindingType = (typeof capaFindingTypeValues)[number];
@@ -175,9 +195,12 @@ export interface WorkspaceProfile {
   hideNonApplicableControls: boolean;
   aiProvider: AiProvider;
   aiBaseUrl: string | null;
+  aiRoutingPreset: AiRoutingPreset;
+  aiZdrOnly: boolean;
   aiScreeningModel: string;
   aiSynthesisModel: string;
   aiDailyTokenBudget: number;
+  aiDailyCostBudgetUsd: number;
   aiMaxChunksPerRun: number;
   soaVersion: string;
   soaApprovedBy: string | null;
@@ -269,7 +292,11 @@ export interface AiInteraction {
   inputSummary: string | null;
   outputSummary: string | null;
   modelUsed: string;
+  provider?: string | null;
   tokensUsed: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  costUsd?: number;
   createdAt: string;
 }
 
@@ -738,9 +765,12 @@ export const updateProfileSchema = z.object({
   hideNonApplicableControls: z.boolean().optional(),
   aiProvider: z.enum(aiProviderValues).optional(),
   aiBaseUrl: z.string().trim().max(500).nullable().optional(),
+  aiRoutingPreset: z.enum(aiRoutingPresetValues).optional(),
+  aiZdrOnly: z.boolean().optional(),
   aiScreeningModel: z.string().trim().min(1).max(120).optional(),
   aiSynthesisModel: z.string().trim().min(1).max(120).optional(),
   aiDailyTokenBudget: z.number().int().min(10_000).max(5_000_000).optional(),
+  aiDailyCostBudgetUsd: z.number().min(0.1).max(500).optional(),
   aiMaxChunksPerRun: z.number().int().min(1).max(100).optional(),
   soaVersion: z.string().trim().min(1).max(40).optional(),
   soaApprovedBy: z.string().trim().max(120).nullable().optional(),
@@ -994,14 +1024,63 @@ export interface AiProviderStatus {
   }>;
 }
 
+export interface ProviderModelMetadata {
+  contextLength?: number;
+  promptPricePerM?: number;
+  completionPricePerM?: number;
+  supportsTools?: boolean;
+  supportsStructuredOutputs?: boolean;
+}
+
 export interface ProviderModelsResponse {
   provider: ConcreteAiProvider;
   models: string[];
   recommendedScreening: string;
   recommendedSynthesis: string;
+  recommendedLongContext?: string;
+  modelMeta?: Record<string, ProviderModelMetadata>;
   liveFetched: boolean;
   fetchedAt: string;
   note: string;
+}
+
+export interface AgentProposal {
+  id: number;
+  workspaceId: number;
+  runId: string;
+  runLabel: string;
+  targetType: AgentProposalTarget;
+  targetRef: string;
+  title: string;
+  summary: string;
+  rationale: string;
+  quotedPassage: string | null;
+  sourceDocumentId: number | null;
+  sourceDocumentTitle: string | null;
+  confidence: number;
+  hasRubricConflict: boolean;
+  payload: Record<string, unknown>;
+  modelUsed: string | null;
+  costUsd: number;
+  status: AgentProposalStatus;
+  reviewedAt: string | null;
+  createdAt: string;
+}
+
+export interface EvidenceFanOutEstimate {
+  documentId: number;
+  documentTitle: string;
+  chunkCount: number;
+  candidateControlCount: number;
+  candidateControlNumbers: string[];
+  candidateFrameworkReqCount: number;
+  candidateFrameworks: string[];
+  estimatedTokens: number;
+  estimatedCostUsd: number;
+  provider: ConcreteAiProvider | null;
+  screeningModel: string | null;
+  synthesisModel: string | null;
+  isStaleDocument: boolean;
 }
 
 export interface CollectorInfo {

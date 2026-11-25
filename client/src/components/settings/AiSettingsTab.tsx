@@ -1,11 +1,12 @@
 import type {
   AiProvider,
   AiProviderStatus,
+  AiRoutingPreset,
   ConcreteAiProvider,
   ProviderModelsResponse,
   WorkspaceProfile,
 } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/PaperUi";
 import { apiRequest, invalidateWorkspaceQueries, showToast } from "@/lib/api";
@@ -15,28 +16,70 @@ type ProviderMode = "api_key" | "local_oss" | "subscription_cli";
 interface AiSettingsTabProps {
   profile: WorkspaceProfile | undefined;
   aiStatus: AiProviderStatus | undefined;
+  costUsedTodayUsd?: number;
 }
 
 const CUSTOM_SENTINEL = "__custom__";
 
-export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
-  /** Saved routing preference: "auto" (auto-detect connected provider) or a pinned concrete provider */
+const ROUTING_PRESETS: Array<{
+  id: AiRoutingPreset;
+  title: string;
+  subtitle: string;
+  est: string;
+}> = [
+  {
+    id: "balanced",
+    title: "Balanced (Recommended)",
+    subtitle: "Fast screening + frontier audit reasoning",
+    est: "~$0.03–$0.08 / doc run",
+  },
+  {
+    id: "max_depth",
+    title: "Maximum Audit Depth",
+    subtitle: "Frontier reasoning across triage & SLA checks",
+    est: "~$0.15–$0.35 / run",
+  },
+  {
+    id: "low_cost",
+    title: "Low-Cost Fast",
+    subtitle: "High-throughput lightweight routing for bulk intake",
+    est: "<$0.01 / doc",
+  },
+];
+
+export function AiSettingsTab({ profile, aiStatus, costUsedTodayUsd = 0 }: AiSettingsTabProps) {
   const [providerPref, setProviderPref] = useState<AiProvider>("auto");
-  /** Currently inspected concrete provider card in the UI (never forces Anthropic when auto-detected) */
   const [viewedProvider, setViewedProvider] = useState<ConcreteAiProvider | null>(null);
   const [activeMode, setActiveMode] = useState<ProviderMode>("api_key");
+  const [routingPreset, setRoutingPreset] = useState<AiRoutingPreset>("balanced");
+  const [zdrOnly, setZdrOnly] = useState(true);
   const [baseUrl, setBaseUrl] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [screeningModel, setScreeningModel] = useState("auto");
   const [synthesisModel, setSynthesisModel] = useState("auto");
   const [customScreening, setCustomScreening] = useState(false);
   const [customSynthesis, setCustomSynthesis] = useState(false);
+  const [dailyCostBudget, setDailyCostBudget] = useState(5.0);
   const [dailyBudget, setDailyBudget] = useState(250000);
   const [maxChunks, setMaxChunks] = useState(25);
   const [liveCatalog, setLiveCatalog] = useState<ProviderModelsResponse | null>(null);
   const [refreshingModels, setRefreshingModels] = useState(false);
 
   const providers = aiStatus?.providers || [];
+  const openrouterStatus = providers.find((p) => p.id === "openrouter");
+
+  const { data: openrouterKeyInfo, refetch: refetchOrKey } = useQuery<{
+    ok: boolean;
+    usageUsd?: number;
+    limitUsd?: number | null;
+    limitRemainingUsd?: number | null;
+    error?: string;
+  }>({
+    queryKey: ["openrouter-key-info", openrouterStatus?.configured],
+    queryFn: () => apiRequest("GET", "/api/settings/openrouter-key-info"),
+    enabled: Boolean(openrouterStatus?.configured),
+    staleTime: 60_000,
+  });
 
   useEffect(() => {
     if (!profile) return;
@@ -49,9 +92,12 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
       const meta = aiStatus?.providers.find((p) => p.id === resolved);
       if (meta) setActiveMode(meta.mode);
     }
+    setRoutingPreset(profile.aiRoutingPreset || "balanced");
+    setZdrOnly(profile.aiZdrOnly ?? true);
     setBaseUrl(profile.aiBaseUrl || "");
     setScreeningModel(profile.aiScreeningModel || "auto");
     setSynthesisModel(profile.aiSynthesisModel || "auto");
+    setDailyCostBudget(profile.aiDailyCostBudgetUsd ?? 5.0);
     setDailyBudget(profile.aiDailyTokenBudget);
     setMaxChunks(profile.aiMaxChunksPerRun);
   }, [profile, aiStatus?.activeProvider, aiStatus?.providers]);
@@ -74,7 +120,6 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
       setActiveMode(meta.mode);
       setBaseUrl(meta.defaultBaseUrl || "");
     }
-    // Always reset to "auto" on provider change so stale models from another vendor never linger
     setScreeningModel("auto");
     setSynthesisModel("auto");
   };
@@ -105,7 +150,10 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
     }
   };
 
-  const refreshModels = async (targetProvider?: ConcreteAiProvider | null) => {
+  const refreshModels = async (
+    targetProvider?: ConcreteAiProvider | null,
+    presetOverride?: AiRoutingPreset,
+  ) => {
     const target = targetProvider ?? effectiveConcrete;
     if (!target) {
       showToast("Select or connect an AI provider first to fetch available models.", {
@@ -115,8 +163,12 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
     }
     setRefreshingModels(true);
     try {
-      const params = new URLSearchParams({ provider: target, refresh: "1" });
-      if (baseUrl.trim()) params.set("baseUrl", baseUrl.trim());
+      const params = new URLSearchParams({
+        provider: target,
+        preset: presetOverride || routingPreset,
+        refresh: "1",
+      });
+      if (baseUrl.trim() && target !== "openrouter") params.set("baseUrl", baseUrl.trim());
       const res = await apiRequest<ProviderModelsResponse>(
         "GET",
         `/api/settings/models?${params.toString()}`,
@@ -134,15 +186,18 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
     mutationFn: () =>
       apiRequest("PUT", "/api/settings/profile", {
         aiProvider: providerPref,
-        aiBaseUrl: baseUrl.trim() || null,
+        aiBaseUrl: effectiveConcrete === "openrouter" ? null : baseUrl.trim() || null,
+        aiRoutingPreset: routingPreset,
+        aiZdrOnly: zdrOnly,
         aiScreeningModel: screeningModel.trim() || "auto",
         aiSynthesisModel: synthesisModel.trim() || "auto",
+        aiDailyCostBudgetUsd: Number(dailyCostBudget),
         aiDailyTokenBudget: Number(dailyBudget),
         aiMaxChunksPerRun: Number(maxChunks),
       }),
     onSuccess: () => {
       void invalidateWorkspaceQueries();
-      showToast("AI provider & model settings saved", { tone: "ok" });
+      showToast("AI provider & routing settings saved", { tone: "ok" });
     },
     onError: (err: Error) => showToast(err.message, { tone: "err" }),
   });
@@ -156,7 +211,9 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
       });
       await apiRequest("PUT", "/api/settings/profile", {
         aiProvider: providerPref === "auto" ? "auto" : effectiveConcrete,
-        aiBaseUrl: baseUrl.trim() || null,
+        aiBaseUrl: effectiveConcrete === "openrouter" ? null : baseUrl.trim() || null,
+        aiRoutingPreset: routingPreset,
+        aiZdrOnly: zdrOnly,
         aiScreeningModel: screeningModel.trim() || "auto",
         aiSynthesisModel: synthesisModel.trim() || "auto",
       });
@@ -167,6 +224,7 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
       showToast(`${activeMeta?.name || effectiveConcrete} key saved to macOS Keychain`, {
         tone: "ok",
       });
+      if (effectiveConcrete === "openrouter") void refetchOrKey();
       void refreshModels(effectiveConcrete);
     },
     onError: (err: Error) => showToast(err.message, { tone: "err" }),
@@ -194,18 +252,24 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
     mutationFn: async () => {
       await apiRequest("PUT", "/api/settings/profile", {
         aiProvider: providerPref,
-        aiBaseUrl: baseUrl.trim() || null,
+        aiBaseUrl: effectiveConcrete === "openrouter" ? null : baseUrl.trim() || null,
+        aiRoutingPreset: routingPreset,
+        aiZdrOnly: zdrOnly,
         aiScreeningModel: screeningModel.trim() || "auto",
         aiSynthesisModel: synthesisModel.trim() || "auto",
       });
-      return apiRequest<{ ok: boolean; provider: string; model: string; tokensUsed: number }>(
-        "POST",
-        "/api/settings/test-api",
-      );
+      return apiRequest<{
+        ok: boolean;
+        provider: string;
+        model: string;
+        tokensUsed: number;
+        costUsd?: number;
+      }>("POST", "/api/settings/test-api");
     },
     onSuccess: (res) => {
       void invalidateWorkspaceQueries();
-      showToast(`Connected via ${res.provider} (${res.model})`, { tone: "ok" });
+      const costStr = res.costUsd && res.costUsd > 0 ? ` · $${res.costUsd.toFixed(4)}` : "";
+      showToast(`Connected via ${res.provider} (${res.model}${costStr})`, { tone: "ok" });
     },
     onError: (err: Error) => showToast(err.message, { tone: "err" }),
   });
@@ -238,6 +302,13 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
   const screeningIsKnown = screeningModel === "auto" || availableModels.includes(screeningModel);
   const synthesisIsKnown = synthesisModel === "auto" || availableModels.includes(synthesisModel);
 
+  const openRouterCreditPill =
+    openrouterKeyInfo?.ok && openrouterKeyInfo.limitRemainingUsd != null
+      ? `Key valid · $${openrouterKeyInfo.limitRemainingUsd.toFixed(2)} credit`
+      : openrouterKeyInfo?.ok
+        ? `Key valid · $${(openrouterKeyInfo.usageUsd ?? 0).toFixed(2)} used`
+        : null;
+
   return (
     <div className="mw-stack">
       <div className="pp-card">
@@ -245,8 +316,8 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
           <div>
             <h2 className="pp-card__title">AI Provider &amp; Subscription Connection</h2>
             <div className="mw-faint">
-              Provider-agnostic by default: auto-detects your connected Cloud API key, local offline
-              Ollama/LM Studio server, or signed-in Subscription CLI.
+              Enter 1 OpenRouter key for automatic frontier model routing, use a direct Cloud API
+              key, run 100% offline Ollama/LM Studio, or connect a signed-in Subscription CLI.
             </div>
           </div>
           <span
@@ -263,14 +334,19 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
             <p className="mw-muted" style={{ margin: 0 }}>
               {aiStatus?.message}
             </p>
-            <button
-              type="button"
-              className={`pp-button pp-button--sm ${providerPref === "auto" ? "pp-button--primary" : ""}`}
-              onClick={enableAutoDetect}
-              title="Automatically use whichever Cloud API key or Subscription CLI is connected"
-            >
-              {providerPref === "auto" ? "Auto-Detect Enabled" : "Switch to Auto-Detect"}
-            </button>
+            <div className="mw-row">
+              {openRouterCreditPill && effectiveConcrete === "openrouter" && (
+                <span className="pp-status pp-status--ok mw-mono">{openRouterCreditPill}</span>
+              )}
+              <button
+                type="button"
+                className={`pp-button pp-button--sm ${providerPref === "auto" ? "pp-button--primary" : ""}`}
+                onClick={enableAutoDetect}
+                title="Automatically use whichever Cloud API key or Subscription CLI is connected"
+              >
+                {providerPref === "auto" ? "Auto-Detect Enabled" : "Switch to Auto-Detect"}
+              </button>
+            </div>
           </div>
 
           <div className="mw-row mw-row--wrap" role="group" aria-label="AI connection mode">
@@ -318,7 +394,9 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
                           ? "Offline"
                           : p.configured
                             ? "Key Saved"
-                            : "No Key"}
+                            : p.id === "openrouter"
+                              ? "Recommended"
+                              : "No Key"}
                     </span>
                   </div>
                   <div className="mw-faint">{p.detail}</div>
@@ -331,11 +409,9 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
             <div className="mw-stack mw-stack--sm">
               {!effectiveConcrete ? (
                 <div className="mw-faint">
-                  Click any Cloud API provider card above to paste and save an API key in macOS
-                  Keychain, or export an environment key (e.g.{" "}
-                  <code className="mw-mono">GEMINI_API_KEY</code>,{" "}
-                  <code className="mw-mono">OPENAI_API_KEY</code>,{" "}
-                  <code className="mw-mono">ANTHROPIC_API_KEY</code>) for instant auto-detection.
+                  Click <strong>OpenRouter</strong> (recommended: 1 key unlocks Anthropic, Google,
+                  OpenAI &amp; DeepSeek models with automatic routing) or any Cloud API card above
+                  to save your key in macOS Keychain.
                 </div>
               ) : (
                 <>
@@ -350,7 +426,7 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
                         className="pp-input mw-mono"
                         value={baseUrl}
                         onChange={(e) => setBaseUrl(e.target.value)}
-                        placeholder={activeMeta?.defaultBaseUrl || "https://openrouter.ai/api/v1"}
+                        placeholder={activeMeta?.defaultBaseUrl || "https://api.together.xyz/v1"}
                       />
                     </div>
                   )}
@@ -359,7 +435,11 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
                     <input
                       type="password"
                       className="pp-input"
-                      placeholder={`Paste ${activeMeta?.name || "provider"} API key…`}
+                      placeholder={
+                        effectiveConcrete === "openrouter"
+                          ? "Paste OpenRouter API key (sk-or-v1-…)…"
+                          : `Paste ${activeMeta?.name || "provider"} API key…`
+                      }
                       aria-label="Provider API key"
                       value={apiKeyInput}
                       onChange={(e) => setApiKeyInput(e.target.value)}
@@ -392,6 +472,21 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
                       </button>
                     )}
                   </div>
+
+                  {effectiveConcrete === "openrouter" && (
+                    <label className="pp-check">
+                      <input
+                        type="checkbox"
+                        checked={zdrOnly}
+                        onChange={(e) => setZdrOnly(e.target.checked)}
+                      />
+                      <span>
+                        <strong>Zero Data Retention (ZDR)</strong> — instruct OpenRouter (
+                        <code className="mw-mono">data_collection: "deny"</code>) to route sensitive
+                        compliance evidence only to zero-retention providers.
+                      </span>
+                    </label>
+                  )}
                 </>
               )}
             </div>
@@ -458,7 +553,7 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
               )}
               <div className="mw-faint">
                 Note: xAI Grok and Meta AI do not offer official subscription CLIs — connect Grok or
-                Llama via <strong>Cloud API Key</strong> or run Llama 100% locally via{" "}
+                Llama via <strong>OpenRouter</strong>, <strong>Cloud API Key</strong>, or{" "}
                 <strong>Local Open-Source (Ollama / LM Studio)</strong>.
               </div>
             </div>
@@ -469,120 +564,91 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
       <div className="pp-card">
         <div className="pp-card__header">
           <div>
-            <h2 className="pp-card__title">Model Selection &amp; Spend Guardrails</h2>
+            <h2 className="pp-card__title">Smart Model Routing &amp; Spend Guardrails</h2>
             <div className="mw-faint">
-              Keep set to <strong className="mw-mono">auto</strong> to always resolve the newest
-              fast &amp; flagship models from your connected provider, or pin specific models below.
+              Choose a routing preset instead of picking raw model IDs. Mount Charter automatically
+              routes bulk triage to fast models and statutory reasoning to frontier models.
             </div>
           </div>
-          <div className="mw-row">
-            {catalogMatches && (
-              <span className={liveCatalog.liveFetched ? "pp-status pp-status--ok" : "pp-badge"}>
-                {liveCatalog.liveFetched
-                  ? `${liveCatalog.models.length} live models`
-                  : "Curated defaults"}
-              </span>
-            )}
-            <button
-              type="button"
-              className="pp-button pp-button--sm"
-              disabled={refreshingModels || !effectiveConcrete}
-              onClick={() => void refreshModels(effectiveConcrete)}
-            >
-              {refreshingModels ? "Refreshing…" : "Refresh Available Models"}
-            </button>
-          </div>
+          <span className="pp-badge mw-mono">
+            Today: ${costUsedTodayUsd.toFixed(4)} / ${Number(dailyCostBudget).toFixed(2)} USD
+          </span>
         </div>
+
         <div className="pp-card__body mw-stack">
+          <div className="mw-preset-grid" role="group" aria-label="AI model routing preset">
+            {ROUTING_PRESETS.map((p) => {
+              const selected = routingPreset === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    setRoutingPreset(p.id);
+                    setScreeningModel("auto");
+                    setSynthesisModel("auto");
+                    if (effectiveConcrete) void refreshModels(effectiveConcrete, p.id);
+                  }}
+                  className={`mw-question-card ${selected ? "mw-question-card--dirty" : ""}`}
+                  style={{
+                    textAlign: "left",
+                    cursor: "pointer",
+                    background: selected ? "var(--paper-accent-soft)" : "var(--paper-surface)",
+                  }}
+                >
+                  <strong style={{ fontSize: 13.5 }}>{p.title}</strong>
+                  <div className="mw-faint">{p.subtitle}</div>
+                  <div className="mw-faint mw-mono">{p.est}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mw-row mw-row--between mw-row--wrap">
+            <div className="mw-faint">
+              Active routing:{" "}
+              <strong className="mw-mono">
+                Screening: {screeningModel === "auto" ? resolvedScreeningLabel : screeningModel}
+              </strong>{" "}
+              ·{" "}
+              <strong className="mw-mono">
+                Audit Reasoning:{" "}
+                {synthesisModel === "auto" ? resolvedSynthesisLabel : synthesisModel}
+              </strong>
+            </div>
+            <div className="mw-row">
+              {catalogMatches && (
+                <span className={liveCatalog.liveFetched ? "pp-status pp-status--ok" : "pp-badge"}>
+                  {liveCatalog.liveFetched
+                    ? `${liveCatalog.models.length} live models`
+                    : "Curated defaults"}
+                </span>
+              )}
+              <button
+                type="button"
+                className="pp-button pp-button--sm"
+                disabled={refreshingModels || !effectiveConcrete}
+                onClick={() => void refreshModels(effectiveConcrete)}
+              >
+                {refreshingModels ? "Refreshing…" : "Refresh Available Models"}
+              </button>
+            </div>
+          </div>
+
           <div className="mw-form-grid">
             <div className="pp-field">
-              <label className="pp-field__label" htmlFor="ai-screen-select">
-                Screening &amp; Document Chunk Model
-              </label>
-              <select
-                id="ai-screen-select"
-                className="pp-select mw-mono"
-                value={customScreening || !screeningIsKnown ? CUSTOM_SENTINEL : screeningModel}
-                onChange={(e) => {
-                  if (e.target.value === CUSTOM_SENTINEL) {
-                    setCustomScreening(true);
-                  } else {
-                    setCustomScreening(false);
-                    setScreeningModel(e.target.value);
-                  }
-                }}
-              >
-                <option value="auto">auto — Always latest fast ({resolvedScreeningLabel})</option>
-                {availableModels.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-                <option value={CUSTOM_SENTINEL}>Custom model ID…</option>
-              </select>
-              {(customScreening || !screeningIsKnown) && (
-                <input
-                  type="text"
-                  className="pp-input pp-input--sm mw-mono"
-                  aria-label="Custom screening model ID"
-                  placeholder="Enter exact provider model ID…"
-                  value={screeningModel === "auto" ? "" : screeningModel}
-                  onChange={(e) => setScreeningModel(e.target.value)}
-                />
-              )}
-            </div>
-
-            <div className="pp-field">
-              <label className="pp-field__label" htmlFor="ai-synth-select">
-                Audit Review &amp; Framework Synthesis Model
-              </label>
-              <select
-                id="ai-synth-select"
-                className="pp-select mw-mono"
-                value={customSynthesis || !synthesisIsKnown ? CUSTOM_SENTINEL : synthesisModel}
-                onChange={(e) => {
-                  if (e.target.value === CUSTOM_SENTINEL) {
-                    setCustomSynthesis(true);
-                  } else {
-                    setCustomSynthesis(false);
-                    setSynthesisModel(e.target.value);
-                  }
-                }}
-              >
-                <option value="auto">
-                  auto — Always latest flagship ({resolvedSynthesisLabel})
-                </option>
-                {availableModels.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-                <option value={CUSTOM_SENTINEL}>Custom model ID…</option>
-              </select>
-              {(customSynthesis || !synthesisIsKnown) && (
-                <input
-                  type="text"
-                  className="pp-input pp-input--sm mw-mono"
-                  aria-label="Custom synthesis model ID"
-                  placeholder="Enter exact provider model ID…"
-                  value={synthesisModel === "auto" ? "" : synthesisModel}
-                  onChange={(e) => setSynthesisModel(e.target.value)}
-                />
-              )}
-            </div>
-
-            <div className="pp-field">
-              <label className="pp-field__label" htmlFor="ai-budget">
-                Daily Token Budget
+              <label className="pp-field__label" htmlFor="ai-cost-budget">
+                Daily Spend Cap (USD)
               </label>
               <input
-                id="ai-budget"
+                id="ai-cost-budget"
                 type="number"
-                min={10000}
-                max={5000000}
+                step="0.50"
+                min={0.1}
+                max={500}
                 className="pp-input mw-mono"
-                value={dailyBudget}
-                onChange={(e) => setDailyBudget(Number(e.target.value))}
+                value={dailyCostBudget}
+                onChange={(e) => setDailyCostBudget(Number(e.target.value))}
               />
             </div>
             <div className="pp-field">
@@ -600,6 +666,103 @@ export function AiSettingsTab({ profile, aiStatus }: AiSettingsTabProps) {
               />
             </div>
           </div>
+
+          <details className="pp-disclosure">
+            <summary>Advanced model overrides &amp; token caps</summary>
+            <div className="pp-disclosure__body mw-stack">
+              <div className="mw-form-grid">
+                <div className="pp-field">
+                  <label className="pp-field__label" htmlFor="ai-screen-select">
+                    Screening &amp; Document Chunk Model
+                  </label>
+                  <select
+                    id="ai-screen-select"
+                    className="pp-select mw-mono"
+                    value={customScreening || !screeningIsKnown ? CUSTOM_SENTINEL : screeningModel}
+                    onChange={(e) => {
+                      if (e.target.value === CUSTOM_SENTINEL) {
+                        setCustomScreening(true);
+                      } else {
+                        setCustomScreening(false);
+                        setScreeningModel(e.target.value);
+                      }
+                    }}
+                  >
+                    <option value="auto">auto — Preset fast ({resolvedScreeningLabel})</option>
+                    {availableModels.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                    <option value={CUSTOM_SENTINEL}>Custom model ID…</option>
+                  </select>
+                  {(customScreening || !screeningIsKnown) && (
+                    <input
+                      type="text"
+                      className="pp-input pp-input--sm mw-mono"
+                      aria-label="Custom screening model ID"
+                      placeholder="Enter exact provider model ID…"
+                      value={screeningModel === "auto" ? "" : screeningModel}
+                      onChange={(e) => setScreeningModel(e.target.value)}
+                    />
+                  )}
+                </div>
+
+                <div className="pp-field">
+                  <label className="pp-field__label" htmlFor="ai-synth-select">
+                    Audit Review &amp; Framework Synthesis Model
+                  </label>
+                  <select
+                    id="ai-synth-select"
+                    className="pp-select mw-mono"
+                    value={customSynthesis || !synthesisIsKnown ? CUSTOM_SENTINEL : synthesisModel}
+                    onChange={(e) => {
+                      if (e.target.value === CUSTOM_SENTINEL) {
+                        setCustomSynthesis(true);
+                      } else {
+                        setCustomSynthesis(false);
+                        setSynthesisModel(e.target.value);
+                      }
+                    }}
+                  >
+                    <option value="auto">auto — Preset flagship ({resolvedSynthesisLabel})</option>
+                    {availableModels.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                    <option value={CUSTOM_SENTINEL}>Custom model ID…</option>
+                  </select>
+                  {(customSynthesis || !synthesisIsKnown) && (
+                    <input
+                      type="text"
+                      className="pp-input pp-input--sm mw-mono"
+                      aria-label="Custom synthesis model ID"
+                      placeholder="Enter exact provider model ID…"
+                      value={synthesisModel === "auto" ? "" : synthesisModel}
+                      onChange={(e) => setSynthesisModel(e.target.value)}
+                    />
+                  )}
+                </div>
+
+                <div className="pp-field">
+                  <label className="pp-field__label" htmlFor="ai-budget">
+                    Daily Token Budget
+                  </label>
+                  <input
+                    id="ai-budget"
+                    type="number"
+                    min={10000}
+                    max={5000000}
+                    className="pp-input mw-mono"
+                    value={dailyBudget}
+                    onChange={(e) => setDailyBudget(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
+
           <div>
             <button
               type="button"

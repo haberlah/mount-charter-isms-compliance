@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { selectFanOutCandidates } from "../server/ai";
 import {
   clearModelCache,
   fetchProviderModels,
@@ -188,7 +189,8 @@ test("Multi-provider AI status lists all 11 providers and SSRF guard blocks clou
 
   const status = getAiProviderStatus(profile);
   assert.equal(status.configuredProvider, "auto");
-  assert.equal(status.providers.length, 11);
+  assert.equal(status.providers.length, 12);
+  assert.ok(status.providers.some((p) => p.id === "openrouter" && p.mode === "api_key"));
   assert.ok(status.providers.some((p) => p.id === "ollama" && p.mode === "local_oss"));
   assert.ok(status.providers.some((p) => p.id === "claude_cli" && p.mode === "subscription_cli"));
   assert.ok(status.providers.some((p) => p.id === "xai" && p.mode === "api_key"));
@@ -196,6 +198,7 @@ test("Multi-provider AI status lists all 11 providers and SSRF guard blocks clou
 
   // Auto-detect picks connected env provider (never forces Anthropic when unconfigured)
   const savedEnv = {
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
@@ -255,6 +258,102 @@ test("Multi-provider AI status lists all 11 providers and SSRF guard blocks clou
   ]);
   assert.equal(claudePick.synthesis, "claude-opus-5-0");
   assert.equal(claudePick.screening, "claude-sonnet-5-0");
+
+  // OpenRouter preset routing across balanced, max_depth, and low_cost
+  const orModels = [
+    "google/gemini-2.5-flash",
+    "google/gemini-2.5-pro",
+    "anthropic/claude-sonnet-4.6",
+    "anthropic/claude-opus-4.6",
+    "openai/gpt-5.4-mini",
+  ];
+  const orBalanced = pickBestModelsForProvider("openrouter", orModels, "balanced");
+  assert.equal(orBalanced.screening, "google/gemini-2.5-flash");
+  assert.equal(orBalanced.synthesis, "anthropic/claude-sonnet-4.6");
+  const orMax = pickBestModelsForProvider("openrouter", orModels, "max_depth");
+  assert.equal(orMax.screening, "anthropic/claude-sonnet-4.6");
+  assert.equal(orMax.synthesis, "anthropic/claude-opus-4.6");
+  const orLow = pickBestModelsForProvider("openrouter", orModels, "low_cost");
+  assert.equal(orLow.screening, "google/gemini-2.5-flash");
+  assert.equal(orLow.synthesis, "google/gemini-2.5-flash");
+});
+
+test("Option A: Evidence Fan-Out pre-filter, USD cost ledger & staged proposal approval preserve immutable audit trail", () => {
+  const ws = storage.createWorkspace("Option A Fan-Out Co");
+  const controls = storage.listControlsWithStatus(ws.id);
+  const e8 = storage.getFrameworkDetail(ws.id, "acsc_e8_2023")!;
+  const priv = storage.getFrameworkDetail(ws.id, "au_privacy_act")!;
+
+  const candidates = selectFanOutCandidates({
+    documentTitle: "Vulnerability Patching & Phishing-Resistant MFA Standard",
+    documentText:
+      "All internet-facing services and operating systems must be patched for critical vulnerabilities within 48 hours of release. Phishing-resistant FIDO2 WebAuthn multi-factor authentication is enforced for all privileged administrators and cloud console sign-in.",
+    controls,
+    frameworks: [e8, priv],
+  });
+
+  assert.ok(candidates.candidateControls.length > 0, "Expected candidate ISO controls");
+  assert.ok(
+    candidates.candidateFrameworkReqs.some((r) => r.framework.code === "acsc_e8_2023"),
+    "Expected Essential Eight candidate obligations",
+  );
+
+  // USD cost tracking
+  storage.logAiInteraction({
+    workspaceId: ws.id,
+    interactionType: "evidence_fanout",
+    inputSummary: "Test fan-out",
+    outputSummary: "2 proposals",
+    modelUsed: "anthropic/claude-sonnet-4.6",
+    provider: "openrouter",
+    tokensUsed: 4200,
+    promptTokens: 3500,
+    completionTokens: 700,
+    costUsd: 0.0215,
+  });
+  assert.ok(storage.getCostUsedTodayUsd(ws.id) >= 0.021);
+
+  // Staged proposal stays uncommitted until explicit human approval
+  const prop = storage.createAgentProposal({
+    workspaceId: ws.id,
+    runId: "fanout-test-1",
+    runLabel: "Test Fan-Out",
+    targetType: "framework_assessment",
+    targetRef: "acsc_e8_2023:E8-PA-ML1-01",
+    title: "Essential Eight · E8-PA-ML1-01",
+    summary: "Policy mandates 48h patching for internet-facing services.",
+    rationale: "Design evidence present; operational scan timestamps still required.",
+    quotedPassage: "internet-facing services must be patched within 48 hours",
+    confidence: 0.82,
+    hasRubricConflict: true,
+    payload: {
+      frameworkCode: "acsc_e8_2023",
+      reqCode: "E8-PA-ML1-01",
+      suggestedStatus: "PartiallyMet",
+      evidenceSummary: "Policy mandates 48h patching; awaiting scan export.",
+    },
+    modelUsed: "anthropic/claude-sonnet-4.6",
+    costUsd: 0.01,
+  });
+
+  // Before approval: requirement is still NotMet
+  const before = storage
+    .getFrameworkDetail(ws.id, "acsc_e8_2023")!
+    .requirements.find((r) => r.reqCode === "E8-PA-ML1-01")!;
+  assert.equal(before.assessment.status, "NotMet");
+
+  // After explicit human approval: requirement updates & writes immutable log
+  const approved = storage.resolveAgentProposal({
+    workspaceId: ws.id,
+    proposalId: prop.id,
+    decision: "approve",
+  });
+  assert.equal(approved?.status, "approved");
+  const after = storage
+    .getFrameworkDetail(ws.id, "acsc_e8_2023")!
+    .requirements.find((r) => r.reqCode === "E8-PA-ML1-01")!;
+  assert.equal(after.assessment.status, "PartiallyMet");
+  assert.ok(after.historyCount >= 1, "Expected immutable requirement_assessment_log entry");
 });
 
 test("GET /api/settings/models returns live CLI aliases and rejects unsafe base URLs", async () => {

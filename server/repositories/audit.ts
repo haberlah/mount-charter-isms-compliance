@@ -1,9 +1,13 @@
 import type {
+  AgentProposal,
+  AgentProposalStatus,
+  AgentProposalTarget,
   AiInteraction,
   DocumentQuestionMatch,
   EvidenceLink,
   InteractionType,
   RequirementAssessmentLogEntry,
+  RequirementStatus,
   ResponseChangeLogEntry,
   TestRun,
   TestRunWithControl,
@@ -12,6 +16,7 @@ import type {
 import { getDb } from "../db";
 import { mapEvidenceLink, mapMatch, mapRequirementLog, mapTestRun, safeJsonParse } from "./common";
 import { controlsRepository } from "./controls";
+import { frameworksRepository } from "./frameworks";
 
 export const auditRepository = {
   createTestRun(params: {
@@ -126,14 +131,19 @@ export const auditRepository = {
     inputSummary?: string | null;
     outputSummary?: string | null;
     modelUsed: string;
+    provider?: string | null;
     tokensUsed: number;
+    promptTokens?: number;
+    completionTokens?: number;
+    costUsd?: number;
   }): void {
     getDb()
       .prepare(`
         INSERT INTO ai_interactions (
           workspace_id, interaction_type, control_id, test_run_id,
-          input_summary, output_summary, model_used, tokens_used
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          input_summary, output_summary, model_used, provider,
+          tokens_used, prompt_tokens, completion_tokens, cost_usd
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
       .run(
         params.workspaceId,
@@ -143,7 +153,11 @@ export const auditRepository = {
         params.inputSummary ?? null,
         params.outputSummary ?? null,
         params.modelUsed,
+        params.provider ?? null,
         params.tokensUsed,
+        params.promptTokens ?? 0,
+        params.completionTokens ?? 0,
+        Number.isFinite(params.costUsd) ? Number(params.costUsd) : 0,
       );
   },
 
@@ -152,6 +166,16 @@ export const auditRepository = {
     const row = getDb()
       .prepare(
         "SELECT COALESCE(SUM(tokens_used), 0) AS total FROM ai_interactions WHERE workspace_id = ? AND created_at >= ?",
+      )
+      .get(workspaceId, `${todayPrefix}T00:00:00.000Z`) as { total: number };
+    return Number(row?.total || 0);
+  },
+
+  getCostUsedTodayUsd(workspaceId: number): number {
+    const todayPrefix = new Date().toISOString().slice(0, 10);
+    const row = getDb()
+      .prepare(
+        "SELECT COALESCE(SUM(cost_usd), 0) AS total FROM ai_interactions WHERE workspace_id = ? AND created_at >= ?",
       )
       .get(workspaceId, `${todayPrefix}T00:00:00.000Z`) as { total: number };
     return Number(row?.total || 0);
@@ -179,9 +203,160 @@ export const auditRepository = {
       inputSummary: r.input_summary != null ? String(r.input_summary) : null,
       outputSummary: r.output_summary != null ? String(r.output_summary) : null,
       modelUsed: String(r.model_used),
+      provider: r.provider != null ? String(r.provider) : null,
       tokensUsed: Number(r.tokens_used || 0),
+      promptTokens: Number(r.prompt_tokens || 0),
+      completionTokens: Number(r.completion_tokens || 0),
+      costUsd: Number(r.cost_usd || 0),
       createdAt: String(r.created_at),
     }));
+  },
+
+  // ─── Staged AI Agent Proposals (Human-Gated Approval Inbox) ────────────────
+
+  createAgentProposal(params: {
+    workspaceId: number;
+    runId: string;
+    runLabel: string;
+    targetType: AgentProposalTarget;
+    targetRef: string;
+    title: string;
+    summary: string;
+    rationale: string;
+    quotedPassage?: string | null;
+    sourceDocumentId?: number | null;
+    sourceDocumentTitle?: string | null;
+    confidence: number;
+    hasRubricConflict?: boolean;
+    payload: Record<string, unknown>;
+    modelUsed?: string | null;
+    costUsd?: number;
+  }): AgentProposal {
+    const db = getDb();
+    const res = db
+      .prepare(`
+        INSERT INTO pending_agent_proposals (
+          workspace_id, run_id, run_label, target_type, target_ref,
+          title, summary, rationale, quoted_passage, source_document_id,
+          source_document_title, confidence, has_rubric_conflict,
+          payload_json, model_used, cost_usd, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+      `)
+      .run(
+        params.workspaceId,
+        params.runId,
+        params.runLabel,
+        params.targetType,
+        params.targetRef,
+        params.title,
+        params.summary,
+        params.rationale,
+        params.quotedPassage ?? null,
+        params.sourceDocumentId ?? null,
+        params.sourceDocumentTitle ?? null,
+        Math.max(0, Math.min(1, params.confidence)),
+        params.hasRubricConflict ? 1 : 0,
+        JSON.stringify(params.payload),
+        params.modelUsed ?? null,
+        Number.isFinite(params.costUsd) ? Number(params.costUsd) : 0,
+      );
+    const row = db
+      .prepare("SELECT * FROM pending_agent_proposals WHERE id = ?")
+      .get(Number(res.lastInsertRowid)) as Record<string, unknown>;
+    return mapAgentProposal(row);
+  },
+
+  listPendingAgentProposals(workspaceId: number): AgentProposal[] {
+    return (
+      getDb()
+        .prepare(`
+          SELECT * FROM pending_agent_proposals
+          WHERE workspace_id = ? AND status = 'pending'
+          ORDER BY created_at DESC, id DESC
+          LIMIT 200
+        `)
+        .all(workspaceId) as Array<Record<string, unknown>>
+    ).map(mapAgentProposal);
+  },
+
+  resolveAgentProposal(params: {
+    workspaceId: number;
+    proposalId: number;
+    decision: "approve" | "edit_approve" | "reject";
+    editedPayload?: Record<string, unknown>;
+  }): AgentProposal | null {
+    const db = getDb();
+    const row = db
+      .prepare("SELECT * FROM pending_agent_proposals WHERE id = ? AND workspace_id = ?")
+      .get(params.proposalId, params.workspaceId) as Record<string, unknown> | undefined;
+    if (!row) return null;
+
+    const proposal = mapAgentProposal(row);
+    const now = new Date().toISOString();
+
+    if (params.decision === "reject") {
+      db.prepare(
+        "UPDATE pending_agent_proposals SET status = 'rejected', reviewed_at = ? WHERE id = ?",
+      ).run(now, proposal.id);
+      return { ...proposal, status: "rejected", reviewedAt: now };
+    }
+
+    const effectivePayload =
+      params.decision === "edit_approve" && params.editedPayload
+        ? { ...proposal.payload, ...params.editedPayload }
+        : proposal.payload;
+
+    const nextStatus: AgentProposalStatus =
+      params.decision === "edit_approve" ? "edited_approved" : "approved";
+
+    if (proposal.targetType === "framework_assessment") {
+      const frameworkCode = String(effectivePayload.frameworkCode || "");
+      const reqCode = String(effectivePayload.reqCode || "");
+      const suggestedStatus = String(
+        effectivePayload.suggestedStatus || "PartiallyMet",
+      ) as RequirementStatus;
+      const evidenceSummary =
+        typeof effectivePayload.evidenceSummary === "string"
+          ? effectivePayload.evidenceSummary
+          : proposal.summary;
+      const notes =
+        typeof effectivePayload.notes === "string"
+          ? effectivePayload.notes
+          : `${proposal.rationale}${proposal.modelUsed ? ` [Reviewed AI proposal · ${proposal.modelUsed}]` : ""}`;
+
+      if (frameworkCode && reqCode) {
+        frameworksRepository.updateRequirementAssessment(
+          params.workspaceId,
+          frameworkCode,
+          reqCode,
+          {
+            status: suggestedStatus,
+            evidenceSummary,
+            notes,
+          },
+        );
+        if (proposal.sourceDocumentId) {
+          frameworksRepository.addRequirementEvidence({
+            workspaceId: params.workspaceId,
+            frameworkCode,
+            reqCode,
+            documentId: proposal.sourceDocumentId,
+            title: proposal.sourceDocumentTitle || "Evidence Document",
+            url: null,
+            evidenceType: "DOCUMENT",
+          });
+        }
+      }
+    }
+
+    db.prepare(
+      "UPDATE pending_agent_proposals SET status = ?, payload_json = ?, reviewed_at = ? WHERE id = ?",
+    ).run(nextStatus, JSON.stringify(effectivePayload), now, proposal.id);
+
+    const updated = db
+      .prepare("SELECT * FROM pending_agent_proposals WHERE id = ?")
+      .get(proposal.id) as Record<string, unknown>;
+    return mapAgentProposal(updated);
   },
 
   listAllQuestionResponses(workspaceId: number): Array<{
@@ -272,3 +447,29 @@ export const auditRepository = {
     ).map(mapRequirementLog);
   },
 };
+
+function mapAgentProposal(row: Record<string, unknown>): AgentProposal {
+  return {
+    id: Number(row.id),
+    workspaceId: Number(row.workspace_id),
+    runId: String(row.run_id),
+    runLabel: String(row.run_label),
+    targetType: row.target_type as AgentProposalTarget,
+    targetRef: String(row.target_ref),
+    title: String(row.title),
+    summary: String(row.summary),
+    rationale: String(row.rationale),
+    quotedPassage: row.quoted_passage != null ? String(row.quoted_passage) : null,
+    sourceDocumentId: row.source_document_id != null ? Number(row.source_document_id) : null,
+    sourceDocumentTitle:
+      row.source_document_title != null ? String(row.source_document_title) : null,
+    confidence: Number(row.confidence || 0.5),
+    hasRubricConflict: Boolean(row.has_rubric_conflict),
+    payload: safeJsonParse<Record<string, unknown>>(row.payload_json as string, {}),
+    modelUsed: row.model_used != null ? String(row.model_used) : null,
+    costUsd: Number(row.cost_usd || 0),
+    status: (row.status as AgentProposalStatus) || "pending",
+    reviewedAt: row.reviewed_at != null ? String(row.reviewed_at) : null,
+    createdAt: String(row.created_at),
+  };
+}

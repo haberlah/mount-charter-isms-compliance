@@ -4,6 +4,8 @@ import type { ControlQuestionnaire, OntologyQuestion, Persona } from "@shared/sc
 import frameworksData from "../seed-data/frameworks.json";
 import ontologyData from "../seed-data/iso_27001_ontology.json";
 import {
+  DEFAULT_AI_ROUTING_PRESET,
+  DEFAULT_DAILY_COST_BUDGET_USD,
   DEFAULT_DAILY_TOKEN_BUDGET,
   DEFAULT_MAX_CHUNKS_PER_RUN,
   DEFAULT_SCREENING_MODEL,
@@ -123,9 +125,12 @@ CREATE TABLE IF NOT EXISTS workspace_profiles (
   hide_non_applicable_controls INTEGER NOT NULL DEFAULT 0,
   ai_provider TEXT NOT NULL DEFAULT 'auto',
   ai_base_url TEXT,
+  ai_routing_preset TEXT NOT NULL DEFAULT '${DEFAULT_AI_ROUTING_PRESET}',
+  ai_zdr_only INTEGER NOT NULL DEFAULT 1,
   ai_screening_model TEXT NOT NULL DEFAULT '${DEFAULT_SCREENING_MODEL}',
   ai_synthesis_model TEXT NOT NULL DEFAULT '${DEFAULT_SYNTHESIS_MODEL}',
   ai_daily_token_budget INTEGER NOT NULL DEFAULT ${DEFAULT_DAILY_TOKEN_BUDGET},
+  ai_daily_cost_budget_usd REAL NOT NULL DEFAULT ${DEFAULT_DAILY_COST_BUDGET_USD},
   ai_max_chunks_per_run INTEGER NOT NULL DEFAULT ${DEFAULT_MAX_CHUNKS_PER_RUN},
   soa_version TEXT NOT NULL DEFAULT '1.0',
   soa_approved_by TEXT,
@@ -314,6 +319,33 @@ CREATE TABLE IF NOT EXISTS response_change_log (
   source_match_id INTEGER REFERENCES document_question_matches(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 ) STRICT;
+
+-- Staged AI Agent Proposals (human-gated before writing to immutable audit tables)
+CREATE TABLE IF NOT EXISTS pending_agent_proposals (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  run_id TEXT NOT NULL,
+  run_label TEXT NOT NULL,
+  target_type TEXT NOT NULL,
+  target_ref TEXT NOT NULL,
+  title TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  rationale TEXT NOT NULL,
+  quoted_passage TEXT,
+  source_document_id INTEGER REFERENCES documents(id) ON DELETE SET NULL,
+  source_document_title TEXT,
+  confidence REAL NOT NULL DEFAULT 0.5,
+  has_rubric_conflict INTEGER NOT NULL DEFAULT 0,
+  payload_json TEXT NOT NULL,
+  model_used TEXT,
+  cost_usd REAL NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'pending',
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+) STRICT;
+
+CREATE INDEX IF NOT EXISTS idx_agent_proposals_ws_status
+  ON pending_agent_proposals(workspace_id, status, created_at DESC);
 
 -- Normalized Multi-Framework Architecture (ISO 27001, Essential Eight, Privacy Act, Cyber Security Act 2024, APRA CPS 234/230, SOCI, AI6)
 CREATE TABLE IF NOT EXISTS frameworks (
@@ -698,6 +730,20 @@ function runAdditiveMigrations(db: DatabaseSync): void {
   // v3.0 multi-provider AI configuration columns
   ensureColumn(db, "workspace_profiles", "ai_provider", "TEXT NOT NULL DEFAULT 'auto'");
   ensureColumn(db, "workspace_profiles", "ai_base_url", "TEXT");
+
+  // v3.2 OpenRouter routing presets, ZDR privacy toggle, and exact USD spend ledger
+  ensureColumn(db, "workspace_profiles", "ai_routing_preset", "TEXT NOT NULL DEFAULT 'balanced'");
+  ensureColumn(db, "workspace_profiles", "ai_zdr_only", "INTEGER NOT NULL DEFAULT 1");
+  ensureColumn(
+    db,
+    "workspace_profiles",
+    "ai_daily_cost_budget_usd",
+    `REAL NOT NULL DEFAULT ${DEFAULT_DAILY_COST_BUDGET_USD}`,
+  );
+  ensureColumn(db, "ai_interactions", "provider", "TEXT");
+  ensureColumn(db, "ai_interactions", "prompt_tokens", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "ai_interactions", "completion_tokens", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "ai_interactions", "cost_usd", "REAL NOT NULL DEFAULT 0");
 
   // v3.1 provider-agnostic auto-detect default: upgrade untouched legacy Anthropic default rows once
   const autoMigRow = db

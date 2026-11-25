@@ -683,3 +683,47 @@ paper-toast-region.pp-toasts[popover] {
 .mw-soa-row--excluded td:not(:first-child):not(:nth-child(4)):not(:last-child) {
   opacity: 0.58;
 }
+
+/* Uncommitted AI Proposal card (dashed framing visually separates drafts from immutable records) */
+.mw-proposal-card {
+  padding: 14px 16px;
+  border: 1px dashed var(--paper-accent-line);
+  border-radius: var(--paper-radius-md);
+  background: var(--paper-accent-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Non-blocking multi-step agent run strip */
+.mw-run-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--paper-accent-line);
+  border-radius: var(--paper-radius-md);
+  background: var(--paper-surface);
+}
+
+.mw-run-strip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--paper-accent);
+  flex: none;
+}
+
+.mw-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 780px) {
+  .mw-preset-grid {
+    grid-template-columns: 1fr;
+  }
+}

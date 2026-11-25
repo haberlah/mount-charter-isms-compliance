@@ -73,9 +73,13 @@ export function mapProfile(row: Record<string, unknown>): WorkspaceProfile {
     hideNonApplicableControls: Boolean(row.hide_non_applicable_controls),
     aiProvider: (row.ai_provider as AiProvider) || "auto",
     aiBaseUrl: row.ai_base_url != null ? String(row.ai_base_url) : null,
+    aiRoutingPreset: (row.ai_routing_preset as WorkspaceProfile["aiRoutingPreset"]) || "balanced",
+    aiZdrOnly: row.ai_zdr_only != null ? Boolean(row.ai_zdr_only) : true,
     aiScreeningModel: String(row.ai_screening_model || "auto"),
     aiSynthesisModel: String(row.ai_synthesis_model || "auto"),
     aiDailyTokenBudget: Number(row.ai_daily_token_budget),
+    aiDailyCostBudgetUsd:
+      row.ai_daily_cost_budget_usd != null ? Number(row.ai_daily_cost_budget_usd) : 5.0,
     aiMaxChunksPerRun: Number(row.ai_max_chunks_per_run),
     soaVersion: row.soa_version != null ? String(row.soa_version) : "1.0",
     soaApprovedBy: row.soa_approved_by != null ? String(row.soa_approved_by) : null,

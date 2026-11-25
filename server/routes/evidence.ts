@@ -9,7 +9,13 @@ import {
 import { Router } from "express";
 import multer from "multer";
 import { z } from "zod";
-import { AIBudgetError, AIConfigurationError, analyseDocumentChunks } from "../ai";
+import {
+  AIBudgetError,
+  AIConfigurationError,
+  analyseDocumentChunks,
+  estimateEvidenceFanOut,
+  runEvidenceFanOut,
+} from "../ai";
 import {
   ALLOWED_MIME_TYPES,
   EXTENSION_TO_MIME,
@@ -368,7 +374,252 @@ evidenceRouter.post("/controls/:controlNumber/documents/:documentId/analyse", as
   }
 });
 
+// ─── Option A: "Collect Once, Map Everywhere" Evidence Fan-Out & Proposals ───
+
+function loadEnabledFrameworkDetails(workspaceId: number) {
+  const summaries = storage.listFrameworks(workspaceId);
+  return summaries
+    .filter((f) => f.enabled && f.supportTier === "full" && f.code !== "iso27001_2022")
+    .map((f) => storage.getFrameworkDetail(workspaceId, f.code))
+    .filter((d): d is NonNullable<typeof d> => d !== null);
+}
+
+evidenceRouter.get("/documents/:id/fan-out-estimate", (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const docId = parseIntParam(req.params.id);
+  if (!docId) return sendValidationError(res, "Invalid document ID");
+  const doc = storage.getDocument(workspaceId, docId);
+  if (!doc) return res.status(404).json({ error: "Document not found in this workspace" });
+
+  const chunks = storage.getDocumentChunks(workspaceId, doc.id);
+  const controls = storage.listControlsWithStatus(workspaceId);
+  const frameworks = loadEnabledFrameworkDetails(workspaceId);
+  const profile = storage.getProfile(workspaceId);
+
+  const estimate = estimateEvidenceFanOut({
+    document: doc,
+    chunks,
+    controls,
+    frameworks,
+    profile,
+  });
+  res.json(estimate);
+});
+
+evidenceRouter.post("/documents/:id/fan-out", async (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const docId = parseIntParam(req.params.id);
+  if (!docId) return sendValidationError(res, "Invalid document ID");
+  const doc = storage.getDocument(workspaceId, docId);
+  if (!doc) return res.status(404).json({ error: "Document not found in this workspace" });
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const abortController = new AbortController();
+  req.on("close", () => abortController.abort());
+
+  const sendEvent = (event: string, data: unknown) => {
+    if (!res.writableEnded) {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    }
+  };
+
+  try {
+    const chunks = storage.getDocumentChunks(workspaceId, doc.id);
+    if (doc.mimeType.startsWith("image/") || chunks.length === 0) {
+      sendEvent("error", {
+        status: 422,
+        error: doc.mimeType.startsWith("image/")
+          ? "Image files are stored as visual evidence and cannot be text-mapped."
+          : "This document has no extracted text chunks to map.",
+      });
+      return;
+    }
+
+    const controls = storage.listControlsWithStatus(workspaceId);
+    const frameworks = loadEnabledFrameworkDetails(workspaceId);
+    const profile = storage.getProfile(workspaceId);
+    const tokensUsedToday = storage.getTokensUsedToday(workspaceId);
+    const costUsedTodayUsd = storage.getCostUsedTodayUsd(workspaceId);
+
+    const runId = `fanout-${doc.id}-${Date.now()}`;
+    const runLabel = `Evidence Fan-Out · ${doc.title}`;
+
+    const result = await runEvidenceFanOut({
+      document: doc,
+      chunks,
+      controls,
+      frameworks,
+      profile,
+      tokensUsedToday,
+      costUsedTodayUsd,
+      signal: abortController.signal,
+      onProgress: (p) => sendEvent("progress", p),
+    });
+
+    // Stage ISO 27001 matches (group by control, auto-link document, replace pending matches)
+    const byControlId = new Map<number, typeof result.isoMatches>();
+    for (const m of result.isoMatches) {
+      const list = byControlId.get(m.controlId) || [];
+      list.push(m);
+      byControlId.set(m.controlId, list);
+    }
+
+    let savedIsoCount = 0;
+    for (const [controlId, items] of Array.from(byControlId.entries())) {
+      const wc = storage.ensureWorkspaceControl(workspaceId, controlId);
+      storage.linkDocumentToControl(workspaceId, doc.id, wc.id);
+      const saved = storage.replaceMatchesForDocumentControl(
+        workspaceId,
+        doc.id,
+        wc.id,
+        items.map((m) => ({
+          questionId: m.questionId,
+          contentRelevance: m.contentRelevance,
+          evidenceTypeMatch: m.evidenceTypeMatch,
+          specificity: m.specificity,
+          compositeScore: m.compositeScore,
+          matchedPassage: m.matchedPassage,
+          aiSummary: m.aiSummary,
+          suggestedResponse: m.suggestedResponse,
+          chunkId: m.chunkId ?? undefined,
+        })),
+      );
+      storage.setDocumentControlAnalysisStatus(workspaceId, doc.id, wc.id, "analysed");
+      savedIsoCount += saved.length;
+    }
+
+    // Stage Australian framework assessment proposals into pending_agent_proposals (never auto-committed!)
+    const stagedProposals = result.frameworkProposals.map((fp) =>
+      storage.createAgentProposal({
+        workspaceId,
+        runId,
+        runLabel,
+        targetType: "framework_assessment",
+        targetRef: `${fp.frameworkCode}:${fp.reqCode}`,
+        title: `${fp.frameworkShortName} · ${fp.reqCode}: ${fp.title}`,
+        summary: fp.evidenceSummary || `Suggested status: ${fp.suggestedStatus}`,
+        rationale: fp.rationale,
+        quotedPassage: fp.quotedPassage,
+        sourceDocumentId: doc.id,
+        sourceDocumentTitle: doc.title,
+        confidence: fp.confidence,
+        hasRubricConflict: fp.hasRubricConflict,
+        payload: {
+          frameworkCode: fp.frameworkCode,
+          frameworkShortName: fp.frameworkShortName,
+          reqCode: fp.reqCode,
+          suggestedStatus: fp.suggestedStatus,
+          evidenceSummary: fp.evidenceSummary,
+          gaps: fp.gaps,
+        },
+        modelUsed: fp.modelUsed,
+        costUsd: fp.costUsd,
+      }),
+    );
+
+    storage.logAiInteraction({
+      workspaceId,
+      interactionType: "evidence_fanout",
+      inputSummary: `Fan-out "${doc.title}" across ISO 27001 & AU frameworks`,
+      outputSummary: `${savedIsoCount} ISO match(es), ${stagedProposals.length} AU framework proposal(s) staged`,
+      modelUsed: result.modelsUsed.join(", ") || "auto",
+      provider: result.provider,
+      tokensUsed: result.totalTokensUsed,
+      promptTokens: result.totalPromptTokens,
+      completionTokens: result.totalCompletionTokens,
+      costUsd: result.totalCostUsd,
+    });
+
+    sendEvent("complete", {
+      runId,
+      savedIsoCount,
+      stagedFrameworkCount: stagedProposals.length,
+      linkedControls: Array.from(byControlId.keys()).length,
+      totalTokensUsed: result.totalTokensUsed,
+      totalCostUsd: result.totalCostUsd,
+      modelsUsed: result.modelsUsed,
+    });
+  } catch (err) {
+    if (!abortController.signal.aborted) {
+      const status =
+        err instanceof AIConfigurationError ? 503 : err instanceof AIBudgetError ? 429 : 500;
+      sendEvent("error", {
+        status,
+        error: err instanceof Error ? err.message : "Evidence fan-out failed",
+      });
+    }
+  } finally {
+    if (!res.writableEnded) res.end();
+  }
+});
+
+// ─── Staged AI Agent Proposals (Human-Gated Approval Inbox) ──────────────────
+
+evidenceRouter.get("/agent/proposals", (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  res.json(storage.listPendingAgentProposals(workspaceId));
+});
+
+const editProposalSchema = z.object({
+  suggestedStatus: z.enum(["Met", "PartiallyMet", "NotMet", "NotApplicable"]).optional(),
+  evidenceSummary: z.string().trim().max(2000).optional(),
+  notes: z.string().trim().max(4000).optional(),
+});
+
+evidenceRouter.post("/agent/proposals/:id/approve", (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const id = parseIntParam(req.params.id);
+  if (!id) return sendValidationError(res, "Invalid proposal ID");
+  const result = storage.resolveAgentProposal({ workspaceId, proposalId: id, decision: "approve" });
+  if (!result) return res.status(404).json({ error: "Proposal not found" });
+  res.json(result);
+});
+
+evidenceRouter.post("/agent/proposals/:id/edit-approve", (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const id = parseIntParam(req.params.id);
+  if (!id) return sendValidationError(res, "Invalid proposal ID");
+  const parsed = editProposalSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return sendValidationError(res, parsed.error.issues[0]?.message || "Invalid proposal edit");
+  }
+  const result = storage.resolveAgentProposal({
+    workspaceId,
+    proposalId: id,
+    decision: "edit_approve",
+    editedPayload: parsed.data,
+  });
+  if (!result) return res.status(404).json({ error: "Proposal not found" });
+  res.json(result);
+});
+
+evidenceRouter.post("/agent/proposals/:id/reject", (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const id = parseIntParam(req.params.id);
+  if (!id) return sendValidationError(res, "Invalid proposal ID");
+  const result = storage.resolveAgentProposal({ workspaceId, proposalId: id, decision: "reject" });
+  if (!result) return res.status(404).json({ error: "Proposal not found" });
+  res.json(result);
+});
+
 // ─── AI Suggestion Review Queue ──────────────────────────────────────────────
+
+evidenceRouter.post("/matches/batch-accept-high-confidence", (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const pending = storage.listPendingMatches(workspaceId);
+  const eligible = pending.filter(
+    (m) => m.compositeScore >= 0.85 && Boolean(m.matchedPassage?.trim()),
+  );
+  let acceptedCount = 0;
+  for (const m of eligible) {
+    const out = storage.resolveMatch({ workspaceId, matchId: m.id, decision: "accept" });
+    if (out) acceptedCount++;
+  }
+  res.json({ acceptedCount, totalPending: pending.length });
+});
 
 evidenceRouter.get("/matches/pending", (req, res) => {
   const workspaceId = resolveWorkspaceId(req);
