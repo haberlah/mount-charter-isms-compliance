@@ -37,6 +37,10 @@ export const interactionTypeValues = [
   "document_analysis",
   "evidence_fanout",
   "framework_assessment",
+  "mock_auditor",
+  "soa_scoping",
+  "policy_redline",
+  "vendor_assurance",
   "connectivity_test",
 ] as const;
 export const concreteAiProviderValues = [
@@ -1065,6 +1069,85 @@ export interface AgentProposal {
   status: AgentProposalStatus;
   reviewedAt: string | null;
   createdAt: string;
+}
+
+export interface MockAuditFinding {
+  stage: "Stage 1 (Design)" | "Stage 2 (Operating Effectiveness)";
+  severity: "MajorNC" | "MinorNC" | "OFI";
+  title: string;
+  citations: string[];
+  contradiction: string;
+  remediation: string;
+  suggestedCapa?: {
+    title: string;
+    findingType: "MajorNC" | "MinorNC" | "OFI" | "AuditFinding";
+    controlNumber?: string | null;
+    rootCause: string;
+    correctiveAction: string;
+  };
+}
+
+export interface MockAuditDossier {
+  runId: string;
+  generatedAt: string;
+  readinessVerdict: "Audit Ready" | "Conditional — Minor Gaps" | "Not Ready — Major NCs Found";
+  executiveSummary: string;
+  deterministicChecks: Array<{
+    code: string;
+    severity: "MajorNC" | "MinorNC" | "OFI";
+    detail: string;
+  }>;
+  findings: MockAuditFinding[];
+  stagedProposalCount: number;
+  tokensUsed: number;
+  costUsd: number;
+  modelUsed: string;
+  provider: string;
+}
+
+export interface PolicyRedlineResult {
+  policyId: number;
+  policyCode: string;
+  policyTitle: string;
+  summary: string;
+  overPromises: Array<{
+    clause: string;
+    policyClaim: string;
+    operationalReality: string;
+    riskLevel: "High" | "Medium" | "Low";
+  }>;
+  redlinedMarkdown: string;
+  tokensUsed: number;
+  costUsd: number;
+  modelUsed: string;
+}
+
+export interface VendorAssuranceResult {
+  vendorId: number;
+  vendorName: string;
+  documentId: number;
+  documentTitle: string;
+  auditWindow: string;
+  bridgeLetterNeeded: boolean;
+  exceptionsOrQualifications: string[];
+  dataResidencyFindings: string;
+  app8CrossBorderRisk: "Low" | "Medium" | "High";
+  subProcessors: string[];
+  cuecs: Array<{
+    cuec: string;
+    mappedIsoControl: string | null;
+    statusNote: string;
+  }>;
+  cps230Clauses: {
+    apraAccessRights: "Present" | "Missing" | "Unclear";
+    incidentNotice24h72h: "Present" | "Missing" | "Unclear";
+    exitAndTransitionSupport: "Present" | "Missing" | "Unclear";
+  };
+  summary: string;
+  stagedProposalCount: number;
+  tokensUsed: number;
+  costUsd: number;
+  modelUsed: string;
 }
 
 export interface EvidenceFanOutEstimate {

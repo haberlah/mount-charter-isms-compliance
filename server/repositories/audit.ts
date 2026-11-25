@@ -17,6 +17,7 @@ import { getDb } from "../db";
 import { mapEvidenceLink, mapMatch, mapRequirementLog, mapTestRun, safeJsonParse } from "./common";
 import { controlsRepository } from "./controls";
 import { frameworksRepository } from "./frameworks";
+import { governanceRepository } from "./governance";
 
 export const auditRepository = {
   createTestRun(params: {
@@ -346,6 +347,63 @@ export const auditRepository = {
             evidenceType: "DOCUMENT",
           });
         }
+      }
+    } else if (proposal.targetType === "capa_item") {
+      const findingRaw = String(effectivePayload.findingType || "MinorNC");
+      const findingType = (
+        ["MajorNC", "MinorNC", "OFI", "AuditFinding"].includes(findingRaw) ? findingRaw : "MinorNC"
+      ) as "MajorNC" | "MinorNC" | "OFI" | "AuditFinding";
+      governanceRepository.createCapa(params.workspaceId, {
+        title: String(effectivePayload.title || proposal.title).slice(0, 240),
+        findingType,
+        source: String(effectivePayload.source || proposal.runLabel).slice(0, 160),
+        controlNumber:
+          typeof effectivePayload.controlNumber === "string" &&
+          effectivePayload.controlNumber.trim()
+            ? effectivePayload.controlNumber.trim()
+            : null,
+        rootCause:
+          typeof effectivePayload.rootCause === "string"
+            ? effectivePayload.rootCause.slice(0, 4000)
+            : proposal.rationale.slice(0, 4000),
+        correctiveAction:
+          typeof effectivePayload.correctiveAction === "string"
+            ? effectivePayload.correctiveAction.slice(0, 4000)
+            : proposal.summary.slice(0, 4000),
+        owner: typeof effectivePayload.owner === "string" ? effectivePayload.owner : null,
+        dueDate: typeof effectivePayload.dueDate === "string" ? effectivePayload.dueDate : null,
+        status: "Open",
+      });
+    } else if (proposal.targetType === "risk_item") {
+      governanceRepository.createRisk(params.workspaceId, {
+        title: String(effectivePayload.title || proposal.title).slice(0, 240),
+        description: String(effectivePayload.description || proposal.summary).slice(0, 4000),
+        threat: typeof effectivePayload.threat === "string" ? effectivePayload.threat : null,
+        likelihood: Math.max(1, Math.min(5, Number(effectivePayload.likelihood) || 3)),
+        impact: Math.max(1, Math.min(5, Number(effectivePayload.impact) || 4)),
+        treatment: "Mitigate",
+        treatmentPlan:
+          typeof effectivePayload.treatmentPlan === "string"
+            ? effectivePayload.treatmentPlan.slice(0, 4000)
+            : proposal.rationale.slice(0, 4000),
+        status: "Open",
+        linkedControls: Array.isArray(effectivePayload.linkedControls)
+          ? effectivePayload.linkedControls.map(String)
+          : [],
+      });
+    } else if (proposal.targetType === "soa_justification") {
+      const controlNumber = String(effectivePayload.controlNumber || proposal.targetRef).trim();
+      const ctrl = controlsRepository.getControlByNumber(controlNumber);
+      const justification = String(
+        effectivePayload.inclusionJustification ||
+          effectivePayload.evidenceSummary ||
+          proposal.summary,
+      ).trim();
+      // Hard audit red line: agent SoA proposals ONLY update inclusionJustification (never auto-exclude controls)
+      if (ctrl && justification) {
+        controlsRepository.updateWorkspaceControl(params.workspaceId, ctrl.id, {
+          inclusionJustification: justification.slice(0, 2000),
+        });
       }
     }
 

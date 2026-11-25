@@ -10,12 +10,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { AiActivityTab } from "@/components/audit/AiActivityTab";
 import { AuditExportsTab } from "@/components/audit/AuditExportsTab";
+import { MockAuditorTab } from "@/components/audit/MockAuditorTab";
 import { SoaTab } from "@/components/audit/SoaTab";
 import { TestTrailTab } from "@/components/audit/TestTrailTab";
 import { PaperTabs } from "@/components/PaperUi";
 import { apiRequest } from "@/lib/api";
 
-type AuditTab = "soa" | "runs" | "ai" | "exports";
+type AuditTab = "soa" | "auditor" | "runs" | "ai" | "exports";
 
 export function AuditPage() {
   const searchStr = useSearch();
@@ -23,11 +24,11 @@ export function AuditPage() {
   const urlTab = new URLSearchParams(searchStr).get("tab") as AuditTab | null;
 
   const [tab, setTab] = useState<AuditTab>(
-    urlTab && ["soa", "runs", "ai", "exports"].includes(urlTab) ? urlTab : "soa",
+    urlTab && ["soa", "auditor", "runs", "ai", "exports"].includes(urlTab) ? urlTab : "soa",
   );
 
   useEffect(() => {
-    if (urlTab && ["soa", "runs", "ai", "exports"].includes(urlTab)) {
+    if (urlTab && ["soa", "auditor", "runs", "ai", "exports"].includes(urlTab)) {
       setTab(urlTab);
     }
   }, [urlTab]);
@@ -93,6 +94,7 @@ export function AuditPage() {
         onChange={handleTabChange}
         tabs={[
           { id: "soa", label: `Statement of Applicability (${controls.length})` },
+          { id: "auditor", label: "Mock Lead Auditor" },
           { id: "runs", label: `Test Audit Trail (${testRuns.length})` },
           { id: "ai", label: `AI Activity Log (${aiData?.interactions.length ?? 0})` },
           { id: "exports", label: "Audit Pack Exports" },
@@ -100,6 +102,7 @@ export function AuditPage() {
       />
 
       {tab === "soa" && <SoaTab controls={controls} profile={settingsData?.profile} />}
+      {tab === "auditor" && <MockAuditorTab />}
       {tab === "runs" && <TestTrailTab testRuns={testRuns} />}
       {tab === "ai" && <AiActivityTab aiData={aiData} />}
       {tab === "exports" && <AuditExportsTab frameworks={frameworks} />}

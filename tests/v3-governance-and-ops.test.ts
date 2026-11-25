@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { runDeterministicAuditScan } from "../server/agent-runtime";
 import { selectFanOutCandidates } from "../server/ai";
 import {
   clearModelCache,
@@ -354,6 +355,87 @@ test("Option A: Evidence Fan-Out pre-filter, USD cost ledger & staged proposal a
     .requirements.find((r) => r.reqCode === "E8-PA-ML1-01")!;
   assert.equal(after.assessment.status, "PartiallyMet");
   assert.ok(after.historyCount >= 1, "Expected immutable requirement_assessment_log entry");
+});
+
+test("Stage 2 & 3: Deterministic audit pre-scan detects cross-register blockers & staged CAPA/SoA proposals commit cleanly on approval", () => {
+  const ws = storage.createWorkspace("Stage 2-3 Audit Co");
+
+  // Trigger real cross-register blockers: missing climate determination, missing audit/review, MSP without exit plan, broken risk->control
+  storage.createVendor(ws.id, {
+    name: "Core Payments MSP",
+    isMaterialServiceProvider: true,
+    criticality: "Critical",
+    exitPlanStatus: "Missing",
+  });
+  storage.createRisk(ws.id, {
+    title: "Broken IAM control risk",
+    likelihood: 4,
+    impact: 5,
+    status: "InTreatment",
+    linkedControls: ["8.5"],
+  });
+
+  const checks = runDeterministicAuditScan(ws.id);
+  const codes = checks.map((c) => c.code);
+  assert.ok(codes.includes("ISO-AMD1-CLIMATE"), "Expected Amd 1:2024 climate check");
+  assert.ok(codes.includes("ISO-9.2-INTERNAL-AUDIT"), "Expected Clause 9.2 check");
+  assert.ok(codes.includes("ISO-9.3-MGMT-REVIEW"), "Expected Clause 9.3 check");
+  assert.ok(codes.includes("CPS230-MSP-EXIT"), "Expected CPS 230 MSP exit plan check");
+  assert.ok(
+    codes.some((c) => c.startsWith("RISK-CTRL-BREAK-")),
+    "Expected Risk -> NotImplemented Control -> Missing CAPA break check",
+  );
+
+  // Stage & approve a CAPA proposal -> creates an Open CAPA (never VerifiedClosed!)
+  const capaProp = storage.createAgentProposal({
+    workspaceId: ws.id,
+    runId: "audit-test-1",
+    runLabel: "Mock Lead Auditor",
+    targetType: "capa_item",
+    targetRef: "8.5",
+    title: "Remediate unimplemented MFA control 8.5",
+    summary: "Enforce FIDO2 WebAuthn MFA across all admin consoles.",
+    rationale: "Risk RSK-001 is InTreatment while control 8.5 is NotImplemented.",
+    confidence: 0.9,
+    payload: {
+      title: "Remediate unimplemented MFA control 8.5",
+      findingType: "MajorNC",
+      controlNumber: "8.5",
+      rootCause: "MFA rollout not completed",
+      correctiveAction: "Enforce FIDO2 WebAuthn MFA across all admin consoles.",
+    },
+  });
+  storage.resolveAgentProposal({
+    workspaceId: ws.id,
+    proposalId: capaProp.id,
+    decision: "approve",
+  });
+  const capas = storage.listCapas(ws.id);
+  assert.equal(capas.length, 1);
+  assert.equal(capas[0].status, "Open");
+  assert.equal(capas[0].controlNumber, "8.5");
+
+  // Stage & approve a SoA inclusion justification proposal -> updates inclusionJustification without excluding control
+  const soaProp = storage.createAgentProposal({
+    workspaceId: ws.id,
+    runId: "soa-test-1",
+    runLabel: "SoA Clause 6.1.3(d) Scoping",
+    targetType: "soa_justification",
+    targetRef: "8.5",
+    title: "SoA 8.5 · Secure authentication",
+    summary: "Required to treat RSK-001 and satisfy Essential Eight MFA obligations.",
+    rationale: "Linked to RSK-001 and ACSC Essential Eight.",
+    confidence: 0.85,
+    payload: {
+      controlNumber: "8.5",
+      inclusionJustification:
+        "Required to treat RSK-001 and satisfy Essential Eight MFA obligations.",
+    },
+  });
+  storage.resolveAgentProposal({ workspaceId: ws.id, proposalId: soaProp.id, decision: "approve" });
+  const ctrl85 = storage.listControlsWithStatus(ws.id).find((c) => c.controlNumber === "8.5")!;
+  assert.equal(ctrl85.workspaceControl.isApplicable, true);
+  assert.ok(ctrl85.workspaceControl.inclusionJustification?.includes("RSK-001"));
 });
 
 test("GET /api/settings/models returns live CLI aliases and rejects unsafe base URLs", async () => {

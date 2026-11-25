@@ -278,6 +278,8 @@ export async function fetchOpenRouterKeyInfo(): Promise<{
   usageUsd?: number;
   limitUsd?: number | null;
   limitRemainingUsd?: number | null;
+  accountCreditsRemainingUsd?: number | null;
+  isProvisioningKey?: boolean;
   isFreeTier?: boolean;
   error?: string;
 }> {
@@ -286,12 +288,13 @@ export async function fetchOpenRouterKeyInfo(): Promise<{
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 4500);
   try {
+    const headers = {
+      Authorization: `Bearer ${key}`,
+      "HTTP-Referer": "https://github.com/haberlah/mount-charter-isms-compliance",
+      "X-Title": "Mount Charter ISMS",
+    };
     const res = await fetch("https://openrouter.ai/api/v1/auth/key", {
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "HTTP-Referer": "https://github.com/haberlah/mount-charter-isms-compliance",
-        "X-Title": "Mount Charter ISMS",
-      },
+      headers,
       signal: controller.signal,
     });
     if (!res.ok) return { ok: false, error: `OpenRouter key check failed (HTTP ${res.status})` };
@@ -302,15 +305,53 @@ export async function fetchOpenRouterKeyInfo(): Promise<{
         limit?: number | null;
         limit_remaining?: number | null;
         is_free_tier?: boolean;
+        is_provisioning_key?: boolean;
+        is_management_key?: boolean;
       };
     };
+    const isProvisioningKey = Boolean(
+      json.data?.is_provisioning_key || json.data?.is_management_key,
+    );
+
+    let accountCreditsRemainingUsd: number | null = null;
+    try {
+      const credRes = await fetch("https://openrouter.ai/api/v1/credits", {
+        headers,
+        signal: controller.signal,
+      });
+      if (credRes.ok) {
+        const credJson = (await credRes.json()) as {
+          data?: { total_credits?: number; total_usage?: number };
+        };
+        if (
+          typeof credJson.data?.total_credits === "number" &&
+          typeof credJson.data?.total_usage === "number"
+        ) {
+          accountCreditsRemainingUsd = Math.max(
+            0,
+            credJson.data.total_credits - credJson.data.total_usage,
+          );
+        }
+      }
+    } catch {
+      // /credits is optional
+    }
+
     return {
-      ok: true,
+      ok: !isProvisioningKey,
       label: json.data?.label,
       usageUsd: typeof json.data?.usage === "number" ? json.data.usage : 0,
       limitUsd: json.data?.limit ?? null,
-      limitRemainingUsd: json.data?.limit_remaining ?? null,
+      limitRemainingUsd: json.data?.limit_remaining ?? accountCreditsRemainingUsd,
+      accountCreditsRemainingUsd,
+      isProvisioningKey,
       isFreeTier: Boolean(json.data?.is_free_tier),
+      ...(isProvisioningKey
+        ? {
+            error:
+              "Provisioning/Management key detected — OpenRouter requires a standard Inference API key for model calls (openrouter.ai/settings/keys).",
+          }
+        : {}),
     };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Network error" };
@@ -1068,7 +1109,8 @@ function execCliPrompt(
       binaryPath,
       args,
       {
-        timeout: 120_000,
+        cwd: os.tmpdir(),
+        timeout: 180_000,
         maxBuffer: 8 * 1024 * 1024,
         signal,
         env: { ...process.env, NO_COLOR: "1" },
@@ -1279,7 +1321,7 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
 
     let stdout = "";
     if (provider === "claude_cli") {
-      const cliArgs = ["-p", "--output-format", "text"];
+      const cliArgs = ["-p", "--output-format", "text", "--tools", "", "--no-session-persistence"];
       if (model && model !== "auto") cliArgs.push("--model", model);
       stdout = await execCliPrompt(binPath, cliArgs, combinedPrompt, params.signal);
     } else if (provider === "codex_cli") {
@@ -1348,16 +1390,38 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
     ...(streaming ? { stream: true, stream_options: { include_usage: true } } : {}),
   };
 
-  if (provider === "openrouter" && params.profile?.aiZdrOnly !== false) {
-    bodyObj.provider = { data_collection: "deny" };
+  if (provider === "openrouter") {
+    const fallbackModel =
+      params.tier === "screening" ? "google/gemini-2.5-flash" : "anthropic/claude-sonnet-4.6";
+    if (fallbackModel !== model) {
+      bodyObj.models = [model, fallbackModel];
+    }
+    if (params.profile?.aiZdrOnly !== false) {
+      bodyObj.provider = { data_collection: "deny" };
+    }
   }
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  let response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers,
     signal: params.signal,
     body: JSON.stringify(bodyObj),
   });
+
+  // Resilient 1-retry with brief backoff on transient 503/429 spikes (never substituting sunset models)
+  if (
+    !response.ok &&
+    (response.status === 503 || response.status === 429) &&
+    !params.signal?.aborted
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    response = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers,
+      signal: params.signal,
+      body: JSON.stringify(bodyObj),
+    });
+  }
 
   if (!response.ok) {
     const errBody = await response.text().catch(() => "");

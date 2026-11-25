@@ -16,7 +16,7 @@ interface AiReviewQueueTabProps {
   controls: ControlSummary[];
 }
 
-type InboxFilter = "all" | "iso" | "frameworks";
+type InboxFilter = "all" | "iso" | "frameworks" | "governance";
 
 function calibratedLabel(score: number, hasQuote: boolean): { text: string; tone: string } {
   if (!hasQuote)
@@ -133,8 +133,18 @@ export function AiReviewQueueTab({
     );
   }
 
+  const frameworkProposals = useMemo(
+    () => pendingProposals.filter((p) => p.targetType === "framework_assessment"),
+    [pendingProposals],
+  );
+  const governanceProposals = useMemo(
+    () => pendingProposals.filter((p) => p.targetType !== "framework_assessment"),
+    [pendingProposals],
+  );
+
   const showIso = filter === "all" || filter === "iso";
   const showFrameworks = filter === "all" || filter === "frameworks";
+  const showGovernance = filter === "all" || filter === "governance";
 
   return (
     <div className="mw-stack">
@@ -159,7 +169,14 @@ export function AiReviewQueueTab({
             className={`pp-button pp-button--sm ${filter === "frameworks" ? "pp-button--primary" : ""}`}
             onClick={() => setFilter("frameworks")}
           >
-            AU Framework Assessments ({pendingProposals.length})
+            AU Frameworks ({frameworkProposals.length})
+          </button>
+          <button
+            type="button"
+            className={`pp-button pp-button--sm ${filter === "governance" ? "pp-button--primary" : ""}`}
+            onClick={() => setFilter("governance")}
+          >
+            CAPAs &amp; SoA ({governanceProposals.length})
           </button>
         </div>
         {highConfIsoCount > 0 && showIso && (
@@ -168,15 +185,63 @@ export function AiReviewQueueTab({
             className="pp-button pp-button--primary pp-button--sm"
             disabled={batchAcceptHighConf.isPending}
             onClick={() => batchAcceptHighConf.mutate()}
-            title="Only accepts ISO questionnaire suggestions scoring >= 85% with a verbatim document quote. Statutory framework assessments always require individual review."
+            title="Only accepts ISO questionnaire suggestions scoring >= 85% with a verbatim document quote. Statutory framework assessments and CAPAs always require individual review."
           >
             Accept High-Confidence ISO ({highConfIsoCount})
           </button>
         )}
       </div>
 
+      {showGovernance &&
+        governanceProposals.map((p) => (
+          <article key={`gov-${p.id}`} className="mw-proposal-card">
+            <div className="mw-row mw-row--between mw-row--wrap">
+              <div className="mw-row mw-row--wrap">
+                <span className="pp-badge pp-badge--accent">AI Proposal · Uncommitted</span>
+                <span className="pp-badge">
+                  {p.targetType === "capa_item"
+                    ? "Draft CAPA"
+                    : p.targetType === "soa_justification"
+                      ? "SoA Clause 6.1.3(d)"
+                      : "Draft Risk"}
+                </span>
+                <strong>{p.title}</strong>
+                <span className="pp-badge mw-mono">{p.targetRef}</span>
+              </div>
+              <span className="mw-faint mw-mono">
+                {p.runLabel}
+                {p.modelUsed ? ` · ${p.modelUsed}` : ""}
+              </span>
+            </div>
+            <div className="pp-prose">{p.summary}</div>
+            {p.rationale && <div className="mw-muted">{p.rationale}</div>}
+            <div className="mw-row mw-row--wrap">
+              <button
+                type="button"
+                className="pp-button pp-button--primary pp-button--sm"
+                disabled={resolveProposal.isPending}
+                onClick={() => resolveProposal.mutate({ id: p.id, decision: "approve" })}
+              >
+                {p.targetType === "capa_item"
+                  ? "Create Open CAPA"
+                  : p.targetType === "soa_justification"
+                    ? "Save SoA Justification"
+                    : "Create Risk"}
+              </button>
+              <button
+                type="button"
+                className="pp-button pp-button--ghost pp-button--sm"
+                disabled={resolveProposal.isPending}
+                onClick={() => resolveProposal.mutate({ id: p.id, decision: "reject" })}
+              >
+                Dismiss
+              </button>
+            </div>
+          </article>
+        ))}
+
       {showFrameworks &&
-        pendingProposals.map((p) => {
+        frameworkProposals.map((p) => {
           const fwCode = String(p.payload.frameworkCode || "");
           const suggestedStatus = String(
             p.payload.suggestedStatus || "PartiallyMet",

@@ -73,6 +73,7 @@ export function AiSettingsTab({ profile, aiStatus, costUsedTodayUsd = 0 }: AiSet
     usageUsd?: number;
     limitUsd?: number | null;
     limitRemainingUsd?: number | null;
+    isProvisioningKey?: boolean;
     error?: string;
   }>({
     queryKey: ["openrouter-key-info", openrouterStatus?.configured],
@@ -302,8 +303,9 @@ export function AiSettingsTab({ profile, aiStatus, costUsedTodayUsd = 0 }: AiSet
   const screeningIsKnown = screeningModel === "auto" || availableModels.includes(screeningModel);
   const synthesisIsKnown = synthesisModel === "auto" || availableModels.includes(synthesisModel);
 
-  const openRouterCreditPill =
-    openrouterKeyInfo?.ok && openrouterKeyInfo.limitRemainingUsd != null
+  const openRouterCreditPill = openrouterKeyInfo?.isProvisioningKey
+    ? "Provisioning key — paste an Inference key"
+    : openrouterKeyInfo?.ok && openrouterKeyInfo.limitRemainingUsd != null
       ? `Key valid · $${openrouterKeyInfo.limitRemainingUsd.toFixed(2)} credit`
       : openrouterKeyInfo?.ok
         ? `Key valid · $${(openrouterKeyInfo.usageUsd ?? 0).toFixed(2)} used`
@@ -336,7 +338,12 @@ export function AiSettingsTab({ profile, aiStatus, costUsedTodayUsd = 0 }: AiSet
             </p>
             <div className="mw-row">
               {openRouterCreditPill && effectiveConcrete === "openrouter" && (
-                <span className="pp-status pp-status--ok mw-mono">{openRouterCreditPill}</span>
+                <span
+                  className={`pp-status ${openrouterKeyInfo?.isProvisioningKey ? "pp-status--warn" : "pp-status--ok"} mw-mono`}
+                  title={openrouterKeyInfo?.error}
+                >
+                  {openRouterCreditPill}
+                </span>
               )}
               <button
                 type="button"

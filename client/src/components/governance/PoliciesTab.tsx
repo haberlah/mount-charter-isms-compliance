@@ -1,4 +1,4 @@
-import type { PolicyRecord, PolicyStatus } from "@shared/schema";
+import type { PolicyRecord, PolicyRedlineResult, PolicyStatus } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ConfirmDialog, formatShortDate, Icon } from "@/components/PaperUi";
@@ -26,6 +26,8 @@ export function PoliciesTab({
   const [editVersion, setEditVersion] = useState("1.0");
   const [deleteTarget, setDeleteTarget] = useState<PolicyRecord | null>(null);
   const [busy, setBusy] = useState(false);
+  const [redlining, setRedlining] = useState(false);
+  const [redline, setRedline] = useState<PolicyRedlineResult | null>(null);
 
   const { data: templates = [] } = useQuery<PolicyTemplateMeta[]>({
     queryKey: ["policy-templates"],
@@ -40,6 +42,26 @@ export function PoliciesTab({
     setEditStatus(p.status);
     setEditApprover(p.approver || "");
     setEditVersion(p.version);
+    setRedline(null);
+  };
+
+  const runPolicyRedline = async () => {
+    if (!activePolicy) return;
+    setRedlining(true);
+    try {
+      const res = await apiRequest<PolicyRedlineResult>(
+        "POST",
+        `/api/agent/policies/${activePolicy.id}/redline`,
+      );
+      setRedline(res);
+      showToast(`Redline ready: ${res.overPromises.length} over-promised SLA(s) flagged`, {
+        tone: "ok",
+      });
+    } catch (err) {
+      showToast((err as Error).message, { tone: "err" });
+    } finally {
+      setRedlining(false);
+    }
   };
 
   const generateFromTemplate = async (tplId: string) => {
@@ -285,7 +307,7 @@ export function PoliciesTab({
                 onChange={(e) => setEditContent(e.target.value)}
               />
             </div>
-            <div className="mw-row">
+            <div className="mw-row mw-row--wrap">
               <button
                 type="button"
                 className="pp-button pp-button--primary pp-button--sm"
@@ -297,12 +319,94 @@ export function PoliciesTab({
               <button
                 type="button"
                 className="pp-button pp-button--sm"
+                disabled={redlining}
+                onClick={() => void runPolicyRedline()}
+                title="Compare this policy against your real ISO controls, Essential Eight maturity, and vendors to flag over-promised SLAs"
+              >
+                {redlining ? "Redlining…" : "Redline Against Reality (AI)"}
+              </button>
+              <button
+                type="button"
+                className="pp-button pp-button--sm"
                 onClick={() => downloadMarkdown({ ...activePolicy, contentMarkdown: editContent })}
               >
                 <Icon name="download" />
                 Export Markdown
               </button>
             </div>
+
+            {redline && redline.policyId === activePolicy.id && (
+              <div className="mw-proposal-card">
+                <div className="mw-row mw-row--between mw-row--wrap">
+                  <div className="mw-row">
+                    <span className="pp-badge pp-badge--accent">AI Proposal · Uncommitted</span>
+                    <strong>Living Policy Redline</strong>
+                  </div>
+                  <span className="mw-faint mw-mono">
+                    {redline.modelUsed}
+                    {redline.costUsd > 0 ? ` · $${redline.costUsd.toFixed(4)}` : ""}
+                  </span>
+                </div>
+                <div className="pp-prose">{redline.summary}</div>
+                {redline.overPromises.length > 0 && (
+                  <div className="mw-stack mw-stack--sm">
+                    <strong style={{ fontSize: 13 }}>
+                      Over-Promised SLAs / Stage 2 Audit Traps ({redline.overPromises.length})
+                    </strong>
+                    {redline.overPromises.map((o, idx) => (
+                      <div key={`${o.clause}-${idx}`} className="mw-check-row">
+                        <div className="mw-stack" style={{ gap: 2 }}>
+                          <div className="mw-row">
+                            <span
+                              className={
+                                o.riskLevel === "High"
+                                  ? "pp-status pp-status--err"
+                                  : o.riskLevel === "Medium"
+                                    ? "pp-status pp-status--warn"
+                                    : "pp-badge"
+                              }
+                            >
+                              {o.riskLevel} Risk
+                            </span>
+                            <strong>{o.clause}</strong>
+                          </div>
+                          <div className="mw-faint">
+                            <strong>Policy claims:</strong> {o.policyClaim}
+                          </div>
+                          <div className="mw-muted">
+                            <strong>Workspace reality:</strong> {o.operationalReality}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="mw-row mw-row--wrap">
+                  <button
+                    type="button"
+                    className="pp-button pp-button--primary pp-button--sm"
+                    onClick={() => {
+                      setEditContent(redline.redlinedMarkdown);
+                      setEditStatus("Draft");
+                      setRedline(null);
+                      showToast(
+                        "Applied redline to editor as Draft — review and click Save Policy.",
+                        { tone: "info" },
+                      );
+                    }}
+                  >
+                    Apply Redline to Editor (as Draft)
+                  </button>
+                  <button
+                    type="button"
+                    className="pp-button pp-button--ghost pp-button--sm"
+                    onClick={() => setRedline(null)}
+                  >
+                    Dismiss Redline
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -177,6 +177,29 @@ export function SoaTab({ controls, profile }: SoaTabProps) {
     onError: (err: Error) => showToast(err.message, { tone: "err" }),
   });
 
+  const draftSoaAi = useMutation({
+    mutationFn: (controlNumbers?: string[]) =>
+      apiRequest<{ stagedProposals: unknown[]; costUsd: number; modelUsed: string }>(
+        "POST",
+        "/api/agent/soa-justifications",
+        controlNumbers && controlNumbers.length > 0 ? { controlNumbers } : {},
+      ),
+    onSuccess: (res) => {
+      void invalidateWorkspaceQueries();
+      if (res.stagedProposals.length === 0) {
+        showToast("All applicable Annex A controls already have justifications recorded.", {
+          tone: "info",
+        });
+      } else {
+        showToast(
+          `Staged ${res.stagedProposals.length} Clause 6.1.3(d) justification proposal(s) in AI Proposal Inbox`,
+          { tone: "ok" },
+        );
+      }
+    },
+    onError: (err: Error) => showToast(err.message, { tone: "err" }),
+  });
+
   const filteredSoa = useMemo(() => {
     const q = soaSearch.trim().toLowerCase();
     if (!q) return controls;
@@ -289,6 +312,21 @@ export function SoaTab({ controls, profile }: SoaTabProps) {
             onChange={(e) => setSoaSearch(e.target.value)}
           />
         </div>
+        <button
+          type="button"
+          className="pp-button pp-button--sm"
+          disabled={draftSoaAi.isPending}
+          onClick={() =>
+            draftSoaAi.mutate(selectedAnnexControls.length > 0 ? selectedAnnexControls : undefined)
+          }
+          title="Draft Clause 6.1.3(d) inclusion justifications grounded in your Risk Register and enabled Australian frameworks (staged in AI Proposal Inbox)"
+        >
+          {draftSoaAi.isPending
+            ? "Drafting Justifications…"
+            : selectedAnnexControls.length > 0
+              ? `Draft Justifications (${selectedAnnexControls.length} selected)`
+              : "Draft Missing Justifications (AI)"}
+        </button>
       </div>
 
       {selectedControls.size > 0 && (

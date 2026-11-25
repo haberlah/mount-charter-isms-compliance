@@ -1,5 +1,13 @@
-import type { ExitPlanStatus, VendorCriticality, VendorRecord } from "@shared/schema";
+import type {
+  DocumentRecord,
+  ExitPlanStatus,
+  VendorAssuranceResult,
+  VendorCriticality,
+  VendorRecord,
+} from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Link } from "wouter";
 import { ConfirmDialog, formatShortDate, Icon } from "@/components/PaperUi";
 import { apiRequest, downloadFile, invalidateWorkspaceQueries, showToast } from "@/lib/api";
 
@@ -14,6 +22,42 @@ export function VendorsTab({
   const [editing, setEditing] = useState<VendorRecord | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VendorRecord | null>(null);
   const [busy, setBusy] = useState(false);
+  const [assureVendorId, setAssureVendorId] = useState<string>("");
+  const [assureDocId, setAssureDocId] = useState<string>("");
+  const [analysingPack, setAnalysingPack] = useState(false);
+  const [assuranceResult, setAssuranceResult] = useState<VendorAssuranceResult | null>(null);
+
+  const { data: documents = [] } = useQuery<DocumentRecord[]>({
+    queryKey: ["documents"],
+    queryFn: () => apiRequest<DocumentRecord[]>("GET", "/api/documents"),
+  });
+
+  const runVendorAssurance = async () => {
+    if (!assureVendorId || !assureDocId) {
+      showToast("Select both a vendor and an uploaded SOC 2 / contract document.", {
+        tone: "warn",
+      });
+      return;
+    }
+    setAnalysingPack(true);
+    try {
+      const res = await apiRequest<VendorAssuranceResult>(
+        "POST",
+        `/api/agent/vendors/${encodeURIComponent(assureVendorId)}/analyse-document`,
+        { documentId: Number(assureDocId) },
+      );
+      setAssuranceResult(res);
+      await invalidateWorkspaceQueries();
+      showToast(
+        `Vendor assurance complete: ${res.cuecs.length} CUEC(s), ${res.stagedProposalCount} CAPA proposal(s) staged`,
+        { tone: "ok" },
+      );
+    } catch (err) {
+      showToast((err as Error).message, { tone: "err" });
+    } finally {
+      setAnalysingPack(false);
+    }
+  };
 
   const [name, setName] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
@@ -344,6 +388,140 @@ export function VendorsTab({
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {vendors.length > 0 && (
+        <div className="pp-card">
+          <div className="pp-card__header">
+            <div>
+              <div className="pp-title">
+                Vendor &amp; MSP Assurance Pack Analyser (SOC 2 Type II · CPS 230 · APP 8)
+              </div>
+              <div className="mw-faint">
+                Inspect an uploaded vendor SOC 2 report, ISO certificate, or MSA/DPA to extract
+                CUECs, sub-processors, overseas residency (APP 8), and APRA CPS 230 mandatory
+                clauses.
+              </div>
+            </div>
+          </div>
+          <div className="pp-card__body mw-stack">
+            <div className="mw-row mw-row--wrap">
+              <select
+                className="pp-select pp-select--sm"
+                style={{ width: "auto", minWidth: 200 }}
+                aria-label="Select vendor to analyse"
+                value={assureVendorId}
+                onChange={(e) => setAssureVendorId(e.target.value)}
+              >
+                <option value="">Select vendor…</option>
+                {vendors.map((v) => (
+                  <option key={v.id} value={String(v.id)}>
+                    {v.name} {v.isMaterialServiceProvider ? "(MSP)" : ""}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="pp-select pp-select--sm"
+                style={{ width: "auto", minWidth: 240 }}
+                aria-label="Select vendor SOC 2 or contract document"
+                value={assureDocId}
+                onChange={(e) => setAssureDocId(e.target.value)}
+              >
+                <option value="">Select uploaded SOC 2 / contract…</option>
+                {documents
+                  .filter((d) => !d.mimeType.startsWith("image/") && d.extractionStatus !== "error")
+                  .map((d) => (
+                    <option key={d.id} value={String(d.id)}>
+                      {d.title} ({d.originalFilename})
+                    </option>
+                  ))}
+              </select>
+              <button
+                type="button"
+                className="pp-button pp-button--primary pp-button--sm"
+                disabled={analysingPack || !assureVendorId || !assureDocId}
+                onClick={() => void runVendorAssurance()}
+              >
+                {analysingPack ? "Analysing Pack…" : "Analyse Vendor Pack (AI)"}
+              </button>
+            </div>
+
+            {assuranceResult && (
+              <div className="mw-proposal-card">
+                <div className="mw-row mw-row--between mw-row--wrap">
+                  <div className="mw-row mw-row--wrap">
+                    <strong>
+                      {assuranceResult.vendorName} — {assuranceResult.documentTitle}
+                    </strong>
+                    <span
+                      className={
+                        assuranceResult.app8CrossBorderRisk === "High"
+                          ? "pp-status pp-status--err"
+                          : assuranceResult.app8CrossBorderRisk === "Medium"
+                            ? "pp-status pp-status--warn"
+                            : "pp-status pp-status--ok"
+                      }
+                    >
+                      APP 8 Risk: {assuranceResult.app8CrossBorderRisk}
+                    </span>
+                    {assuranceResult.bridgeLetterNeeded && (
+                      <span className="pp-status pp-status--warn">Bridge Letter Needed</span>
+                    )}
+                  </div>
+                  <span className="mw-faint mw-mono">
+                    Window: {assuranceResult.auditWindow} · {assuranceResult.modelUsed}
+                  </span>
+                </div>
+
+                <div className="pp-prose">{assuranceResult.summary}</div>
+
+                <div className="mw-row mw-row--wrap">
+                  <span className="pp-badge">
+                    APRA Access: {assuranceResult.cps230Clauses.apraAccessRights}
+                  </span>
+                  <span className="pp-badge">
+                    24h/72h Notice: {assuranceResult.cps230Clauses.incidentNotice24h72h}
+                  </span>
+                  <span className="pp-badge">
+                    Exit Support: {assuranceResult.cps230Clauses.exitAndTransitionSupport}
+                  </span>
+                  <span className="mw-faint">
+                    Residency: {assuranceResult.dataResidencyFindings}
+                  </span>
+                </div>
+
+                {assuranceResult.cuecs.length > 0 && (
+                  <div className="mw-stack mw-stack--sm">
+                    <strong style={{ fontSize: 13 }}>
+                      Complementary User Entity Controls ({assuranceResult.cuecs.length})
+                    </strong>
+                    {assuranceResult.cuecs.slice(0, 6).map((c, idx) => (
+                      <div key={`${c.cuec}-${idx}`} className="mw-faint">
+                        {c.mappedIsoControl && (
+                          <span className="pp-badge mw-mono" style={{ marginRight: 6 }}>
+                            ISO {c.mappedIsoControl}
+                          </span>
+                        )}
+                        <strong>{c.cuec}</strong> — {c.statusNote}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {assuranceResult.stagedProposalCount > 0 && (
+                  <div className="mw-row">
+                    <Link
+                      href="/evidence?tab=queue"
+                      className="pp-button pp-button--primary pp-button--sm"
+                    >
+                      Review {assuranceResult.stagedProposalCount} Staged CAPA Proposal(s) →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

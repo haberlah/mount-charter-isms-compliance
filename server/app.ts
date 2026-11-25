@@ -1,6 +1,7 @@
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import { getDataDir } from "./config";
 import { getDb } from "./db";
+import { agentRouter } from "./routes/agent";
 import { auditRouter } from "./routes/audit";
 import { controlsRouter } from "./routes/controls";
 import { evidenceRouter } from "./routes/evidence";
@@ -92,6 +93,7 @@ export function createApp(
   app.use("/api", frameworksRouter);
   app.use("/api", governanceRouter);
   app.use("/api", operationsRouter);
+  app.use("/api", agentRouter);
 
   // 7. Unknown /api route 404
   app.use("/api", (_req, res) => {
