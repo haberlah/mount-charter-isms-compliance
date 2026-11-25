@@ -1,0 +1,18 @@
+name: Feature Request
+description: Propose a new local-first capability, collector, report, or workflow improvement.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or audit workflow need
+      description: What real-world CISO, vCISO, or audit problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should this work while preserving Mount Charter's local-first, zero-SaaS-lock-in architecture?
+    validations:
+      required: true

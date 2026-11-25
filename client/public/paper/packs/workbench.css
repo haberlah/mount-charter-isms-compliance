@@ -1,0 +1,310 @@
+/* Paper 0.7.0. Optional component pack. Load after paper.css. Sits in paper.components so utilities and unlayered CSS override it. */
+@layer paper.tokens, paper.base, paper.components, paper.utilities;
+@layer paper.components {
+.pp-eval-bar {
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+justify-content: space-between;
+gap: var(--paper-space-2) var(--paper-space-3);
+padding: var(--paper-space-2) var(--paper-space-4);
+border-bottom: 1px solid var(--paper-line);
+background: var(--paper-surface-2);
+}
+.pp-rubric-card {
+display: grid;
+gap: var(--paper-space-2);
+padding: var(--paper-space-3);
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-md);
+background: var(--paper-surface);
+}
+.pp-rubric-card__scale {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: var(--paper-space-2);
+}
+.pp-score-pill {
+display: inline-flex;
+align-items: center;
+gap: var(--paper-space-1);
+padding: 2px var(--paper-space-2);
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-pill);
+background: var(--paper-surface-2);
+color: var(--paper-text-dim);
+font-family: var(--paper-font-mono);
+font-size: var(--paper-size-overline);
+font-weight: var(--paper-weight-semibold);
+font-variant-numeric: tabular-nums;
+white-space: nowrap;
+}
+.pp-score-pill--pass {
+border-color: var(--paper-ok-line);
+background: var(--paper-ok-soft);
+color: var(--paper-ok);
+}
+.pp-score-pill--warn {
+border-color: var(--paper-warn-line);
+background: var(--paper-warn-soft);
+color: var(--paper-warn);
+}
+.pp-score-pill--fail {
+border-color: var(--paper-err-line);
+background: var(--paper-err-soft);
+color: var(--paper-err);
+}
+.pp-stage-stack {
+display: grid;
+gap: var(--paper-space-2);
+}
+.pp-stage-card {
+display: grid;
+gap: var(--paper-space-2);
+padding: var(--paper-space-3);
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-md);
+background: var(--paper-surface);
+}
+.pp-stage-card__head {
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+justify-content: space-between;
+gap: var(--paper-space-2);
+}
+.pp-stage-card__index {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 22px;
+height: 22px;
+padding: 0 var(--paper-space-1);
+border-radius: var(--paper-radius-pill);
+background: var(--paper-accent-soft);
+color: var(--paper-accent-dim);
+font-family: var(--paper-font-mono);
+font-size: var(--paper-size-overline);
+font-weight: var(--paper-weight-semibold);
+font-variant-numeric: tabular-nums;
+}
+.pp-pipeline-trace {
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-md);
+background: var(--paper-surface-2);
+}
+.pp-pipeline-trace__summary {
+list-style: none;
+display: flex;
+align-items: center;
+gap: var(--paper-space-2);
+padding: var(--paper-space-2) var(--paper-space-3);
+color: var(--paper-text-dim);
+font-size: var(--paper-size-caption);
+font-weight: var(--paper-weight-medium);
+cursor: pointer;
+}
+.pp-pipeline-trace__summary::-webkit-details-marker {
+display: none;
+}
+.pp-pipeline-trace__body {
+display: grid;
+gap: var(--paper-space-1);
+padding: var(--paper-space-2) var(--paper-space-3);
+border-top: 1px solid var(--paper-line);
+background: var(--paper-surface);
+}
+.pp-slot-bar {
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+justify-content: space-between;
+gap: var(--paper-space-2) var(--paper-space-3);
+min-height: var(--paper-control-lg);
+padding: var(--paper-space-1) var(--paper-space-4);
+border-bottom: 1px solid var(--paper-line);
+background: var(--paper-bg);
+}
+.pp-slot-chip {
+display: inline-flex;
+align-items: center;
+gap: var(--paper-space-1);
+max-width: min(240px, 45cqi);
+min-width: 0;
+height: var(--paper-control-compact);
+min-height: var(--paper-control-compact);
+padding: 0 var(--paper-space-1) 0 var(--paper-space-3);
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-pill);
+background: var(--paper-surface);
+color: var(--paper-text);
+font-size: var(--paper-size-caption);
+font-weight: var(--paper-weight-semibold);
+}
+.pp-slot-chip__label {
+min-width: 0;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.pp-slot-chip__dot {
+flex: none;
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: var(--paper-accent);
+}
+.pp-slot-chip__action {
+display: inline-grid;
+place-items: center;
+min-width: 24px;
+min-height: 24px;
+padding: 0;
+border: 0;
+border-radius: var(--paper-radius-pill);
+background: transparent;
+color: var(--paper-text-dim);
+cursor: pointer;
+transition: background-color var(--paper-dur) var(--paper-ease), color var(--paper-dur) var(--paper-ease);
+}
+.pp-slot-chip__action:hover {
+background: var(--paper-surface-2);
+color: var(--paper-text);
+}
+.pp-slot-chip__action--danger:hover {
+background: var(--paper-err-soft);
+color: var(--paper-err);
+}
+.pp-slot-ghost {
+display: inline-flex;
+align-items: center;
+gap: var(--paper-space-1);
+height: var(--paper-control-compact);
+min-height: var(--paper-control-compact);
+padding: 0 var(--paper-space-3);
+border: 1px dashed var(--paper-text-faint);
+border-radius: var(--paper-radius-pill);
+background: transparent;
+color: var(--paper-text-dim);
+font-size: var(--paper-size-caption);
+font-weight: var(--paper-weight-medium);
+cursor: pointer;
+transition: border-color var(--paper-dur) var(--paper-ease), background-color var(--paper-dur) var(--paper-ease), color var(--paper-dur) var(--paper-ease);
+}
+.pp-slot-ghost:hover {
+border-color: var(--paper-accent);
+background: var(--paper-accent-soft);
+color: var(--paper-accent-dim);
+}
+.pp-stage-arena {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(var(--pp-arena-min, 220px), 1fr));
+gap: var(--paper-space-3);
+width: 100%;
+}
+.pp-arena-card {
+display: grid;
+align-content: start;
+gap: var(--paper-space-2);
+padding: var(--paper-space-4);
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-md);
+background: var(--paper-surface);
+color: var(--paper-text);
+}
+.pp-arena-card--ghost {
+border-style: dashed;
+border-color: var(--paper-text-faint);
+background: var(--paper-bg);
+}
+.pp-arena-card__head {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: var(--paper-space-2);
+}
+.pp-arena-card__meta {
+color: var(--paper-text-dim);
+font-family: var(--paper-font-mono);
+font-size: var(--paper-size-numeric);
+font-variant-numeric: tabular-nums;
+}
+.pp-compare-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(var(--pp-compare-min, 320px), 1fr));
+gap: var(--paper-space-3);
+min-width: 0;
+min-height: 0;
+}
+.pp-compare-col {
+display: flex;
+flex-direction: column;
+min-width: 0;
+min-height: 0;
+border: 1px solid var(--paper-line);
+border-radius: var(--paper-radius-md);
+background: var(--paper-surface);
+overflow: hidden;
+}
+.pp-picker {
+position: relative;
+flex: 1 1 var(--pp-picker-basis, 240px);
+min-width: var(--pp-picker-min, 120px);
+max-width: var(--pp-picker-max, 400px);
+}
+.pp-picker__trigger {
+container: pp-picker / inline-size;
+display: flex;
+align-items: center;
+gap: var(--paper-space-2);
+width: 100%;
+min-width: 0;
+height: var(--paper-control-md);
+padding: 0 var(--paper-space-3);
+border: 1px solid var(--paper-text-faint);
+border-radius: var(--paper-radius-md);
+background: var(--paper-surface);
+color: var(--paper-text);
+font-size: var(--paper-size-body);
+font-weight: var(--paper-weight-semibold);
+cursor: pointer;
+transition: background-color var(--paper-dur) var(--paper-ease), border-color var(--paper-dur) var(--paper-ease);
+}
+.pp-picker__trigger:hover {
+background: var(--paper-surface-2);
+border-color: var(--paper-text);
+}
+.pp-picker__label {
+flex: 1 1 auto;
+min-width: 4ch;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+text-align: start;
+}
+.pp-picker__badge,
+.pp-picker__count {
+flex: none;
+}
+@container pp-picker (inline-size < 260px) {
+.pp-picker__count,
+.pp-picker__badge--secondary {
+display: none;
+}
+}
+@container pp-picker (inline-size < 200px) {
+.pp-picker__badge {
+display: none;
+}
+}
+:is(.pp-slot-chip__action, .pp-slot-ghost, .pp-picker__trigger):is(:disabled, [aria-disabled="true"]) {
+opacity: .55;
+pointer-events: none;
+}
+@media (forced-colors: active) {
+.pp-slot-chip__dot {
+forced-color-adjust: none;
+background: CanvasText;
+}
+}
+}

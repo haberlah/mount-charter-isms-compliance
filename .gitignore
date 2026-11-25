@@ -1,0 +1,63 @@
+# Dependencies & build output
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
+npm-debug.log*
+coverage/
+*.tsbuildinfo
+
+# User documents, uploads & evidence (anchored to repo root so client/src/components/evidence/ is tracked)
+/uploads/
+/data/
+/evidence/
+/test_case/
+*.pdf
+*.docx
+*.doc
+*.xlsm
+*.xlsx
+*.csv
+*.tsv
+
+# Local databases & dumps
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.dump
+*.sql.gz
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.p8
+*credentials*.json
+service-account*.json
+
+# macOS native app build outputs
+Mount Charter.app/
+*.app/
+*.dmg
+*.pkg
+*.xcarchive/
+macos/MountCharter
+macos/build/
+macos/.build/
+macos/icon-build/
+DerivedData/
+
+# Local AI / editor scratch
+.claude/
+.gemini/
+scratch/
+tmp/

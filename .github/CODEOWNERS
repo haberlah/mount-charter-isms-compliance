@@ -1,0 +1,4 @@
+# Require David Haberlah as code owner for every path.
+# Branch protection on main requires code owner approval before merge.
+
+* @haberlah

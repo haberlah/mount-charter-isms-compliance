@@ -1,0 +1,685 @@
+/* Mount Charter layout & domain helpers — uses Paper v0.7.0 tokens exclusively. */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--paper-bg);
+  color: var(--paper-text);
+}
+
+.mw-skip-link {
+  position: fixed;
+  top: -100px;
+  left: 12px;
+  z-index: 999;
+  padding: 8px 12px;
+  border-radius: var(--paper-radius-sm);
+  background: var(--paper-accent);
+  color: var(--paper-accent-ink);
+  font-size: var(--paper-size-secondary);
+  text-decoration: none;
+}
+
+.mw-skip-link:focus {
+  top: 10px;
+}
+
+.mw-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--paper-bg);
+}
+
+.pp-topbar {
+  flex-shrink: 0;
+}
+
+.pp-topbar__start {
+  min-width: 0;
+}
+
+.pp-topbar__end {
+  flex-shrink: 0;
+}
+
+.mw-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--paper-space-2);
+  text-decoration: none;
+  color: var(--paper-text);
+  margin-right: var(--paper-space-2);
+  flex-shrink: 0;
+}
+
+.mw-brand__glyph {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+ul.pp-tabs--nav {
+  list-style: none;
+  margin: 0;
+  flex-wrap: nowrap;
+}
+
+.mw-ws-select {
+  width: auto;
+  max-width: 168px;
+  min-width: 0;
+}
+
+/* Responsive topbar progressive disclosure so 720px viewports never overflow */
+@media (max-width: 1080px) {
+  .mw-ws-select {
+    max-width: 120px;
+  }
+  ul.pp-tabs--nav .pp-tabs__tab .pp-badge {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .mw-brand span {
+    display: none;
+  }
+  .mw-brand {
+    margin-right: var(--paper-space-1);
+  }
+  .mw-ws-select {
+    max-width: 88px;
+  }
+  ul.pp-tabs--nav .pp-tabs__tab {
+    padding-inline: 6px;
+    font-size: 12.5px;
+  }
+  .pp-topbar--workbench .pp-btn-label {
+    display: none;
+  }
+}
+
+/* P0 FIX: display: block + scrollbar-gutter: stable prevents CSS Grid shrink-wrapping
+   and eliminates every horizontal jump across routes & tabs. */
+.mw-scroll-area {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: 20px 28px 36px;
+}
+
+/* Split workbench host (fills viewport without outer scroll) */
+.mw-scroll-area--split {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  scrollbar-gutter: auto;
+}
+
+.mw-container {
+  width: 100%;
+  min-width: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mw-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mw-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mw-export-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.mw-export-grid .pp-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.mw-export-grid .pp-card__body {
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .mw-export-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .mw-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .mw-export-grid,
+  .mw-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Clickable KPI cards */
+.mw-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.mw-card-link:hover {
+  border-color: var(--paper-accent-line);
+}
+
+.mw-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.mw-filter-bar .pp-search {
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+
+.mw-filter-bar .pp-select {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.mw-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+/* Explicit 2-column form grid (no orphan 4th field on row 2) */
+.mw-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .mw-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mw-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mw-stack--sm {
+  gap: 8px;
+}
+
+.mw-stack--lg {
+  gap: 20px;
+}
+
+.mw-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mw-row--wrap {
+  flex-wrap: wrap;
+}
+
+.mw-row--between {
+  justify-content: space-between;
+}
+
+.mw-muted {
+  color: var(--paper-text-dim);
+  font-size: var(--paper-size-secondary);
+}
+
+/* P1 FIX: Paper v0.7.0 caption token (12px) instead of non-existent --paper-size-meta */
+.mw-faint {
+  color: var(--paper-text-faint);
+  font-size: var(--paper-size-caption);
+}
+
+.mw-mono {
+  font-family: var(--paper-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-nowrap {
+  white-space: nowrap;
+}
+
+/* Tabs bar never wraps underline tabs onto two stacked rows on narrow viewports */
+.mw-tabs-wrap {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mw-tabs-wrap .pp-tabs--underline {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Pure SVG Compliance Ring */
+.mw-ring-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mw-ring {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.mw-ring__track {
+  fill: none;
+  stroke: var(--paper-surface-3);
+  stroke-width: 6;
+}
+
+.mw-ring__fill {
+  fill: none;
+  stroke: var(--paper-accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 220ms ease;
+}
+
+.mw-ring__fill--ok {
+  stroke: var(--paper-ok);
+}
+
+.mw-ring__text {
+  fill: var(--paper-text);
+  font-family: var(--paper-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* Controls <paper-split> master-detail workbench */
+.mw-controls-split {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.mw-split-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--paper-bg);
+}
+
+.mw-split-pane--list {
+  background: var(--paper-surface);
+  border-right: 1px solid var(--paper-line);
+}
+
+.mw-split-pane__header {
+  flex-shrink: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--paper-line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mw-split-pane__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.mw-split-pane__detail-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: 20px 24px 40px;
+}
+
+.mw-control-list-item {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 1px solid var(--paper-line-soft);
+  background: transparent;
+  color: var(--paper-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.mw-control-list-item:hover {
+  background: var(--paper-surface-2);
+}
+
+.mw-control-list-item[aria-current="true"] {
+  background: var(--paper-accent-soft);
+  box-shadow: inset 3px 0 0 var(--paper-accent);
+}
+
+/* Controls detail 2-col layout inside detail pane */
+.mw-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .mw-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mw-inspector {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Upload dropzone — keyboard-accessible button */
+.mw-dropzone {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 16px;
+  border: 1.5px dashed var(--paper-text-faint);
+  border-radius: var(--paper-radius-md);
+  background: var(--paper-surface-2);
+  color: var(--paper-text);
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+}
+
+.mw-dropzone:hover,
+.mw-dropzone--active {
+  border-color: var(--paper-accent);
+  background: var(--paper-accent-soft);
+}
+
+/* Question & Requirement card */
+.mw-question-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--paper-radius-md);
+  background: var(--paper-surface);
+}
+
+.mw-question-card--dirty {
+  border-color: var(--paper-accent-line);
+}
+
+.mw-question-textarea {
+  resize: vertical;
+  min-height: 82px;
+}
+
+/* Match / Suggestion / AI Analysis card */
+.mw-match-card {
+  padding: 12px 14px;
+  border: 1px solid var(--paper-accent-line);
+  border-radius: var(--paper-radius-sm);
+  background: var(--paper-accent-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mw-quote {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--paper-accent);
+  background: var(--paper-surface);
+  border-radius: var(--paper-radius-xs);
+  font-size: var(--paper-size-secondary);
+  color: var(--paper-text-dim);
+  white-space: pre-wrap;
+}
+
+.mw-check-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--paper-radius-sm);
+  background: var(--paper-surface);
+}
+
+.mw-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--paper-line-soft);
+}
+
+.mw-action-row:last-child {
+  border-bottom: none;
+}
+
+.mw-action-row__done {
+  text-decoration: line-through;
+  color: var(--paper-text-faint);
+}
+
+.mw-table-link {
+  color: var(--paper-text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.mw-table-link:hover {
+  color: var(--paper-accent-dim);
+  text-decoration: underline;
+}
+
+.mw-cat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mw-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Bulk action sticky bar */
+.mw-bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--paper-accent-line);
+  border-radius: var(--paper-radius-md);
+  background: var(--paper-accent-soft);
+}
+
+/* Essential Eight strategy matrix */
+.mw-e8-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1024px) {
+  .mw-e8-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .mw-e8-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Top-layer popover toast region so toasts stay visible above <dialog> modals */
+paper-toast-region.pp-toasts[popover] {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  inset: auto 16px 16px auto;
+}
+
+/* Quiet, unclipped inline table cell selects with optional leading status glyph */
+.mw-cell-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  --mw-cell-tone: var(--paper-text-dim);
+}
+
+.mw-cell-select--ok {
+  --mw-cell-tone: var(--paper-ok);
+}
+
+.mw-cell-select--warn {
+  --mw-cell-tone: var(--paper-warn);
+}
+
+.mw-cell-select--err {
+  --mw-cell-tone: var(--paper-err);
+}
+
+.mw-cell-select--accent {
+  --mw-cell-tone: var(--paper-accent-dim);
+}
+
+.mw-cell-select--muted {
+  --mw-cell-tone: var(--paper-text-faint);
+}
+
+.mw-cell-select__glyph {
+  position: absolute;
+  left: 8px;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  pointer-events: none;
+  color: var(--mw-cell-tone);
+}
+
+.mw-cell-select .pp-select.pp-select--ghost {
+  width: auto;
+  min-width: max-content;
+  min-height: 28px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 8px;
+  padding-right: 24px;
+  border-radius: var(--paper-radius-sm);
+  color: var(--mw-cell-tone);
+  font-size: var(--paper-size-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  background-position: calc(100% - 12px) 50%, calc(100% - 8px) 50%;
+  background-image: linear-gradient(
+      45deg,
+      transparent 42%,
+      color-mix(in oklab, var(--paper-text-faint) 45%, transparent) 42% 58%,
+      transparent 58%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 42%,
+      color-mix(in oklab, var(--paper-text-faint) 45%, transparent) 42% 58%,
+      transparent 58%
+    );
+}
+
+.mw-cell-select--with-glyph .pp-select.pp-select--ghost {
+  padding-left: 25px;
+}
+
+.mw-cell-select--muted .pp-select.pp-select--ghost {
+  color: var(--paper-text-dim);
+  font-weight: 400;
+}
+
+.mw-cell-select--plain .pp-select.pp-select--ghost {
+  color: var(--paper-text-dim);
+  font-weight: 400;
+}
+
+.mw-cell-select:hover .pp-select.pp-select--ghost:not(:disabled),
+.mw-cell-select .pp-select.pp-select--ghost:focus-visible {
+  background-image: linear-gradient(45deg, transparent 42%, var(--paper-text-dim) 42% 58%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, var(--paper-text-dim) 42% 58%, transparent 58%);
+}
+
+.mw-cell-select:has(> select:disabled) .mw-cell-select__glyph {
+  opacity: 0.45;
+}
+
+.mw-soa-row--excluded td:not(:first-child):not(:nth-child(4)):not(:last-child) {
+  opacity: 0.58;
+}

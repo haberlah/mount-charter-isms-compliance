@@ -1,0 +1,47 @@
+{
+  "name": "mount-charter",
+  "version": "3.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "description": "Local-first ISO/IEC 27001:2022 (+ Amd 1:2024) & Australian cyber/privacy compliance workbench styled with Paper",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development tsx server/index.ts",
+    "build": "tsx scripts/build.ts",
+    "start": "NODE_ENV=production node dist/index.cjs",
+    "check": "tsc",
+    "lint": "biome check --error-on-warnings shared server client/src tests scripts",
+    "lint:fix": "biome check --write shared server client/src tests scripts",
+    "test": "tsx --test tests/*.test.ts",
+    "vendor:paper": "node scripts/vendor-paper.mjs",
+    "drift:paper": "node scripts/vendor-paper.mjs --check",
+    "build:app": "npm run build && bash macos/build-app.sh"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.60.5",
+    "express": "^5.0.1",
+    "mammoth": "^1.11.0",
+    "multer": "^2.1.1",
+    "pdf-parse": "^2.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "wouter": "^3.3.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.9",
+    "@types/express": "^5.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.6.3",
+    "vite": "^7.3.3"
+  }
+}

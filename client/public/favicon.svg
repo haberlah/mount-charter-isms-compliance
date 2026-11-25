@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" fill="none">
+  <title>Mount Charter</title>
+  <defs>
+    <linearGradient id="mw-tile" x1="100" y1="100" x2="924" y2="924" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1b212a" />
+      <stop offset="100%" stop-color="#080b13" />
+    </linearGradient>
+    <linearGradient id="mw-rim" x1="0" y1="100" x2="0" y2="924" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+    </linearGradient>
+    <filter id="mw-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
+      <feOffset dy="10" />
+      <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#mw-tile)" filter="url(#mw-shadow)" />
+  <rect x="101.5" y="101.5" width="821" height="821" rx="183.5" stroke="url(#mw-rim)" stroke-width="3" />
+  <path d="M 512 292 L 708 362 V 508 Q 708 654 512 732 Q 316 654 316 508 V 362 Z" stroke="#ffffff" stroke-width="108" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="512" cy="512" r="54" fill="#ffffff" />
+</svg>

@@ -1,0 +1,3439 @@
+{
+  "version": "2.2.0",
+  "lastVerified": "2026-11-25",
+  "frameworks": [
+    {
+      "code": "iso27001_2022",
+      "name": "ISO/IEC 27001:2022 (+ Amd 1:2024)",
+      "shortName": "ISO 27001:2022",
+      "version": "2022 + Amd 1:2024",
+      "jurisdiction": "International",
+      "instrumentId": "ISO/IEC 27001:2022 + Amd 1:2024",
+      "sourceUrl": "https://www.iso.org/standard/27001",
+      "effectiveDate": "2024-02-23",
+      "transitionNote": "Includes mandatory Amendment 1:2024 Climate Action Changes (Clauses 4.1 & 4.2) and Clause 6.3 Planning of Changes.",
+      "scoringMode": "pass_fail",
+      "supportTier": "full",
+      "description": "Primary ISMS engine: Clauses 4–10 (including Clause 6.3 & Amd 1:2024 Climate Change) and all 93 Annex A controls, Statement of Applicability, local evidence library, and immutable SQLite test runs.",
+      "defaultEnabled": true,
+      "sortOrder": 1,
+      "requirements": []
+    },
+    {
+      "code": "acsc_e8_2023",
+      "name": "ACSC Essential Eight (Nov 2023) & ASD Essentials",
+      "shortName": "Essential Eight",
+      "version": "Nov 2023 (72 criteria)",
+      "jurisdiction": "Australia",
+      "instrumentId": "ASD Essential Eight Maturity Model (Nov 2023)",
+      "sourceUrl": "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model",
+      "effectiveDate": "2023-11-01",
+      "transitionNote": "In October 2026 ASD launched 'ASD Essentials' (Enterprise IT, Cloud, and OT chapters) as an outcome-based evolution running concurrently with Essential Eight. Current PSPF, DISP, procurement, and cyber-insurance Essential Eight obligations remain active during transition.",
+      "scoringMode": "maturity_0_3",
+      "supportTier": "full",
+      "description": "ASD Essential Eight Maturity Model (Nov 2023) decomposed into 72 discrete auditable criteria across all 8 strategies (ML1–ML3), scored via the strict Weakest-Link Rule (overall ML = MIN across all 8 strategies).",
+      "defaultEnabled": true,
+      "sortOrder": 2,
+      "requirements": [
+        {
+          "reqCode": "E8-PA-ML1-01",
+          "clauseRef": "Appendix A · PA.1",
+          "domain": "Patch Applications",
+          "title": "48-hour critical/exploited patching for online & untrusted-content apps",
+          "description": "Patches, updates or vendor mitigations for security vulnerabilities in online services and applications that handle untrusted content (browsers, Office, PDF, email, security tools) are applied within 48 hours of release when critical or exploited.",
+          "guidance": "Maintain an automated emergency patch ring for browsers, Office, PDF readers, and internet-facing apps. ISO 8.7:Q7's 7–14 day guidance does NOT satisfy this mandatory 48-hour SLA.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "criticalPatchHours": 48
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM/Intune/Jamf patch compliance reports showing <48h remediation timestamps.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "ISO A.8.8 lacks E8's strict 48h critical patch SLA."
+            },
+            {
+              "controlNumber": "8.7",
+              "coverage": "rubric_conflict",
+              "notes": "E8 mandates 48h critical patching; stricter than ISO 8.7:Q7."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "E8-PA-ML1-02",
+          "clauseRef": "Appendix A · PA.2",
+          "domain": "Patch Applications",
+          "title": "2-week non-critical patching & fortnightly automated scanning",
+          "description": "Non-critical security vulnerabilities in online services and untrusted-content applications are patched within 2 weeks (Nov 2023 tightening); an automated vulnerability scanner runs at least fortnightly.",
+          "guidance": "Schedule authenticated vulnerability scans every 14 days and reconcile findings against endpoint patch telemetry.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "nonCriticalPatchDays": 14,
+            "scanCadenceDays": 14
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fortnightly vulnerability scan reports and remediation SLA dashboard.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Fortnightly automated vulnerability scanning & 14-day patching."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "E8-PA-ML1-03",
+          "clauseRef": "Appendix A · PA.3",
+          "domain": "Patch Applications",
+          "title": "Remove unsupported / end-of-life online & untrusted-content applications",
+          "description": "Online services and untrusted-content applications no longer supported by vendors are removed or replaced.",
+          "guidance": "Reconcile installed software inventory against vendor EOL calendars quarterly.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "eolAllowed": false
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Software asset inventory showing zero EOL browsers/Office/PDF/security tools.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "Software asset inventory."
+            },
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Removal of unsupported software."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "E8-PA-ML2-01",
+          "clauseRef": "Appendix B · PA.1",
+          "domain": "Patch Applications",
+          "title": "Weekly automated vulnerability scanning across all applications",
+          "description": "An automated vulnerability scanner identifies missing patches or updates across all applications at least weekly.",
+          "guidance": "Increase scan cadence to 7 days covering both workstations and servers.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "scanCadenceDays": 7
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Weekly automated vulnerability scan logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Weekly scanning cadence."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "E8-PA-ML2-02",
+          "clauseRef": "Appendix B · PA.2",
+          "domain": "Patch Applications",
+          "title": "1-month patching for all other (non-internet-facing) applications",
+          "description": "Security vulnerabilities in all other applications (internal/non-untrusted-content apps) are patched or mitigated within 1 month of release.",
+          "guidance": "Include internal line-of-business apps, runtimes, and developer tools in automated deployment rings.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "otherAppPatchDays": 30
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fleet-wide 30-day patch compliance metrics.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "30-day fleet-wide application patching."
+            },
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Centralised patch configuration."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "E8-PA-ML2-03",
+          "clauseRef": "Appendix B · PA.3",
+          "domain": "Patch Applications",
+          "title": "Automated patch deployment across workstations & servers",
+          "description": "An automated method of asset discovery and patch deployment is used across all workstations and servers.",
+          "guidance": "Eliminate manual ad-hoc patching via centrally managed MDM/SCCM/Ansible/CI pipelines.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "automatedDeployment": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM/configuration management enrollment & deployment logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Automated configuration & patch enforcement."
+            }
+          ],
+          "sortOrder": 6
+        },
+        {
+          "reqCode": "E8-PA-ML3-01",
+          "clauseRef": "Appendix C · PA.1",
+          "domain": "Patch Applications",
+          "title": "2-week patching for ALL remaining applications (48h critical)",
+          "description": "Non-critical security vulnerabilities in all remaining applications are patched within 2 weeks (critical/exploited remain 48 hours).",
+          "guidance": "Enforce a universal 14-day maximum patch window across all software tiers.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "criticalPatchHours": 48,
+            "allAppPatchDays": 14
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Universal 48h/14d patch SLA compliance report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "delta_required",
+              "notes": "Tightens general application patching to 14 days."
+            }
+          ],
+          "sortOrder": 7
+        },
+        {
+          "reqCode": "E8-PA-ML3-02",
+          "clauseRef": "Appendix C · PA.2",
+          "domain": "Patch Applications",
+          "title": "Continuous EOL verification & zero unsupported applications",
+          "description": "All applications across every environment are continuously verified for vendor support; unsupported applications are removed.",
+          "guidance": "Integrate SBOM/asset inventory with automated EOL alerts.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "zeroEolFleetWide": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fleet-wide zero-EOL software attestation.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "Continuous software lifecycle tracking."
+            }
+          ],
+          "sortOrder": 8
+        },
+        {
+          "reqCode": "E8-PA-ML3-03",
+          "clauseRef": "Appendix C · PA.3",
+          "domain": "Patch Applications",
+          "title": "Automated patch verification & exception governance",
+          "description": "Patch installation is independently verified via post-deployment scanning with documented compensating controls for any vendor-unpatched CVE.",
+          "guidance": "Cross-check deployment success against independent vulnerability scanner results.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "independentPatchVerification": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Post-patch verification scans & risk-accepted exception register.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Independent verification of vulnerability remediation."
+            }
+          ],
+          "sortOrder": 9
+        },
+        {
+          "reqCode": "E8-PO-ML1-01",
+          "clauseRef": "Appendix A · PO.1",
+          "domain": "Patch Operating Systems",
+          "title": "48-hour critical/exploited OS patching on internet-facing servers & network devices",
+          "description": "Critical or actively exploited vulnerabilities in operating systems of internet-facing services, servers, and network devices are patched or mitigated within 48 hours.",
+          "guidance": "Maintain a tagged inventory of all internet-facing hosts, firewalls, VPNs, and cloud edge gateways with emergency patch runbooks.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "criticalInternetOsPatchHours": 48
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Internet-facing OS & firewall patch logs showing <48h remediation.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "48h internet-facing OS patching SLA."
+            },
+            {
+              "controlNumber": "8.20",
+              "coverage": "partial",
+              "notes": "Network device firmware/OS patching."
+            }
+          ],
+          "sortOrder": 10
+        },
+        {
+          "reqCode": "E8-PO-ML1-02",
+          "clauseRef": "Appendix A · PO.2",
+          "domain": "Patch Operating Systems",
+          "title": "2-week non-critical internet-facing OS patching & fortnightly scans",
+          "description": "Non-critical vulnerabilities in operating systems of internet-facing services are patched within 2 weeks; automated scanning runs at least fortnightly.",
+          "guidance": "Run fortnightly authenticated OS vulnerability scans across all DMZ/edge systems.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "nonCriticalInternetOsPatchDays": 14,
+            "scanCadenceDays": 14
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fortnightly internet-facing OS scan reports.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Fortnightly OS scanning."
+            }
+          ],
+          "sortOrder": 11
+        },
+        {
+          "reqCode": "E8-PO-ML1-03",
+          "clauseRef": "Appendix A · PO.3",
+          "domain": "Patch Operating Systems",
+          "title": "Remove unsupported / EOL operating systems",
+          "description": "Operating systems no longer supported by vendors are replaced or decommissioned.",
+          "guidance": "Eliminate legacy Windows Server, CentOS, or unsupported macOS/Linux releases.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "eolOsAllowed": false
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "OS version inventory confirming 100% vendor-supported releases.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "OS asset lifecycle register."
+            }
+          ],
+          "sortOrder": 12
+        },
+        {
+          "reqCode": "E8-PO-ML2-01",
+          "clauseRef": "Appendix B · PO.1",
+          "domain": "Patch Operating Systems",
+          "title": "1-month OS patching for workstations & internal servers",
+          "description": "Security vulnerabilities in workstation and internal server operating systems are patched or mitigated within 1 month of release.",
+          "guidance": "Configure MDM update deferral caps (e.g. macOS DDM / Windows Update for Business) to <= 30 days.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "workstationOsPatchDays": 30
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM OS compliance report & server patch metrics.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.1",
+              "coverage": "partial",
+              "notes": "Endpoint OS patch compliance."
+            },
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "30-day internal OS patching."
+            }
+          ],
+          "sortOrder": 13
+        },
+        {
+          "reqCode": "E8-PO-ML2-02",
+          "clauseRef": "Appendix B · PO.2",
+          "domain": "Patch Operating Systems",
+          "title": "Weekly automated OS vulnerability scanning",
+          "description": "An automated vulnerability scanner identifies missing OS patches across workstations, servers, and network devices at least weekly.",
+          "guidance": "Run weekly agent-based or authenticated network OS scans.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "scanCadenceDays": 7
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Weekly OS scan reports.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Weekly OS vulnerability scanning."
+            }
+          ],
+          "sortOrder": 14
+        },
+        {
+          "reqCode": "E8-PO-ML2-03",
+          "clauseRef": "Appendix B · PO.3",
+          "domain": "Patch Operating Systems",
+          "title": "Automated OS asset discovery & centralised patch management",
+          "description": "Automated asset discovery ensures newly provisioned servers and endpoints are enrolled in centralised OS patching.",
+          "guidance": "Reconcile cloud/AD/MDM host lists weekly to prevent unmanaged orphan hosts.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "automatedAssetDiscovery": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Asset discovery reconciliation report.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "Automated asset discovery."
+            },
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Centralised OS configuration."
+            }
+          ],
+          "sortOrder": 15
+        },
+        {
+          "reqCode": "E8-PO-ML3-01",
+          "clauseRef": "Appendix C · PO.1",
+          "domain": "Patch Operating Systems",
+          "title": "48-hour critical/exploited OS patching across ALL workstations & servers",
+          "description": "Critical or actively exploited OS vulnerabilities are patched within 48 hours across ALL workstations, internal servers, and network devices (not only internet-facing).",
+          "guidance": "Extend emergency 48-hour patching to the entire corporate endpoint and server fleet.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "criticalAllOsPatchHours": 48
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fleet-wide 48h critical OS remediation logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "delta_required",
+              "notes": "Universal 48h critical OS patch SLA."
+            }
+          ],
+          "sortOrder": 16
+        },
+        {
+          "reqCode": "E8-PO-ML3-02",
+          "clauseRef": "Appendix C · PO.2",
+          "domain": "Patch Operating Systems",
+          "title": "2-week non-critical OS patching fleet-wide",
+          "description": "Non-critical OS vulnerabilities across all workstations, servers, and network devices are patched within 2 weeks.",
+          "guidance": "Tighten MDM/server update rings to 14 days.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "nonCriticalAllOsPatchDays": 14
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fleet-wide 14-day OS patch compliance report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.8",
+              "coverage": "delta_required",
+              "notes": "14-day universal OS patching."
+            }
+          ],
+          "sortOrder": 17
+        },
+        {
+          "reqCode": "E8-PO-ML3-03",
+          "clauseRef": "Appendix C · PO.3",
+          "domain": "Patch Operating Systems",
+          "title": "Latest OS release & hardware exploit protections enabled",
+          "description": "Latest vendor-supported OS releases are deployed with exploit protection features (HVCI/VBS, SIP, Secure Boot, ASLR/DEP) enforced.",
+          "guidance": "Verify Secure Boot, FileVault/BitLocker, and kernel exploit mitigations via MDM.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "exploitProtectionEnforced": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM security posture baseline export.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "OS exploit protection baseline."
+            }
+          ],
+          "sortOrder": 18
+        },
+        {
+          "reqCode": "E8-MFA-ML1-01",
+          "clauseRef": "Appendix A · MFA.1",
+          "domain": "Multi-Factor Authentication",
+          "title": "MFA enforced for all users accessing organisational online services",
+          "description": "MFA is enforced for all users authenticating to organisational online services (email, SaaS, remote access/VPN) using at least something users have plus something they know/are.",
+          "guidance": "Verify 100% Conditional Access enforcement and block legacy basic-auth protocols.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "mfaAllOnlineServices": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "IdP Conditional Access export & 100% MFA enrollment report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "partial",
+              "notes": "Universal online/remote MFA enforcement."
+            }
+          ],
+          "sortOrder": 19
+        },
+        {
+          "reqCode": "E8-MFA-ML1-02",
+          "clauseRef": "Appendix A · MFA.2",
+          "domain": "Multi-Factor Authentication",
+          "title": "MFA enforced for third-party services storing sensitive data",
+          "description": "MFA is enforced for all users accessing third-party online services that process, store, or communicate sensitive organisational data.",
+          "guidance": "Enforce SAML/OIDC SSO with MFA for SaaS tools; require native MFA where SSO is unavailable.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "mfaThirdPartySensitive": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "SaaS register confirming SSO/MFA enforcement.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "partial",
+              "notes": "Third-party SaaS MFA."
+            },
+            {
+              "controlNumber": "5.23",
+              "coverage": "partial",
+              "notes": "Cloud service authentication controls."
+            }
+          ],
+          "sortOrder": 20
+        },
+        {
+          "reqCode": "E8-MFA-ML1-03",
+          "clauseRef": "Appendix A · MFA.3",
+          "domain": "Multi-Factor Authentication",
+          "title": "MFA available/enforced for customer-facing services & break-glass accounts",
+          "description": "MFA is enabled by default (or strongly enforced) for customer-facing services where applicable, and break-glass accounts are protected with hardware MFA.",
+          "guidance": "Document break-glass account FIDO2 key storage and test recovery semi-annually.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "breakGlassHardwareMfa": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Break-glass procedure & customer MFA settings.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "partial",
+              "notes": "Break-glass & customer MFA."
+            }
+          ],
+          "sortOrder": 21
+        },
+        {
+          "reqCode": "E8-MFA-ML2-01",
+          "clauseRef": "Appendix B · MFA.1",
+          "domain": "Multi-Factor Authentication",
+          "title": "Phishing-resistant MFA (FIDO2/WebAuthn/WHfB) for all online services",
+          "description": "Phishing-resistant MFA (FIDO2/WebAuthn security keys, Windows Hello for Business, or smart cards — NOT SMS, voice, or TOTP codes) is enforced for all users accessing organisational online services.",
+          "guidance": "SMS, push-approve, and TOTP codes are vulnerable to AiTM phishing and fail ML2. Enforce FIDO2/passkey Authentication Strengths in Entra ID / Okta / Google Workspace.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "mfaMode": "phishing_resistant_fido2_webauthn"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "IdP Authentication Strength policy restricting auth to FIDO2/WebAuthn/WHfB.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "delta_required",
+              "notes": "ISO 8.5 does not mandate phishing-resistant FIDO2/WebAuthn MFA."
+            }
+          ],
+          "sortOrder": 22
+        },
+        {
+          "reqCode": "E8-MFA-ML2-02",
+          "clauseRef": "Appendix B · MFA.2",
+          "domain": "Multi-Factor Authentication",
+          "title": "Phishing-resistant MFA for privileged access to systems & data repositories",
+          "description": "Phishing-resistant MFA is enforced for all privileged users authenticating to important data repositories, servers, and administrative interfaces.",
+          "guidance": "Require hardware FIDO2 keys for all cloud consoles, IdP admin portals, and PAM tools.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "privilegedPhishingResistantMfa": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Privileged access Conditional Access policy & hardware token register.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "delta_required",
+              "notes": "Privileged phishing-resistant MFA."
+            },
+            {
+              "controlNumber": "8.5",
+              "coverage": "delta_required",
+              "notes": "FIDO2/WebAuthn for privileged sessions."
+            }
+          ],
+          "sortOrder": 23
+        },
+        {
+          "reqCode": "E8-MFA-ML2-03",
+          "clauseRef": "Appendix B · MFA.3",
+          "domain": "Multi-Factor Authentication",
+          "title": "Centralised logging of successful & failed MFA events",
+          "description": "Successful and failed MFA authentication events are centrally logged and monitored for anomalous activity.",
+          "guidance": "Stream IdP sign-in logs into SIEM with impossible-travel and MFA-fatigue alerts.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "centralisedMfaLogging": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "SIEM MFA ingestion dashboard & alerting rules.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.15",
+              "coverage": "partial",
+              "notes": "Centralised authentication logging."
+            },
+            {
+              "controlNumber": "8.16",
+              "coverage": "partial",
+              "notes": "Authentication anomaly monitoring."
+            }
+          ],
+          "sortOrder": 24
+        },
+        {
+          "reqCode": "E8-MFA-ML3-01",
+          "clauseRef": "Appendix C · MFA.1",
+          "domain": "Multi-Factor Authentication",
+          "title": "Phishing-resistant MFA for ALL workstation & server logons",
+          "description": "Phishing-resistant MFA is enforced for all users authenticating to workstations, servers, and important data repositories.",
+          "guidance": "Enforce macOS Platform SSO with Secure Enclave/FIDO2 or Windows Hello for Business / Smart Card logon.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "workstationPhishingResistantMfa": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Workstation OS logon MFA policy export.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "delta_required",
+              "notes": "Workstation-level phishing-resistant MFA."
+            }
+          ],
+          "sortOrder": 25
+        },
+        {
+          "reqCode": "E8-MFA-ML3-02",
+          "clauseRef": "Appendix C · MFA.2",
+          "domain": "Multi-Factor Authentication",
+          "title": "Verifier-impersonation-resistant hardware cryptographic authenticators",
+          "description": "All MFA authenticators use hardware-backed, verifier-impersonation-resistant public-key cryptography bound to the origin.",
+          "guidance": "Audit IdP authentication methods to ensure zero legacy TOTP/SMS fallbacks remain active.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "hardwareBoundCryptoMfa": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "IdP allowed authentication methods audit showing zero weak fallbacks.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "delta_required",
+              "notes": "Origin-bound cryptographic authenticators."
+            }
+          ],
+          "sortOrder": 26
+        },
+        {
+          "reqCode": "E8-MFA-ML3-03",
+          "clauseRef": "Appendix C · MFA.3",
+          "domain": "Multi-Factor Authentication",
+          "title": "Periodic MFA bypass & session-hijack resilience testing",
+          "description": "MFA policies are tested periodically to verify token replay, session theft, and conditional-access bypass paths are blocked.",
+          "guidance": "Enable token protection / continuous access evaluation (CAE) and test bypass resistance.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "sessionTokenProtection": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "CAE / token-protection policy & periodic red-team test report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.5",
+              "coverage": "partial",
+              "notes": "MFA bypass testing."
+            },
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Periodic security testing."
+            }
+          ],
+          "sortOrder": 27
+        },
+        {
+          "reqCode": "E8-AP-ML1-01",
+          "clauseRef": "Appendix A · AP.1",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Validate privileged access requests & use dedicated separate admin accounts",
+          "description": "Requests for privileged access are validated before grant; administrators use dedicated separate unprivileged accounts for daily email/browsing work.",
+          "guidance": "Maintain a privileged account register tying each admin identity to a business justification and approval ticket.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "separateAdminAccounts": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Privileged user register & access approval tickets.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "partial",
+              "notes": "Privileged access governance."
+            },
+            {
+              "controlNumber": "5.15",
+              "coverage": "partial",
+              "notes": "Access approval workflow."
+            }
+          ],
+          "sortOrder": 28
+        },
+        {
+          "reqCode": "E8-AP-ML1-02",
+          "clauseRef": "Appendix A · AP.2",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Block privileged accounts from internet, email & web services",
+          "description": "Privileged accounts (excluding strictly justified service accounts) are technically prevented from accessing the internet, email, and general web services.",
+          "guidance": "Assign no mailbox to admin accounts and block general web browsing via proxy/Conditional Access.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "blockAdminInternetEmail": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Exchange/Workspace mailbox check & firewall/Conditional Access block rules.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "delta_required",
+              "notes": "Explicitly blocking admin accounts from internet & email."
+            }
+          ],
+          "sortOrder": 29
+        },
+        {
+          "reqCode": "E8-AP-ML1-03",
+          "clauseRef": "Appendix A · AP.3",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Restrict privileged access to data repositories & internet-facing services",
+          "description": "Privileged access to systems, applications, important data repositories, and internet-facing services (Nov 2023 expansion) is strictly limited to authorised admins.",
+          "guidance": "Apply least-privilege RBAC across cloud IAM, SaaS admin consoles, and production databases.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "leastPrivilegeDataRepos": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "IAM RBAC review & admin role assignment export.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "partial",
+              "notes": "Restricted admin access to data repositories."
+            },
+            {
+              "controlNumber": "5.18",
+              "coverage": "partial",
+              "notes": "Access right reviews."
+            }
+          ],
+          "sortOrder": 30
+        },
+        {
+          "reqCode": "E8-AP-ML2-01",
+          "clauseRef": "Appendix B · AP.1",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Segregated admin environments (PAWs / jump hosts)",
+          "description": "Privileged accounts cannot log onto unprivileged operating environments, and unprivileged accounts cannot log onto privileged jump hosts / PAWs.",
+          "guidance": "Enforce tiering policies and hardened Privileged Access Workstations or bastion jump hosts.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "segregatedAdminEnvironment": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "PAW/bastion architecture diagram & logon-restriction GPO/Conditional Access.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "delta_required",
+              "notes": "Hardened segregated administrative environment."
+            }
+          ],
+          "sortOrder": 31
+        },
+        {
+          "reqCode": "E8-AP-ML2-02",
+          "clauseRef": "Appendix B · AP.2",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Disable privileged accounts after 45 days of inactivity",
+          "description": "Privileged accounts are automatically disabled after 45 days of inactivity (and immediately on role change/offboarding).",
+          "guidance": "Implement automated IdP/AD stale-admin detection and disablement at <= 45 days.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "inactiveAdminDisableDays": 45
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Automated 45-day stale-admin job logs & IAM review.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.18",
+              "coverage": "delta_required",
+              "notes": "Prescriptive 45-day inactive privileged account disablement."
+            }
+          ],
+          "sortOrder": 32
+        },
+        {
+          "reqCode": "E8-AP-ML2-03",
+          "clauseRef": "Appendix B · AP.3",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Centralised logging of privileged account usage & group changes",
+          "description": "Privileged account logins, role assignments, and privilege escalations are centrally logged and alerted.",
+          "guidance": "Alert SIEM immediately on any addition to Global Admin / Domain Admin / IAM Admin roles.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "privilegedActivityLogging": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "SIEM privileged-group modification alerts & audit log retention.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.15",
+              "coverage": "partial",
+              "notes": "Privileged activity logging."
+            }
+          ],
+          "sortOrder": 33
+        },
+        {
+          "reqCode": "E8-AP-ML3-01",
+          "clauseRef": "Appendix C · AP.1",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Just-In-Time (JIT) time-bound privileged elevation (zero standing admin)",
+          "description": "Standing administrative privileges are eliminated in favour of approval-gated, time-bound Just-In-Time (JIT) elevation.",
+          "guidance": "Deploy Entra PIM, AWS IAM Identity Center / Teleport, or CyberArk with time-limited approvals.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "justInTimeElevation": true,
+            "standingAdminPrivileges": false
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "PIM/JIT policy export showing zero permanent admin assignments (excluding break-glass).",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "delta_required",
+              "notes": "Mandatory JIT elevation with zero standing privileges."
+            }
+          ],
+          "sortOrder": 34
+        },
+        {
+          "reqCode": "E8-AP-ML3-02",
+          "clauseRef": "Appendix C · AP.2",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Credential-theft hardening (Credential Guard, LAPS, Protected Users)",
+          "description": "Technical credential-theft mitigations (Windows Defender Credential Guard, Protected Users group, LAPS / unique local admin credentials) are enforced.",
+          "guidance": "Confirm no shared local administrator passwords exist across workstations or servers.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "credentialTheftHardening": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "LAPS / Credential Guard / endpoint hardening verification report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.2",
+              "coverage": "delta_required",
+              "notes": "Credential-theft mitigations."
+            },
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Hardened endpoint baseline."
+            }
+          ],
+          "sortOrder": 35
+        },
+        {
+          "reqCode": "E8-AP-ML3-03",
+          "clauseRef": "Appendix C · AP.3",
+          "domain": "Restrict Administrative Privileges",
+          "title": "Session recording & annual privileged access re-certification",
+          "description": "Privileged administrative sessions are recorded where supported and all privileged eligibility is formally re-validated at least annually.",
+          "guidance": "Retain immutable bastion/PAM session logs and annual manager sign-offs.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "annualPrivilegedRecertification": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Annual privileged access review sign-off & PAM session log config.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.18",
+              "coverage": "partial",
+              "notes": "Annual privileged access re-certification."
+            }
+          ],
+          "sortOrder": 36
+        },
+        {
+          "reqCode": "E8-AC-ML1-01",
+          "clauseRef": "Appendix A · AC.1",
+          "domain": "Application Control",
+          "title": "Block unapproved execution in workstation user-writable paths",
+          "description": "Application control is implemented on workstations to prevent execution of unapproved executables, scripts, installers, and HTA/CHM files from user profiles and temporary folders.",
+          "guidance": "Deploy WDAC, AppLocker, or macOS Santa/Endpoint Security in enforced mode on user-writable directories.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "scope": "workstation_user_writable_paths"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Enforced WDAC/AppLocker/Santa policy export.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "partial",
+              "notes": "ISO A.8.19 governs software installation; E8 mandates active execution allowlisting."
+            }
+          ],
+          "sortOrder": 37
+        },
+        {
+          "reqCode": "E8-AC-ML1-02",
+          "clauseRef": "Appendix A · AC.2",
+          "domain": "Application Control",
+          "title": "Restrict software installation & script interpreters for standard users",
+          "description": "Standard users cannot install unapproved software or bypass allowlisting via user-writable directories.",
+          "guidance": "Remove local admin rights from standard workstation users and lock script execution paths.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "noStandardUserLocalAdmin": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM policy confirming standard non-admin accounts.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "partial",
+              "notes": "Restricted software installation."
+            }
+          ],
+          "sortOrder": 38
+        },
+        {
+          "reqCode": "E8-AC-ML1-03",
+          "clauseRef": "Appendix A · AC.3",
+          "domain": "Application Control",
+          "title": "Verify application control is enforced (not audit-only)",
+          "description": "Application control rulesets on workstations run in active enforcement (block) mode rather than audit-only mode.",
+          "guidance": "Test execution of a benign unsigned test binary in `%TEMP%` / `~/Downloads` to confirm blocking.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "enforcedBlockMode": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Live enforcement test screenshot/log.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "delta_required",
+              "notes": "Active block-mode verification."
+            }
+          ],
+          "sortOrder": 39
+        },
+        {
+          "reqCode": "E8-AC-ML2-01",
+          "clauseRef": "Appendix B · AC.1",
+          "domain": "Application Control",
+          "title": "Full workstation & internet-facing server allowlisting (incl. DLLs & scripts)",
+          "description": "Application control is enforced across all workstations and internet-facing servers covering executables, DLLs/libraries, scripts, and installers.",
+          "guidance": "Expand allowlisting beyond user-writable paths to full system enforcement including DLL rules.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "scope": "all_workstations_and_internet_servers"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Workstation & internet-facing server allowlist policy exports.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "delta_required",
+              "notes": "Full workstation + internet-facing server allowlisting incl. DLLs."
+            }
+          ],
+          "sortOrder": 40
+        },
+        {
+          "reqCode": "E8-AC-ML2-02",
+          "clauseRef": "Appendix B · AC.2",
+          "domain": "Application Control",
+          "title": "Microsoft recommended block rules & annual ruleset validation",
+          "description": "Microsoft's recommended block rules (and vulnerable driver blocklists) are implemented, and application control rulesets are validated at least annually (Nov 2023).",
+          "guidance": "Track blocklist updates in change management and log annual ruleset reviews.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "microsoftBlockRules": true,
+            "rulesetReviewMonths": 12
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Microsoft block-rule version check & annual validation sign-off.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "delta_required",
+              "notes": "Microsoft block rules & annual review."
+            }
+          ],
+          "sortOrder": 41
+        },
+        {
+          "reqCode": "E8-AC-ML2-03",
+          "clauseRef": "Appendix B · AC.3",
+          "domain": "Application Control",
+          "title": "Centralised logging of allowed & blocked execution events",
+          "description": "Allowed and blocked application execution events are centrally logged and monitored.",
+          "guidance": "Forward WDAC/AppLocker/Santa block events to SIEM.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "centralisedExecutionLogging": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "SIEM application-control event query screenshot.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.15",
+              "coverage": "partial",
+              "notes": "Centralised execution logging."
+            }
+          ],
+          "sortOrder": 42
+        },
+        {
+          "reqCode": "E8-AC-ML3-01",
+          "clauseRef": "Appendix C · AC.1",
+          "domain": "Application Control",
+          "title": "Universal application control across ALL workstations & ALL servers",
+          "description": "Application control is enforced across all workstations and all servers (both internet-facing and internal) covering executables, libraries, scripts, installers, and drivers.",
+          "guidance": "Extend enforced allowlisting to internal application, database, and infrastructure servers.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "scope": "all_workstations_and_all_servers"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Fleet-wide workstation & server allowlisting compliance report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "delta_required",
+              "notes": "Universal server + workstation allowlisting."
+            }
+          ],
+          "sortOrder": 43
+        },
+        {
+          "reqCode": "E8-AC-ML3-02",
+          "clauseRef": "Appendix C · AC.2",
+          "domain": "Application Control",
+          "title": "Cryptographic hash / publisher-certificate allowlisting only",
+          "description": "Allowlisting rules rely strictly on cryptographic hashes, publisher certificates, or immutable system paths (no user-modifiable path rules).",
+          "guidance": "Audit rulesets to eliminate wildcard or writable-folder exceptions.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "cryptographicAllowlisting": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Ruleset audit showing hash/certificate-only rules.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.19",
+              "coverage": "delta_required",
+              "notes": "Cryptographic allowlisting integrity."
+            }
+          ],
+          "sortOrder": 44
+        },
+        {
+          "reqCode": "E8-AC-ML3-03",
+          "clauseRef": "Appendix C · AC.3",
+          "domain": "Application Control",
+          "title": "Continuous ruleset integrity & bypass-resistance testing",
+          "description": "Application control rulesets are protected from tampering and periodically tested against LOLBins and bypass techniques.",
+          "guidance": "Enable signed WDAC policies with UEFI lock where supported.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "signedImmutablePolicies": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Signed WDAC policy status & periodic bypass test results.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Tamper-resistant configuration baselines."
+            }
+          ],
+          "sortOrder": 45
+        },
+        {
+          "reqCode": "E8-OM-ML1-01",
+          "clauseRef": "Appendix A · OM.1",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Disable Office macros for users without business requirement",
+          "description": "Microsoft Office macros are disabled by default for all users who do not have a demonstrated, approved business requirement. (Mark N/A with MDM proof if Microsoft Office is not installed.)",
+          "guidance": "Use ADMX/Intune Office policies to disable macros globally and maintain an approved exception group.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "macrosDisabledByDefault": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Intune/GPO Office macro policy export or MDM software inventory.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "partial",
+              "notes": "Malware prevention via macro restriction."
+            }
+          ],
+          "sortOrder": 46
+        },
+        {
+          "reqCode": "E8-OM-ML1-02",
+          "clauseRef": "Appendix A · OM.2",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Block Office macros in files originating from the internet",
+          "description": "Microsoft Office macros in files originating from the internet (Mark of the Web) are blocked from executing.",
+          "guidance": "Enable 'Block macros from running in Office files from the Internet' for Word, Excel, PowerPoint, Access, Visio.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "blockInternetMacros": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Office ADMX policy showing Internet macro block enabled.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "partial",
+              "notes": "Internet macro blocking."
+            }
+          ],
+          "sortOrder": 47
+        },
+        {
+          "reqCode": "E8-OM-ML1-03",
+          "clauseRef": "Appendix A · OM.3",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Lock Office macro settings & restrict Trusted Locations",
+          "description": "Users cannot modify Office macro security settings; any allowed unsigned macros run only from vetted, write-restricted Trusted Locations.",
+          "guidance": "Verify standard users lack write permissions to every configured Trusted Location.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "lockUserMacroSettings": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "ACL check on Trusted Locations & locked Trust Center GPO.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Locked endpoint security settings."
+            }
+          ],
+          "sortOrder": 48
+        },
+        {
+          "reqCode": "E8-OM-ML2-01",
+          "clauseRef": "Appendix B · OM.1",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Block Office macros from making Win32 API calls",
+          "description": "Microsoft Office macros are blocked from making Win32 API calls (via Defender ASR rule).",
+          "guidance": "Set ASR rule 'Block Win32 API calls from Office macros' to Block mode.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "blockWin32ApiCalls": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Defender ASR policy export in Block mode.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "delta_required",
+              "notes": "Win32 API call blocking from Office macros."
+            }
+          ],
+          "sortOrder": 49
+        },
+        {
+          "reqCode": "E8-OM-ML2-02",
+          "clauseRef": "Appendix B · OM.2",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Allow only Trusted Publisher-signed or vetted Trusted Location macros",
+          "description": "Macros are restricted solely to those digitally signed by a vetted Trusted Publisher or stored in write-restricted Trusted Locations.",
+          "guidance": "Maintain an explicit inventory of vetted business macros and trusted signing certificates.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "vettedMacrosOnly": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Trusted Publisher certificate store & macro inventory.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "partial",
+              "notes": "Controlled macro execution."
+            }
+          ],
+          "sortOrder": 50
+        },
+        {
+          "reqCode": "E8-OM-ML2-03",
+          "clauseRef": "Appendix B · OM.3",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Antivirus / AMSI scanning of macros prior to execution",
+          "description": "Microsoft Office macros are scanned by antivirus (AMSI integration) before execution.",
+          "guidance": "Confirm Office Macro Runtime Scan Scope is enabled for all documents.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "antivirusMacroScan": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Office AMSI / EDR macro scan configuration.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "partial",
+              "notes": "Pre-execution antivirus macro scanning."
+            }
+          ],
+          "sortOrder": 51
+        },
+        {
+          "reqCode": "E8-OM-ML3-01",
+          "clauseRef": "Appendix C · OM.1",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Enforce V3 digital signatures for ALL allowed Office macros",
+          "description": "Only Microsoft Office macros signed with a V3 digital signature from a vetted trusted publisher are allowed to execute; unsigned Trusted Location exceptions are retired.",
+          "guidance": "Sign all internal business macros with V3 Authenticode signatures (Nov 2023 update removed redundant macro event logging mandates).",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "requireV3DigitalSignatures": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "V3 code-signing verification & zero Trusted Locations policy.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "delta_required",
+              "notes": "Mandatory V3 digital signatures."
+            },
+            {
+              "controlNumber": "8.24",
+              "coverage": "partial",
+              "notes": "Code-signing cryptographic key management."
+            }
+          ],
+          "sortOrder": 52
+        },
+        {
+          "reqCode": "E8-OM-ML3-02",
+          "clauseRef": "Appendix C · OM.2",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Periodic validation of Trusted Publisher certificates",
+          "description": "Trusted Publisher certificates are reviewed periodically and revoked/removed when no longer required.",
+          "guidance": "Review Trusted Publishers list at least annually and protect private signing keys in HSM/Key Vault.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "trustedPublisherReview": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Annual Trusted Publisher certificate review record.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.24",
+              "coverage": "partial",
+              "notes": "Certificate lifecycle management."
+            }
+          ],
+          "sortOrder": 53
+        },
+        {
+          "reqCode": "E8-OM-ML3-03",
+          "clauseRef": "Appendix C · OM.3",
+          "domain": "Configure Microsoft Office Macro Settings",
+          "title": "Block all unsigned & untrusted-publisher macros unconditionally",
+          "description": "All macros not carrying a valid V3 signature from an approved Trusted Publisher are blocked with no user override prompt.",
+          "guidance": "Confirm 'Disable all macros except digitally signed macros' with user notification/override disabled.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "noUnsignedMacros": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Locked Office GPO/Intune policy verification.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "delta_required",
+              "notes": "Zero unsigned macro execution."
+            }
+          ],
+          "sortOrder": 54
+        },
+        {
+          "reqCode": "E8-UH-ML1-01",
+          "clauseRef": "Appendix A · UH.1",
+          "domain": "User Application Hardening",
+          "title": "Block web browser ads, Flash & Java from the internet",
+          "description": "Web browsers are configured to block web advertisements, Flash, and Java from the internet.",
+          "guidance": "Deploy managed browser ad-blocking (managed extension or DNS/content filtering) across Chrome, Edge, and Safari.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "blockBrowserAds": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Managed browser profile exports confirming ad/Flash/Java blocking.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Browser hardening baseline."
+            },
+            {
+              "controlNumber": "8.23",
+              "coverage": "partial",
+              "notes": "Web filtering & ad/malvertising blocking."
+            }
+          ],
+          "sortOrder": 55
+        },
+        {
+          "reqCode": "E8-UH-ML1-02",
+          "clauseRef": "Appendix A · UH.2",
+          "domain": "User Application Hardening",
+          "title": "Disable or remove Internet Explorer 11 (Nov 2023)",
+          "description": "Internet Explorer 11 is disabled or removed across all endpoints (added to ML1 in Nov 2023).",
+          "guidance": "Verify IE11 optional feature is disabled/uninstalled via GPO/Intune.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "disableIE11": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM/GPO verification confirming IE11 disabled/removed.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "delta_required",
+              "notes": "Mandatory IE11 removal/disablement."
+            }
+          ],
+          "sortOrder": 56
+        },
+        {
+          "reqCode": "E8-UH-ML1-03",
+          "clauseRef": "Appendix A · UH.3",
+          "domain": "User Application Hardening",
+          "title": "Lock browser security settings against user override",
+          "description": "Users cannot override or disable managed browser security hardening settings.",
+          "guidance": "Use enforced (not recommended) MDM/GPO browser policy keys.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "lockBrowserSettings": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Browser `chrome://policy` / `edge://policy` mandatory status screenshot.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Enforced endpoint configuration."
+            }
+          ],
+          "sortOrder": 57
+        },
+        {
+          "reqCode": "E8-UH-ML2-01",
+          "clauseRef": "Appendix B · UH.1",
+          "domain": "User Application Hardening",
+          "title": "Block Office child processes, executable creation, code injection & OLE",
+          "description": "Microsoft Office is configured to block creating child processes, creating executable content, injecting code into other processes, and activating untrusted OLE packages.",
+          "guidance": "Enforce Microsoft Defender ASR rules for Office child processes, executable content, and code injection.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "blockOfficeChildProcesses": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Defender ASR enforcement policy export.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.7",
+              "coverage": "delta_required",
+              "notes": "ASR Office exploit mitigations."
+            }
+          ],
+          "sortOrder": 58
+        },
+        {
+          "reqCode": "E8-UH-ML2-02",
+          "clauseRef": "Appendix B · UH.2",
+          "domain": "User Application Hardening",
+          "title": "Block PDF software from creating child processes",
+          "description": "PDF viewers (e.g. Adobe Acrobat/Reader) are blocked from creating child processes and running untrusted JavaScript.",
+          "guidance": "Enable Defender ASR rule 'Block Adobe Reader from creating child processes' and lock PDF JavaScript settings.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "blockPdfChildProcesses": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "ASR Adobe rule & PDF viewer hardening policy.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "delta_required",
+              "notes": "PDF viewer child-process blocking."
+            }
+          ],
+          "sortOrder": 59
+        },
+        {
+          "reqCode": "E8-UH-ML2-03",
+          "clauseRef": "Appendix B · UH.3",
+          "domain": "User Application Hardening",
+          "title": "Disable/remove PowerShell 2.0 & .NET Framework 3.5 (and earlier)",
+          "description": "PowerShell 2.0 and .NET Framework 3.5 (and earlier) are disabled or removed across workstations and servers; settings are locked against user change.",
+          "guidance": "Run automated compliance script verifying PowerShell v2 engine and .NET 3.5 features are absent.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "removePowerShellV2": true,
+            "removeDotNet35": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Endpoint compliance scan confirming PowerShell v2 & .NET 3.5 removed.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "delta_required",
+              "notes": "Removal of legacy PowerShell v2 & .NET 3.5."
+            }
+          ],
+          "sortOrder": 60
+        },
+        {
+          "reqCode": "E8-UH-ML3-01",
+          "clauseRef": "Appendix C · UH.1",
+          "domain": "User Application Hardening",
+          "title": "Enforce PowerShell Constrained Language Mode",
+          "description": "PowerShell Constrained Language Mode is enforced for unprivileged users across endpoints.",
+          "guidance": "Verify `$ExecutionContext.SessionState.LanguageMode` returns `ConstrainedLanguage` for standard users.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "powershellConstrainedLanguageMode": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Workstation PowerShell Constrained Language Mode test output.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "delta_required",
+              "notes": "PowerShell Constrained Language Mode."
+            }
+          ],
+          "sortOrder": 61
+        },
+        {
+          "reqCode": "E8-UH-ML3-02",
+          "clauseRef": "Appendix C · UH.2",
+          "domain": "User Application Hardening",
+          "title": "Centralised PowerShell script-block & module execution logging",
+          "description": "PowerShell script block logging (Event 4104) and module logging (Event 4103) are enabled and forwarded centrally.",
+          "guidance": "Confirm SIEM receives PowerShell script block logs with tamper protection.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "centralisedScriptLogging": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "SIEM PowerShell 4103/4104 log sample.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.15",
+              "coverage": "partial",
+              "notes": "Centralised script execution logging."
+            }
+          ],
+          "sortOrder": 62
+        },
+        {
+          "reqCode": "E8-UH-ML3-03",
+          "clauseRef": "Appendix C · UH.3",
+          "domain": "User Application Hardening",
+          "title": "Continuous verification of user application hardening baselines",
+          "description": "User application hardening baselines (browsers, Office, PDF, scripting engines) are continuously monitored for configuration drift.",
+          "guidance": "Alert on MDM/EDR compliance drift within 24 hours.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "continuousHardeningDriftCheck": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MDM continuous compliance & drift-remediation dashboard.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.9",
+              "coverage": "partial",
+              "notes": "Continuous configuration drift monitoring."
+            }
+          ],
+          "sortOrder": 63
+        },
+        {
+          "reqCode": "E8-RB-ML1-01",
+          "clauseRef": "Appendix A · RB.1",
+          "domain": "Regular Backups",
+          "title": "Regular coordinated backups of data, software & configurations",
+          "description": "Backups of important data, software, and configuration settings are performed and retained in a coordinated manner aligned with business continuity needs.",
+          "guidance": "Include cloud SaaS data, IaC/configurations, and databases in automated backup schedules.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "coordinatedBackups": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Backup schedule, scope register & retention policy.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "full",
+              "notes": "Directly aligns with ISO A.8.13 Information backup."
+            }
+          ],
+          "sortOrder": 64
+        },
+        {
+          "reqCode": "E8-RB-ML1-02",
+          "clauseRef": "Appendix A · RB.2",
+          "domain": "Regular Backups",
+          "title": "Tested restoration of backups",
+          "description": "Restoration of backups is tested initially and whenever infrastructure changes to confirm recoverability.",
+          "guidance": "Record actual restored file/database integrity checks and recovery time.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "testedRestoration": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Signed backup restoration test report.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "full",
+              "notes": "Backup restoration testing."
+            }
+          ],
+          "sortOrder": 65
+        },
+        {
+          "reqCode": "E8-RB-ML1-03",
+          "clauseRef": "Appendix A · RB.3",
+          "domain": "Regular Backups",
+          "title": "Prevent unprivileged accounts from accessing or deleting backups",
+          "description": "Unprivileged accounts are prevented from accessing, modifying, or deleting backups.",
+          "guidance": "Segregate backup storage into isolated cloud accounts/buckets denied to standard users.",
+          "levelOrCategory": "ML1",
+          "prescriptiveSla": {
+            "unprivilegedBackupIsolation": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Backup IAM policy denying unprivileged access.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "partial",
+              "notes": "Backup access segregation."
+            }
+          ],
+          "sortOrder": 66
+        },
+        {
+          "reqCode": "E8-RB-ML2-01",
+          "clauseRef": "Appendix B · RB.1",
+          "domain": "Regular Backups",
+          "title": "Synchronised backups across interdependent systems",
+          "description": "Backup schedules are synchronised across interdependent systems so point-in-time recovery maintains transactional consistency.",
+          "guidance": "Align database, identity, and config backup windows.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "synchronisedInterdependentBackups": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Coordinated backup schedule across interdependent services.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "partial",
+              "notes": "Synchronised backup schedules."
+            },
+            {
+              "controlNumber": "5.30",
+              "coverage": "partial",
+              "notes": "ICT continuity readiness."
+            }
+          ],
+          "sortOrder": 67
+        },
+        {
+          "reqCode": "E8-RB-ML2-02",
+          "clauseRef": "Appendix B · RB.2",
+          "domain": "Regular Backups",
+          "title": "Full data, software & configuration restore tested in DR exercises",
+          "description": "Full restoration of data, software, and configuration settings is tested regularly as part of disaster recovery exercises.",
+          "guidance": "Run annual or semi-annual DR recovery drills measuring actual RTO/RPO.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "drExerciseRestore": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Disaster recovery exercise report with measured RTO/RPO.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.30",
+              "coverage": "partial",
+              "notes": "ICT disaster recovery exercises."
+            },
+            {
+              "controlNumber": "8.13",
+              "coverage": "partial",
+              "notes": "Full-stack restoration testing."
+            }
+          ],
+          "sortOrder": 68
+        },
+        {
+          "reqCode": "E8-RB-ML2-03",
+          "clauseRef": "Appendix B · RB.3",
+          "domain": "Regular Backups",
+          "title": "Prevent privileged accounts (except dedicated backup admins) from deleting backups",
+          "description": "Standard and general privileged accounts (excluding dedicated backup administrator accounts) are prevented from modifying or deleting backups.",
+          "guidance": "Separate backup account/tenant IAM from primary production/AD domain admins.",
+          "levelOrCategory": "ML2",
+          "prescriptiveSla": {
+            "privilegedBackupIsolation": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Segregated backup-account IAM & role-separation proof.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "delta_required",
+              "notes": "Privileged-account isolation from backup repositories."
+            },
+            {
+              "controlNumber": "8.2",
+              "coverage": "partial",
+              "notes": "Segregation of backup admin duties."
+            }
+          ],
+          "sortOrder": 69
+        },
+        {
+          "reqCode": "E8-RB-ML3-01",
+          "clauseRef": "Appendix C · RB.1",
+          "domain": "Regular Backups",
+          "title": "Immutable / WORM backups preventing EVEN backup-admin deletion",
+          "description": "Unprivileged, privileged, AND dedicated backup administrator accounts are prevented from modifying or deleting backups during their retention period (enforced via immutable WORM compliance locks or offline air-gap).",
+          "guidance": "Enable AWS S3 Object Lock Compliance Mode, GCP Bucket Lock, Azure Immutable Storage, or offline media.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "immutableRetentionLock": true,
+            "backupAdminCannotDelete": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Cloud WORM compliance-lock / air-gap proof.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "delta_required",
+              "notes": "Immutable WORM lock preventing backup-admin tampering."
+            }
+          ],
+          "sortOrder": 70
+        },
+        {
+          "reqCode": "E8-RB-ML3-02",
+          "clauseRef": "Appendix C · RB.2",
+          "domain": "Regular Backups",
+          "title": "Multi-party quorum or out-of-band protection for backup policy changes",
+          "description": "Changes to backup retention, immutability policies, or encryption keys require multi-party approval or are locked until retention expiry.",
+          "guidance": "Protect backup KMS keys from immediate deletion (minimum 30-day deletion waiting period + SCP guardrails).",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "multiPartyBackupProtection": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "KMS key-deletion guardrail & SCP/org-policy export.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.13",
+              "coverage": "delta_required",
+              "notes": "Tamper-proof backup retention controls."
+            },
+            {
+              "controlNumber": "8.24",
+              "coverage": "partial",
+              "notes": "Backup encryption key protection."
+            }
+          ],
+          "sortOrder": 71
+        },
+        {
+          "reqCode": "E8-RB-ML3-03",
+          "clauseRef": "Appendix C · RB.3",
+          "domain": "Regular Backups",
+          "title": "Regular full-environment / bare-metal recovery testing",
+          "description": "Full-environment restoration (infrastructure, identity, configurations, and data) into an isolated recovery environment is regularly tested and verified.",
+          "guidance": "Document clean-room rebuild time and data integrity verification.",
+          "levelOrCategory": "ML3",
+          "prescriptiveSla": {
+            "cleanRoomRecoveryTest": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Clean-room / bare-metal recovery exercise log.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.30",
+              "coverage": "partial",
+              "notes": "Full-environment continuity testing."
+            }
+          ],
+          "sortOrder": 72
+        }
+      ]
+    },
+    {
+      "code": "au_privacy_act",
+      "name": "Australian Privacy Act 1988 (APPs + POLA 2024)",
+      "shortName": "Privacy Act (APPs)",
+      "version": "APPs 1–13 + POLA 2024 + T2 Draft",
+      "jurisdiction": "Australia",
+      "instrumentId": "C2004A03712 / C2024A00128",
+      "sourceUrl": "https://www.legislation.gov.au/C2004A03712/latest/text",
+      "effectiveDate": "2024-12-11",
+      "transitionNote": "POLA Act 2024 APP 1.7–1.9 Automated Decision-Making disclosures & Children's Online Privacy Code commence 10 December 2026. Tranche 2 Exposure Draft (Privacy Amendment (Personal Data Protection) Bill 2026, released 31 Aug 2026) is tracked separately as Draft (not yet law).",
+      "scoringMode": "statutory_register",
+      "supportTier": "full",
+      "description": "Australian Privacy Principles (APPs 1–13), Part IIIC Notifiable Data Breaches (NDB) Scheme, POLA Act 2024 reforms (APP 11.3 TOMs, Statutory Tort, 10 Dec 2026 ADM & Children's Code), plus optional Tranche 2 draft readiness.",
+      "defaultEnabled": true,
+      "sortOrder": 3,
+      "requirements": [
+        {
+          "reqCode": "APP-1",
+          "clauseRef": "APP 1.1–1.6 · s 13K",
+          "domain": "Governance & Transparency (APP 1–2)",
+          "title": "Open & transparent management of PI and compliant Privacy Policy",
+          "description": "Maintain practices, procedures, and systems to ensure APP compliance and handle inquiries/complaints; publish an up-to-date Privacy Policy covering kinds of PI, collection methods, purposes, access/correction, complaints, and overseas disclosure countries. Note: s 13K POLA 2024 introduces OAIC infringement notices for deficient policies.",
+          "guidance": "Review your public Privacy Policy at least annually against actual data flows and APP 1.4 mandatory items.",
+          "levelOrCategory": "APP 1",
+          "prescriptiveSla": {
+            "infringementNoticeRisk": "s13K"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Published Privacy Policy, APP 1.4 checklist & annual review log.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "partial",
+              "notes": "General privacy governance."
+            },
+            {
+              "controlNumber": "5.31",
+              "coverage": "partial",
+              "notes": "Legal compliance register."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "APP-1.7-ADM",
+          "clauseRef": "APP 1.7–1.9 (POLA 2024)",
+          "domain": "POLA 2024 Reforms (Commencing 10 Dec 2026)",
+          "title": "Automated Decision-Making (ADM) Privacy Policy Transparency",
+          "description": "Commencing 10 December 2026: Privacy Policy must disclose (a) the kinds of personal information used in computer programs (AI, ML, algorithms, or automated rule engines) that make or substantially/directly assist decisions reasonably expected to significantly affect rights or interests, and (b) whether decisions are made solely by such programs or substantially assisted by them.",
+          "guidance": "Inventory every AI/ML model, automated HR/hiring/scoring/triage engine touching PI, classify sole vs substantially-assisted decisions, and update your Privacy Policy before 10 December 2026.",
+          "levelOrCategory": "POLA 2024",
+          "prescriptiveSla": {
+            "statutoryCommencement": "2026-12-10"
+          },
+          "deadlineDate": "2026-12-10",
+          "isDraft": false,
+          "evidenceExpected": "ADM System Inventory & updated Privacy Policy.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Australian statutory ADM transparency obligation commencing 10 Dec 2026."
+            },
+            {
+              "controlNumber": "RQ4",
+              "coverage": "partial",
+              "notes": "Regulatory context obligations."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "POLA-COPC",
+          "clauseRef": "s 26GC (POLA 2024)",
+          "domain": "POLA 2024 Reforms (Commencing 10 Dec 2026)",
+          "title": "Children's Online Privacy Code Readiness (Best Interests & Under-15 Consent)",
+          "description": "Commencing by 10 December 2026 (Exposure Draft consulted 31 Mar–5 Jun 2026): Assess whether any online service/app/website is likely to be accessed by children (<18). In-scope services must embed best interests of the child, 'strictly necessary' data minimisation, age-assurance & parental consent for under-15s, child-appropriate notices, profiling transparency, and mandatory Privacy Impact Assessments (PIAs) for high-risk features.",
+          "guidance": "Record a formal applicability determination even for B2B products; if minors may access the service, complete a child-focused PIA aligned to the OAIC Code.",
+          "levelOrCategory": "POLA 2024",
+          "prescriptiveSla": {
+            "statutoryCommencement": "2026-12-10",
+            "draftParentalConsentAge": 15
+          },
+          "deadlineDate": "2026-12-10",
+          "isDraft": false,
+          "evidenceExpected": "Children's Code applicability assessment, age-assurance review & child PIA.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Statutory OAIC Children's Online Privacy Code obligation."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "POLA-TORT",
+          "clauseRef": "Schedule 2 (POLA 2024)",
+          "domain": "POLA 2024 Reforms (In Force)",
+          "title": "Statutory Tort for Serious Invasions of Privacy",
+          "description": "In force since 10 June 2025 (applies regardless of the $3M small-business turnover threshold): Individuals can bring direct court claims for intentional or reckless intrusion upon seclusion or misuse of private information where there is a reasonable expectation of privacy.",
+          "guidance": "Audit employee monitoring, support-tool access to customer data, and internal misuse safeguards; train staff on reckless-access liability.",
+          "levelOrCategory": "POLA 2024",
+          "prescriptiveSla": {
+            "inForceSince": "2025-06-10",
+            "smallBusinessExemptionApplies": false
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Staff privacy training, least-privilege customer-data access logs & monitoring policy.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Applies regardless of $3M threshold."
+            },
+            {
+              "controlNumber": "6.3",
+              "coverage": "partial",
+              "notes": "Staff privacy & security awareness."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "APP-2",
+          "clauseRef": "APP 2",
+          "domain": "Governance & Transparency (APP 1–2)",
+          "title": "Anonymity and Pseudonymity",
+          "description": "Provide individuals the option of not identifying themselves or using a pseudonym when dealing with the organisation unless required by law or impracticable.",
+          "guidance": "Document lawful/operational impracticability exceptions (e.g. KYC, clinical records, payroll).",
+          "levelOrCategory": "APP 2",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Channel review confirming anonymous inquiry option & documented exceptions.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Statutory anonymity/pseudonymity principle."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "APP-3",
+          "clauseRef": "APP 3",
+          "domain": "Collection of Personal Information (APP 3–5)",
+          "title": "Collection of Solicited Personal & Sensitive Information",
+          "description": "Collect personal information only where reasonably necessary, by lawful and fair means, and directly from the individual where practicable. Sensitive information (health, biometric, ethnic, political, criminal) requires explicit consent unless an exception applies.",
+          "guidance": "Audit intake forms, APIs, and onboarding flows for data minimisation and explicit sensitive-info consent.",
+          "levelOrCategory": "APP 3",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Data collection inventory & sensitive-information consent logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "partial",
+              "notes": "Data minimisation & consent."
+            },
+            {
+              "controlNumber": "5.12",
+              "coverage": "partial",
+              "notes": "Sensitive information classification."
+            }
+          ],
+          "sortOrder": 6
+        },
+        {
+          "reqCode": "APP-4",
+          "clauseRef": "APP 4",
+          "domain": "Collection of Personal Information (APP 3–5)",
+          "title": "Dealing with Unsolicited Personal Information",
+          "description": "Determine within a reasonable period whether unsolicited PI could have been collected under APP 3; if not, destroy or de-identify it as soon as practicable.",
+          "guidance": "Provide support, HR, and intake teams a documented purge SOP for unsolicited IDs or medical docs.",
+          "levelOrCategory": "APP 4",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Unsolicited PI triage & deletion SOP with sample purge logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.10",
+              "coverage": "partial",
+              "notes": "Information deletion workflow."
+            }
+          ],
+          "sortOrder": 7
+        },
+        {
+          "reqCode": "APP-5",
+          "clauseRef": "APP 5",
+          "domain": "Collection of Personal Information (APP 3–5)",
+          "title": "Notification of Collection (APP 5 Collection Notices)",
+          "description": "At or before collection (or as soon as practicable after), notify the individual of identity/contact, purpose, consequences of non-collection, usual disclosures, Privacy Policy access/complaints, and likely overseas disclosure countries.",
+          "guidance": "Verify every web form, sign-up flow, and intake script presents an accurate APP 5 Collection Notice.",
+          "levelOrCategory": "APP 5",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Collection Notice templates & audit of user-facing collection points.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Point-of-collection notice requirements."
+            }
+          ],
+          "sortOrder": 8
+        },
+        {
+          "reqCode": "APP-6",
+          "clauseRef": "APP 6",
+          "domain": "Use, Disclosure & Cross-Border (APP 6–9)",
+          "title": "Use or Disclosure of Personal Information",
+          "description": "Use or disclose PI only for the primary purpose of collection unless consented or a valid secondary-purpose exception applies.",
+          "guidance": "Ensure analytics, AI/LLM pipelines, and third-party integrations do not repurpose PI beyond disclosed purposes.",
+          "levelOrCategory": "APP 6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Data flow / disclosure register & AI/LLM data-handling rules.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "partial",
+              "notes": "Purpose limitation."
+            },
+            {
+              "controlNumber": "5.14",
+              "coverage": "partial",
+              "notes": "Information transfer rules."
+            }
+          ],
+          "sortOrder": 9
+        },
+        {
+          "reqCode": "APP-7",
+          "clauseRef": "APP 7",
+          "domain": "Use, Disclosure & Cross-Border (APP 6–9)",
+          "title": "Direct Marketing & Opt-Out",
+          "description": "Do not use or disclose PI for direct marketing unless permitted under APP 7; provide a simple opt-out mechanism and honour opt-outs promptly (alongside Spam Act 2003).",
+          "guidance": "Test CRM/email unsubscribe suppression lists and prohibit sensitive-info marketing without explicit consent.",
+          "levelOrCategory": "APP 7",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Opt-out test evidence & CRM suppression list config.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Direct marketing opt-out compliance."
+            }
+          ],
+          "sortOrder": 10
+        },
+        {
+          "reqCode": "APP-8",
+          "clauseRef": "APP 8 (POLA 2024)",
+          "domain": "Use, Disclosure & Cross-Border (APP 6–9)",
+          "title": "Cross-Border Disclosure & Ministerial Whitelist",
+          "description": "Before disclosing PI overseas, take reasonable steps to ensure the recipient does not breach the APPs (binding contractual clauses), unless an exception applies — including POLA 2024's ministerial whitelist of substantially similar jurisdictions/schemes — or informed consent is obtained.",
+          "guidance": "Maintain an Overseas Recipient Register (vendor, country, data types, DPA/APP 8 terms or whitelist basis) matching your Privacy Policy.",
+          "levelOrCategory": "APP 8",
+          "prescriptiveSla": {
+            "overseasRecipientRegister": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Cross-Border Disclosure Register & supplier DPAs.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.19",
+              "coverage": "partial",
+              "notes": "Supplier security governance."
+            },
+            {
+              "controlNumber": "5.20",
+              "coverage": "partial",
+              "notes": "Supplier privacy clauses."
+            },
+            {
+              "controlNumber": "5.23",
+              "coverage": "partial",
+              "notes": "Cloud region/data residency."
+            }
+          ],
+          "sortOrder": 11
+        },
+        {
+          "reqCode": "APP-9",
+          "clauseRef": "APP 9",
+          "domain": "Use, Disclosure & Cross-Border (APP 6–9)",
+          "title": "Government Related Identifiers",
+          "description": "Do not adopt government-related identifiers (TFN, Medicare, driver licence, passport numbers) as internal identifiers; use/disclose only under APP 9.2 exceptions.",
+          "guidance": "Verify databases use synthetic primary keys and purge ID-verification copies promptly.",
+          "levelOrCategory": "APP 9",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Schema review confirming synthetic IDs & ID-retention schedule.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Government identifier restrictions."
+            }
+          ],
+          "sortOrder": 12
+        },
+        {
+          "reqCode": "APP-10",
+          "clauseRef": "APP 10",
+          "domain": "Integrity, Security & Individual Rights (APP 10–13)",
+          "title": "Quality of Personal Information",
+          "description": "Take reasonable steps to ensure PI collected is accurate, up-to-date, and complete, and PI used/disclosed is also relevant.",
+          "guidance": "Implement input validation and periodic data-quality / customer-profile refresh checks.",
+          "levelOrCategory": "APP 10",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Data validation controls & profile update workflows.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "partial",
+              "notes": "Personal information accuracy."
+            }
+          ],
+          "sortOrder": 13
+        },
+        {
+          "reqCode": "APP-11.1-TOM",
+          "clauseRef": "APP 11.1 & 11.3 (POLA 2024)",
+          "domain": "Integrity, Security & Individual Rights (APP 10–13)",
+          "title": "Security of Personal Information — Technical & Organisational Measures",
+          "description": "Take reasonable steps — explicitly codified by POLA 2024 APP 11.3 to include BOTH technical and organisational measures — to protect PI from misuse, interference, loss, and unauthorised access, modification, or disclosure.",
+          "guidance": "Directly supported by your ISO/IEC 27001:2022 ISMS controls (access control, encryption, DLP, monitoring, staff training).",
+          "levelOrCategory": "APP 11 + POLA 2024",
+          "prescriptiveSla": {
+            "technicalAndOrganisationalMeasures": "APP 11.3"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "ISO 27001 control evidence, encryption & access control reviews.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "full",
+              "notes": "Core privacy security protection."
+            },
+            {
+              "controlNumber": "8.12",
+              "coverage": "partial",
+              "notes": "DLP."
+            },
+            {
+              "controlNumber": "8.24",
+              "coverage": "partial",
+              "notes": "Encryption of PI."
+            }
+          ],
+          "sortOrder": 14
+        },
+        {
+          "reqCode": "APP-11.2-DEL",
+          "clauseRef": "APP 11.2",
+          "domain": "Integrity, Security & Individual Rights (APP 10–13)",
+          "title": "Destruction or De-Identification of Unneeded Personal Information",
+          "description": "Take reasonable steps to destroy or de-identify PI once no longer needed for any permitted purpose and not required to be retained by Australian law or court order.",
+          "guidance": "Maintain an enforced Data Retention & Destruction Schedule with automated purge verification logs.",
+          "levelOrCategory": "APP 11",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Data Retention & Destruction Schedule & sample purge logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.10",
+              "coverage": "full",
+              "notes": "Information deletion."
+            },
+            {
+              "controlNumber": "8.11",
+              "coverage": "partial",
+              "notes": "Data masking / de-identification."
+            }
+          ],
+          "sortOrder": 15
+        },
+        {
+          "reqCode": "APP-12",
+          "clauseRef": "APP 12",
+          "domain": "Integrity, Security & Individual Rights (APP 10–13)",
+          "title": "Access to Personal Information (30-Day OAIC Target)",
+          "description": "Give individuals access to their PI on request within a reasonable period (OAIC guidance: <= 30 calendar days), verify identity safely, and provide written reasons for any APP 12.3 refusal.",
+          "guidance": "Maintain an Access Request SOP and log tracking receipt, ID verification, and fulfilment dates.",
+          "levelOrCategory": "APP 12",
+          "prescriptiveSla": {
+            "targetResponseDays": 30
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "APP 12 Access Request SOP & tracking register.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "30-day individual access fulfilment."
+            }
+          ],
+          "sortOrder": 16
+        },
+        {
+          "reqCode": "APP-13",
+          "clauseRef": "APP 13",
+          "domain": "Integrity, Security & Individual Rights (APP 10–13)",
+          "title": "Correction of Personal Information",
+          "description": "Take reasonable steps to correct PI so it is accurate, up-to-date, complete, relevant, and not misleading upon request or discovery, and notify prior recipients if requested.",
+          "guidance": "Support self-service updates or a documented correction workflow including statement-of-dispute handling.",
+          "levelOrCategory": "APP 13",
+          "prescriptiveSla": {
+            "targetResponseDays": 30
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Correction SOP & sample request resolutions.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Individual correction rights."
+            }
+          ],
+          "sortOrder": 17
+        },
+        {
+          "reqCode": "NDB-26WH",
+          "clauseRef": "Part IIIC s 26WH",
+          "domain": "Notifiable Data Breaches (Part IIIC)",
+          "title": "30-Calendar-Day Eligible Data Breach Assessment Clock",
+          "description": "When reasonable grounds exist to suspect an eligible data breach (likely to result in serious harm under s 26WG), carry out a reasonable and expeditious assessment and take all reasonable steps to complete it within 30 calendar days.",
+          "guidance": "Embed the 30-day statutory clock and serious-harm assessment criteria directly in your Incident Response Plan.",
+          "levelOrCategory": "NDB Scheme",
+          "prescriptiveSla": {
+            "maxAssessmentDays": 30
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Data Breach Response Plan with s 26WH 30-day clock & assessment log.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.24",
+              "coverage": "partial",
+              "notes": "Incident response planning."
+            },
+            {
+              "controlNumber": "5.25",
+              "coverage": "partial",
+              "notes": "Serious-harm event assessment."
+            }
+          ],
+          "sortOrder": 18
+        },
+        {
+          "reqCode": "NDB-26WK",
+          "clauseRef": "Part IIIC s 26WK–26WL",
+          "domain": "Notifiable Data Breaches (Part IIIC)",
+          "title": "OAIC & Affected Individuals Notification",
+          "description": "Once an eligible data breach is confirmed (and remedial action did not prevent likely serious harm), lodge a statement with the OAIC and notify affected individuals as soon as practicable.",
+          "guidance": "Pre-stage OAIC NDB form fields, legal/executive approval chain, and customer notification templates.",
+          "levelOrCategory": "NDB Scheme",
+          "prescriptiveSla": {
+            "oaicNotification": "as_soon_as_practicable"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "OAIC notification runbook & comms templates.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "partial",
+              "notes": "Contact with authorities (OAIC)."
+            },
+            {
+              "controlNumber": "5.26",
+              "coverage": "partial",
+              "notes": "Breach notification execution."
+            }
+          ],
+          "sortOrder": 19
+        },
+        {
+          "reqCode": "PRIV-T2-FAIR",
+          "clauseRef": "Draft Bill 2026 (Not Yet Law)",
+          "domain": "Tranche 2 Exposure Draft (Aug 2026 — Not Yet Law)",
+          "title": "Proposed Overarching 'Fair and Reasonable' Test (APPs 3 & 6)",
+          "description": "DRAFT READINESS (Exposure Draft Privacy Amendment (Personal Data Protection) Bill 2026, released 31 Aug 2026 — not yet law): Proposes an objective 'fair and reasonable' requirement for all collection, use, and disclosure of PI, beyond notice-and-consent alone.",
+          "guidance": "Track proactively for high-risk data practices (profiling, behavioural tracking, AI training). Does not affect current in-force readiness score.",
+          "levelOrCategory": "Draft (Tranche 2)",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": true,
+          "evidenceExpected": "Proactive fair-and-reasonable assessment of high-risk PI processing.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "delta_required",
+              "notes": "Proposed Tranche 2 statutory test (not yet law)."
+            }
+          ],
+          "sortOrder": 20
+        },
+        {
+          "reqCode": "PRIV-T2-72H",
+          "clauseRef": "Draft Bill 2026 Sch 3 (Not Yet Law)",
+          "domain": "Tranche 2 Exposure Draft (Aug 2026 — Not Yet Law)",
+          "title": "Proposed 72-Hour OAIC Eligible Data Breach Notification Rule",
+          "description": "DRAFT READINESS (Exposure Draft Bill 2026 Schedule 3 — not yet law): Proposes requiring OAIC notification within 72 hours of forming reasonable grounds to believe an eligible data breach occurred (retaining the 30-day assessment cap; allowing initial incomplete statements).",
+          "guidance": "Aligning breach playbooks to 72 hours simultaneously satisfies APRA CPS 234 §35 and Cyber Security Act 2024 timelines.",
+          "levelOrCategory": "Draft (Tranche 2)",
+          "prescriptiveSla": {
+            "proposedOaicNotificationHours": 72
+          },
+          "deadlineDate": null,
+          "isDraft": true,
+          "evidenceExpected": "72-hour breach escalation drill & staged OAIC notice template.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "partial",
+              "notes": "72-hour regulatory notification readiness."
+            },
+            {
+              "controlNumber": "5.26",
+              "coverage": "partial",
+              "notes": "Rapid breach notification."
+            }
+          ],
+          "sortOrder": 21
+        }
+      ]
+    },
+    {
+      "code": "au_cyber_security_act_2024",
+      "name": "Cyber Security Act 2024 (Cth)",
+      "shortName": "Cyber Security Act 2024",
+      "version": "C2024A00098 + 2025 Rules",
+      "jurisdiction": "Australia",
+      "instrumentId": "C2024A00098",
+      "sourceUrl": "https://www.legislation.gov.au/C2024A00098/latest/text",
+      "effectiveDate": "2025-05-30",
+      "transitionNote": "Mandatory 72-hour ransomware payment reporting commenced 30 May 2025 (>= $3M turnover or SOCI entity); Smart Device (IoT) Security Standards commenced 4 March 2026.",
+      "scoringMode": "statutory_register",
+      "supportTier": "full",
+      "description": "Australia's standalone economy-wide cyber security legislation: mandatory 72-hour ransomware & cyber extortion payment reporting to ASD (ReportCyber), IoT smart device security standards, Limited Use protection, and Cyber Incident Review Board.",
+      "defaultEnabled": true,
+      "sortOrder": 4,
+      "requirements": [
+        {
+          "reqCode": "CSA-RPR-01",
+          "clauseRef": "Part 3 · Rules 2025",
+          "domain": "Mandatory Ransomware Payment Reporting",
+          "title": "Reporting Business Entity Scope Determination ($3M Turnover / SOCI)",
+          "description": "Determine whether the organisation is a 'reporting business entity' under the Cyber Security Act 2024 (Cth): any entity carrying on a business in Australia with >= AUD $3M annual turnover in the prior financial year, OR any responsible entity for a SOCI Act critical infrastructure asset regardless of turnover.",
+          "guidance": "Document annual turnover / SOCI scope review in executive governance records so legal & incident teams know immediately if Part 3 applies.",
+          "levelOrCategory": "In Force (30 May 2025)",
+          "prescriptiveSla": {
+            "turnoverThresholdAud": 3000000
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Documented Cyber Security Act Part 3 applicability determination.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ4",
+              "coverage": "partial",
+              "notes": "Legal & regulatory scope context."
+            },
+            {
+              "controlNumber": "5.31",
+              "coverage": "partial",
+              "notes": "Legal requirements register."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "CSA-RPR-02",
+          "clauseRef": "s 27–30 · Rules 2025",
+          "domain": "Mandatory Ransomware Payment Reporting",
+          "title": "72-Hour Mandatory Ransomware & Cyber Extortion Payment Report to ASD",
+          "description": "In force since 30 May 2025: If an in-scope entity makes a ransomware or cyber extortion payment (or becomes aware a payment was made on its behalf), submit a formal report to ASD via ReportCyber within 72 hours (civil penalty up to 60 penalty units).",
+          "guidance": "Embed the 72-hour ReportCyber statutory trigger into your Incident Response Plan, executive extortion playbook, and cyber-insurance panel instructions.",
+          "levelOrCategory": "In Force (30 May 2025)",
+          "prescriptiveSla": {
+            "reportWindowHours": 72,
+            "civilPenaltyUnits": 60
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Incident Response Plan & executive extortion playbook citing 72h ReportCyber obligation.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "Mandatory 72-hour ASD ReportCyber statutory reporting."
+            },
+            {
+              "controlNumber": "5.24",
+              "coverage": "partial",
+              "notes": "Incident management planning."
+            },
+            {
+              "controlNumber": "5.26",
+              "coverage": "partial",
+              "notes": "Incident response execution."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "CSA-RPR-03",
+          "clauseRef": "Rules 2025 · Report Content",
+          "domain": "Mandatory Ransomware Payment Reporting",
+          "title": "Ransomware Payment Report Evidence & Data Readiness",
+          "description": "Ensure incident response procedures capture all mandatory statutory report fields: incident timeline, infrastructure/customer impact, malware types and exploited vulnerabilities, ransom demands (monetary & non-monetary), exact amounts & payment methods, and threat actor communications.",
+          "guidance": "Maintain a pre-structured ransomware reporting checklist so legal counsel and DFIR responders capture required evidence without delaying containment.",
+          "levelOrCategory": "In Force (30 May 2025)",
+          "prescriptiveSla": {
+            "reportWindowHours": 72
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Pre-built Ransomware Payment Report template & DFIR evidence checklist.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.26",
+              "coverage": "partial",
+              "notes": "Incident evidence preservation."
+            },
+            {
+              "controlNumber": "5.28",
+              "coverage": "partial",
+              "notes": "Collection of forensic evidence."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "CSA-IOT-01",
+          "clauseRef": "Part 2 · Rules 2025",
+          "domain": "Smart Device (IoT) Security Standards",
+          "title": "Smart Device / Connectable Product Applicability Determination",
+          "description": "In force since 4 March 2026: Determine whether the organisation manufactures, imports, or supplies consumer-grade 'relevant connectable products' (IoT / smart devices) into the Australian market. (Mark N/A with rationale for pure software/SaaS organisations.)",
+          "guidance": "Review hardware products, branded IoT devices, and imported connected equipment against the Cyber Security (Security Standards for Smart Devices) Rules 2025.",
+          "levelOrCategory": "In Force (4 Mar 2026)",
+          "prescriptiveSla": {
+            "effectiveDate": "2026-03-04"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Product scope register confirming IoT Rules applicability or documented N/A determination.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.31",
+              "coverage": "partial",
+              "notes": "Product regulatory compliance register."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "CSA-IOT-02",
+          "clauseRef": "Part 2 · Rules 2025",
+          "domain": "Smart Device (IoT) Security Standards",
+          "title": "IoT Baseline Controls (No Universal Passwords, VDP & Update Period)",
+          "description": "For in-scope smart devices supplied in Australia: prohibit universal default passwords, publish a vulnerability disclosure policy (VDP) with reporting contact, disclose the defined minimum security update support period, and provide a Statement of Compliance.",
+          "guidance": "Align product firmware, packaging/web disclosures, and supplier contracts with ETSI EN 303 645 / Australian Smart Device Rules 2025.",
+          "levelOrCategory": "In Force (4 Mar 2026)",
+          "prescriptiveSla": {
+            "universalDefaultPasswordsAllowed": false
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Device Statement of Compliance, published VDP URL & security update timeframe disclosure.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.25",
+              "coverage": "partial",
+              "notes": "Secure product lifecycle."
+            },
+            {
+              "controlNumber": "8.27",
+              "coverage": "partial",
+              "notes": "Secure architecture principles."
+            },
+            {
+              "controlNumber": "5.21",
+              "coverage": "partial",
+              "notes": "ICT supply chain assurance."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "CSA-LUO-01",
+          "clauseRef": "Part 4",
+          "domain": "Limited Use & Incident Review Board",
+          "title": "Limited Use Obligation & Voluntary ASD / NCSC Engagement Protocol",
+          "description": "Define legal and executive protocols for voluntary incident sharing with ASD and the National Cyber Security Coordinator, leveraging Part 4 'limited use' statutory protections (restricting downstream regulatory/civil-penalty weaponisation of voluntary disclosures).",
+          "guidance": "Brief legal counsel and executives on what qualifies for Limited Use protection vs separate statutory triggers (OAIC NDB, APRA CPS 234, ASIC).",
+          "levelOrCategory": "In Force",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Legal engagement protocol for ASD / NCSC voluntary cyber incident disclosures.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "partial",
+              "notes": "Structured engagement with cyber authorities."
+            }
+          ],
+          "sortOrder": 6
+        },
+        {
+          "reqCode": "CSA-CIRB-01",
+          "clauseRef": "Part 5",
+          "domain": "Limited Use & Incident Review Board",
+          "title": "Cyber Incident Review Board (CIRB) No-Fault Review Readiness",
+          "description": "Maintain post-incident review procedures capable of cooperating with no-fault Cyber Incident Review Board (CIRB) reviews and incorporating published CIRB systemic lessons into the ISMS.",
+          "guidance": "Track published CIRB advisories in Management Review and post-incident learning (A.5.27).",
+          "levelOrCategory": "In Force",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Post-incident review SOP & external lessons-learned review log.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.27",
+              "coverage": "partial",
+              "notes": "Learning from information security incidents."
+            }
+          ],
+          "sortOrder": 7
+        }
+      ]
+    },
+    {
+      "code": "apra_cps234",
+      "name": "APRA CPS 234 (Information Security)",
+      "shortName": "APRA CPS 234",
+      "version": "F2018L01745",
+      "jurisdiction": "Australia",
+      "instrumentId": "F2018L01745",
+      "sourceUrl": "https://www.legislation.gov.au/F2018L01745/latest/text",
+      "effectiveDate": "2019-07-01",
+      "transitionNote": "Cross-mapped across ISO 27001 controls (paras 13–36) PLUS first-class statutory delta assessments for Board accountability, functionally independent specialist testing (§30), 72h incident notice (§35), and 10-business-day material weakness notice (§36).",
+      "scoringMode": "statutory_register",
+      "supportTier": "full",
+      "description": "APRA Prudential Standard CPS 234 combining ISO 27001 control cross-mapping with dedicated non-ISO prudential obligations (Board accountability, third-party assurance chain, independent testing, and §35/§36 APRA notification clocks).",
+      "defaultEnabled": false,
+      "sortOrder": 5,
+      "requirements": [
+        {
+          "reqCode": "CPS234-13",
+          "clauseRef": "CPS 234 §13–14",
+          "domain": "Governance & Board Accountability",
+          "title": "Board Ultimate Accountability & Clear Roles/Responsibilities",
+          "description": "The Board is ultimately responsible for the information security of the APRA-regulated entity and must ensure the entity maintains information security in a manner commensurate with threats and asset criticality, with clearly defined roles across Board, senior management, governing bodies, and individuals.",
+          "guidance": "ISO 27001 references 'top management' — APRA explicitly mandates non-delegable Board accountability and regular Board cyber reporting.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Board charter, Board cyber reporting packs & RACI approved by Board.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ5",
+              "coverage": "partial",
+              "notes": "Board-level prudential accountability beyond generic top management."
+            },
+            {
+              "controlNumber": "5.2",
+              "coverage": "partial",
+              "notes": "Roles and responsibilities."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "CPS234-15",
+          "clauseRef": "CPS 234 §15, §17",
+          "domain": "Capability & Maintenance",
+          "title": "Information Security Capability Commensurate with Threats",
+          "description": "Maintain an information security capability commensurate with the size and extent of threats to information assets, enabling continued sound operation, and actively maintain that capability as threats and vulnerabilities evolve.",
+          "guidance": "Document annual cyber staffing, skills, tooling, and budget adequacy reviews presented to the Board/CRO.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Annual security capability & resourcing assessment.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ7",
+              "coverage": "partial",
+              "notes": "Resources & competence."
+            },
+            {
+              "controlNumber": "5.7",
+              "coverage": "partial",
+              "notes": "Threat intelligence alignment."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "CPS234-3P",
+          "clauseRef": "CPS 234 §16, §22, §28, §34",
+          "domain": "Third-Party & Related-Party Assurance",
+          "title": "End-to-End Third-Party & Related-Party Information Asset Assurance Chain",
+          "description": "Where information assets are managed by a related party or third party: assess their information security capability (§16), evaluate the design of their controls (§22), evaluate the sufficiency of their control testing (§28), and have Internal Audit review reliance on third-party assurance (§34).",
+          "guidance": "Do not rely blindly on a SOC 2 / ISO certificate — document formal evaluation of scope, testing frequency, exceptions, and internal audit reliance.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Third-party CPS 234 assurance evaluation register & Internal Audit reliance memo.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.19",
+              "coverage": "delta_required",
+              "notes": "Full 4-stage third-party assurance chain."
+            },
+            {
+              "controlNumber": "5.22",
+              "coverage": "partial",
+              "notes": "Supplier service monitoring."
+            },
+            {
+              "controlNumber": "5.23",
+              "coverage": "partial",
+              "notes": "Cloud assurance reviews."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "CPS234-20",
+          "clauseRef": "CPS 234 §20",
+          "domain": "Asset Identification & Classification",
+          "title": "Identify & Classify All Information Assets by Criticality & Sensitivity",
+          "description": "Classify all information assets (including those managed by related or third parties) by criticality and sensitivity to reflect the degree to which an incident could affect the entity or its beneficiaries.",
+          "guidance": "Ensure classification covers both sensitivity (confidentiality) AND operational criticality (availability/integrity).",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Classified Information Asset Register covering internal & third-party assets.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "Asset inventory."
+            },
+            {
+              "controlNumber": "5.12",
+              "coverage": "partial",
+              "notes": "Classification by criticality & sensitivity."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "CPS234-30",
+          "clauseRef": "CPS 234 §27, §30",
+          "domain": "Independent Control Testing",
+          "title": "Systematic Testing by Functionally Independent Specialists",
+          "description": "Systematically test control effectiveness via a program commensurate with §27(a)–(e), conducted by appropriately skilled and functionally independent specialists (separate from those who operate the controls).",
+          "guidance": "ISO 27001 does not mandate functionally independent specialists for technical control testing — document tester independence & qualifications.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Annual control testing schedule, specialist independence attestation & test reports.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ9",
+              "coverage": "delta_required",
+              "notes": "Functionally independent specialist testing requirement."
+            },
+            {
+              "controlNumber": "8.8",
+              "coverage": "partial",
+              "notes": "Technical vulnerability/penetration testing."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "CPS234-31",
+          "clauseRef": "CPS 234 §29, §31–33",
+          "domain": "Testing Sufficiency & Internal Audit",
+          "title": "Annual Sufficiency Review, Escalation & Internal Audit Review",
+          "description": "Review testing program sufficiency at least annually (and on material change, §31), escalate unremediated testing deficiencies to Board/senior management (§29), and ensure Internal Audit reviews control testing design and operating effectiveness (§32–33).",
+          "guidance": "Maintain formal annual testing-sufficiency sign-off and Internal Audit CPS 234 review reports.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": {
+            "testingSufficiencyReviewMonths": 12
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Annual testing sufficiency review, Board deficiency escalations & Internal Audit report.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ9",
+              "coverage": "partial",
+              "notes": "Internal audit & monitoring."
+            },
+            {
+              "controlNumber": "RQ10",
+              "coverage": "partial",
+              "notes": "Escalation & remediation of deficiencies."
+            }
+          ],
+          "sortOrder": 6
+        },
+        {
+          "reqCode": "CPS234-35",
+          "clauseRef": "CPS 234 §35",
+          "domain": "Mandatory APRA Notifications",
+          "title": "72-Hour Material Information Security Incident Notification to APRA",
+          "description": "Notify APRA as soon as possible and in any case no later than 72 hours after becoming aware of an information security incident that (a) materially affected or had the potential to materially affect the entity/beneficiaries, OR (b) has been notified to another domestic or foreign regulator (e.g. OAIC, ASIC).",
+          "guidance": "Embed both trigger §35(a) AND trigger §35(b) (other-regulator notification) into your Incident Response Plan.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": {
+            "apraIncidentNotificationHours": 72
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "APRA CPS 234 §35 notification runbook & materiality threshold guide.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "Mandatory 72-hour APRA incident notification incl. §35(b)."
+            },
+            {
+              "controlNumber": "5.24",
+              "coverage": "partial",
+              "notes": "Incident response plan."
+            }
+          ],
+          "sortOrder": 7
+        },
+        {
+          "reqCode": "CPS234-36",
+          "clauseRef": "CPS 234 §36",
+          "domain": "Mandatory APRA Notifications",
+          "title": "10-Business-Day Material Control Weakness Notification to APRA",
+          "description": "Notify APRA as soon as possible and in any case no later than 10 business days after becoming aware of a material information security control weakness that the entity expects it will not be able to remediate in a timely manner.",
+          "guidance": "Define what constitutes 'material weakness' and 'timely manner' in writing, with a direct CRO/CISO escalation workflow to APRA.",
+          "levelOrCategory": "CPS 234",
+          "prescriptiveSla": {
+            "apraWeaknessNotificationBusinessDays": 10
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "CPS 234 §36 material weakness materiality guide & notification register.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "Mandatory 10-business-day APRA control weakness notification."
+            },
+            {
+              "controlNumber": "RQ10",
+              "coverage": "partial",
+              "notes": "Nonconformity escalation."
+            }
+          ],
+          "sortOrder": 8
+        }
+      ]
+    },
+    {
+      "code": "apra_cps230",
+      "name": "APRA CPS 230 (Operational Risk Management)",
+      "shortName": "APRA CPS 230",
+      "version": "F2023L01016 (In Force 1 Jul 2025)",
+      "jurisdiction": "Australia",
+      "instrumentId": "F2023L01016",
+      "sourceUrl": "https://www.legislation.gov.au/F2023L01016/latest/text",
+      "effectiveDate": "2025-07-01",
+      "transitionNote": "Commenced 1 July 2025; transitional window for pre-existing Material Service Provider contracts closed 1 July 2026.",
+      "scoringMode": "statutory_register",
+      "supportTier": "full",
+      "description": "APRA Prudential Standard CPS 230 combining ISO 27001 cross-mapping (paras 12–60) with first-class assessments for Critical Operations, Board-approved Tolerance Levels (24h breach notice), annual severe-but-plausible scenario testing, and Material Service Provider governance.",
+      "defaultEnabled": false,
+      "sortOrder": 6,
+      "requirements": [
+        {
+          "reqCode": "CPS230-20",
+          "clauseRef": "CPS 230 §20–23",
+          "domain": "Governance & Operational Risk",
+          "title": "Board Accountability for Operational Risk, Continuity & Service Providers",
+          "description": "The Board is ultimately accountable for oversight of operational risk management, approving tolerance levels for critical operations, reviewing severe-but-plausible scenario testing outcomes, and overseeing material service provider risks.",
+          "guidance": "Maintain explicit Board approval minutes for operational risk appetite, tolerance levels, and material service provider policy.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Board approval minutes for CPS 230 framework, tolerances & MSP policy.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ5",
+              "coverage": "partial",
+              "notes": "Board operational risk accountability."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "CPS230-27",
+          "clauseRef": "CPS 230 §27, §35–37",
+          "domain": "Critical Operations & Mapping",
+          "title": "Critical Operations Register & End-to-End Process/Dependency Mapping",
+          "description": "Identify and maintain a register of all critical operations (including minimum prescribed operations under §36) and map end-to-end processes, people, technology, data, facilities, and third/fourth-party dependencies supporting each critical operation.",
+          "guidance": "Map dependencies far enough down the chain to expose concentration risk and single points of failure.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Critical Operations Register & end-to-end dependency maps.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.29",
+              "coverage": "delta_required",
+              "notes": "Formal Critical Operations & end-to-end dependency mapping."
+            },
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "Supporting asset inventory."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "CPS230-38",
+          "clauseRef": "CPS 230 §38–39, §42",
+          "domain": "Tolerance Levels & 24h Breach Notice",
+          "title": "Board-Approved Tolerance Levels & 24-Hour APRA Breach Notification",
+          "description": "Establish Board-approved tolerance levels for each critical operation (maximum tolerable disruption duration, maximum data loss, and minimum service levels during disruption) and notify APRA as soon as possible and within 24 hours if a disruption exceeds tolerance levels.",
+          "guidance": "Clearly distinguish operational tolerance levels from technical RTO/RPO targets and wire a 24-hour APRA escalation clock into BCP playbooks.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": {
+            "toleranceBreachNotificationHours": 24
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Board-approved Tolerance Levels register & 24h APRA breach notification SOP.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.29",
+              "coverage": "delta_required",
+              "notes": "Board-approved tolerance levels."
+            },
+            {
+              "controlNumber": "5.30",
+              "coverage": "partial",
+              "notes": "ICT RTO/RPO alignment."
+            },
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "24-hour APRA tolerance-breach notice."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "CPS230-33",
+          "clauseRef": "CPS 230 §31–33",
+          "domain": "Operational Risk Incidents",
+          "title": "72-Hour Material Operational Risk Incident Notification to APRA",
+          "description": "Record and analyse operational risk incidents and near-misses, and notify APRA as soon as possible and within 72 hours of becoming aware of an operational risk incident likely to have a material financial impact or materially impair the entity's ability to maintain critical operations.",
+          "guidance": "Harmonise incident notification runbooks across CPS 230 §33 (72h), CPS 230 §42 (24h tolerance breach), and CPS 234 §35 (72h cyber).",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": {
+            "operationalIncidentNotificationHours": 72
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Operational incident & near-miss register + 72h APRA notification procedure.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.24",
+              "coverage": "partial",
+              "notes": "Incident response workflow."
+            },
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "72h APRA operational risk incident reporting."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "CPS230-43",
+          "clauseRef": "CPS 230 §40–46",
+          "domain": "Business Continuity & Scenario Testing",
+          "title": "Annual Severe-but-Plausible Scenario Testing & Internal Audit BCP Assurance",
+          "description": "Maintain a credible BCP capable of operating within tolerance levels, test it at least annually under severe-but-plausible scenarios (including third-party/cloud failure and cyberattack), review the BCP annually, and obtain systematic Internal Audit assurance.",
+          "guidance": "Go beyond simple tabletop walkthroughs — test actual failover, comms, and vendor unavailability against tolerance limits.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": {
+            "scenarioTestFrequencyMonths": 12
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Annual severe-but-plausible BCP test report, Board review & Internal Audit BCP report.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.30",
+              "coverage": "delta_required",
+              "notes": "Mandatory annual severe-but-plausible scenario testing."
+            },
+            {
+              "controlNumber": "RQ9",
+              "coverage": "partial",
+              "notes": "Internal audit assurance."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "CPS230-49",
+          "clauseRef": "CPS 230 §47–52, §53(b)",
+          "domain": "Material Service Providers (MSPs)",
+          "title": "MSP Register, Fourth-Party Risk Mapping & Annual APRA Submission",
+          "description": "Maintain a comprehensive Service Provider Management Policy and Material Service Provider (MSP) Register (covering prescribed §50 categories such as core technology, risk management, internal audit, and fourth-party dependencies), and submit the MSP register to APRA annually.",
+          "guidance": "Note: The transitional period for pre-existing MSP contracts closed on 1 July 2026 — all active MSPs must now be fully compliant.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": {
+            "annualMspSubmissionToApra": true,
+            "legacyTransitionClosed": "2026-07-01"
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MSP Register (incl. fourth parties) & annual APRA submission receipt.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.19",
+              "coverage": "delta_required",
+              "notes": "MSP Register & annual APRA submission."
+            },
+            {
+              "controlNumber": "5.21",
+              "coverage": "partial",
+              "notes": "Fourth-party supply chain mapping."
+            }
+          ],
+          "sortOrder": 6
+        },
+        {
+          "reqCode": "CPS230-55",
+          "clauseRef": "CPS 230 §54–56",
+          "domain": "Material Service Providers (MSPs)",
+          "title": "Mandatory APRA Contract Clauses (Access/On-Site Rights) & Orderly Exit Plans",
+          "description": "Maintain legally binding agreements with all MSPs containing mandatory §55 clauses (including APRA access to documentation/information, on-site inspection rights, and no impediment to APRA's statutory functions) plus documented, tested orderly exit & transition plans (§56(d)).",
+          "guidance": "Audit every MSP contract against a §55 clause checklist and document realistic exit timelines for hyperscale cloud and core SaaS vendors.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": {
+            "mandatoryApraAccessClauses": true,
+            "orderlyExitPlanRequired": true
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "MSP §55 contract compliance checklist & documented orderly exit plans.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.20",
+              "coverage": "delta_required",
+              "notes": "Mandatory APRA access/on-site contract clauses."
+            },
+            {
+              "controlNumber": "5.23",
+              "coverage": "delta_required",
+              "notes": "Cloud orderly exit plans."
+            }
+          ],
+          "sortOrder": 7
+        },
+        {
+          "reqCode": "CPS230-59",
+          "clauseRef": "CPS 230 §59–60",
+          "domain": "Material Service Providers (MSPs)",
+          "title": "20-Business-Day MSP Contract / Pre-Offshoring APRA Notices & Internal Audit",
+          "description": "Notify APRA as soon as possible and within 20 business days after entering into or materially changing an MSP arrangement, notify/consult APRA prior to entering into material offshoring arrangements with heightened risk, and have Internal Audit review material service provider arrangements (§60).",
+          "guidance": "Integrate the 20-business-day APRA notification gate directly into procurement and vendor-onboarding sign-off workflows.",
+          "levelOrCategory": "CPS 230",
+          "prescriptiveSla": {
+            "mspContractNotificationBusinessDays": 20
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Procurement APRA notification gate, §59 notification log & Internal Audit outsourcing review.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "20-business-day MSP & pre-offshoring APRA notifications."
+            },
+            {
+              "controlNumber": "5.22",
+              "coverage": "partial",
+              "notes": "Ongoing MSP governance."
+            }
+          ],
+          "sortOrder": 8
+        }
+      ]
+    },
+    {
+      "code": "au_soci_act",
+      "name": "SOCI Act 2018 & ERP Act 2024 (Critical Infrastructure)",
+      "shortName": "SOCI Act / CIRMP",
+      "version": "C2018A00029 + ERP Act 2024",
+      "jurisdiction": "Australia",
+      "instrumentId": "C2018A00029 / C2024A00099",
+      "sourceUrl": "https://www.legislation.gov.au/C2018A00029/latest/text",
+      "effectiveDate": "2025-04-04",
+      "transitionNote": "ERP Act 2024 Schedule 1 (s 9(7)) and 2025–2026 CIRMP rules bring business-critical data storage systems directly into critical infrastructure asset scope.",
+      "scoringMode": "statutory_register",
+      "supportTier": "full",
+      "description": "Security of Critical Infrastructure Act 2018 (as amended by the Enhanced Response and Prevention Act 2024): business-critical data storage systems, all-hazards CIRMP, 12-hour/72-hour ASD incident reporting, and annual Board CIRMP attestation.",
+      "defaultEnabled": false,
+      "sortOrder": 7,
+      "requirements": [
+        {
+          "reqCode": "SOCI-ASSET-01",
+          "clauseRef": "SOCI Act s 9 & s 9(7) (ERP Act 2024)",
+          "domain": "Asset Scope & Data Storage Systems",
+          "title": "Critical Infrastructure Asset & Business-Critical Data Storage Register",
+          "description": "Identify all responsible critical infrastructure assets across the 11 regulated sectors AND explicitly map all connected 'data storage systems' holding business-critical data owned/operated by the entity (brought directly into critical-asset scope under ERP Act 2024 s 9(7)).",
+          "guidance": "Cloud buckets, data lakes, and secondary repositories holding business-critical data are now legally tethered to the primary critical infrastructure asset.",
+          "levelOrCategory": "SOCI + ERP 2024",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Critical Infrastructure & Business-Critical Data Storage Asset Register.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.9",
+              "coverage": "delta_required",
+              "notes": "SOCI s 9(7) data storage system asset mapping."
+            },
+            {
+              "controlNumber": "5.23",
+              "coverage": "partial",
+              "notes": "Cloud data storage governance."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "SOCI-CIRMP-01",
+          "clauseRef": "SOCI Act Part 2A",
+          "domain": "Critical Infrastructure Risk Management Program (CIRMP)",
+          "title": "All-Hazards CIRMP (Cyber, Physical, Personnel & Supply Chain)",
+          "description": "Establish, maintain, and comply with a written Critical Infrastructure Risk Management Program (CIRMP) addressing all four statutory hazard vectors: cyber & information security, personnel, supply chain, and physical/natural hazards.",
+          "guidance": "Align the cyber hazard pillar to a recognised standard (ISO/IEC 27001, Essential Eight, NIST CSF, or AESCSF) per CIRMP Rules.",
+          "levelOrCategory": "SOCI CIRMP",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Written all-hazards CIRMP document aligned to ISO 27001 / Essential Eight.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ4",
+              "coverage": "partial",
+              "notes": "Risk management scope."
+            },
+            {
+              "controlNumber": "RQ6",
+              "coverage": "delta_required",
+              "notes": "All-hazards statutory CIRMP."
+            },
+            {
+              "controlNumber": "7.5",
+              "coverage": "partial",
+              "notes": "Physical/natural hazards."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "SOCI-CIRMP-02",
+          "clauseRef": "ERP Act 2024 Sch 1 · 2025/2026 Rules",
+          "domain": "Critical Infrastructure Risk Management Program (CIRMP)",
+          "title": "Material Risk Treatment for Business-Critical Data Storage Systems",
+          "description": "Explicitly assess and mitigate material risks to connected business-critical data storage systems across cyber, supply chain, personnel, and physical hazards within the CIRMP.",
+          "guidance": "Verify vendor due diligence, encryption, backup immutability, and availability controls extend to every s 9(7) data repository.",
+          "levelOrCategory": "SOCI + ERP 2024",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Data storage system material-risk assessment & mitigation plan.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.19",
+              "coverage": "partial",
+              "notes": "Supply chain hazard mitigation."
+            },
+            {
+              "controlNumber": "8.13",
+              "coverage": "partial",
+              "notes": "Business-critical data resilience."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "SOCI-INC-12H",
+          "clauseRef": "SOCI Act s 30BC",
+          "domain": "Mandatory ASD Cyber Incident Reporting",
+          "title": "12-Hour Critical Cyber Security Incident Notification to ASD",
+          "description": "Report any 'critical cyber security incident' having a significant impact on the availability of a critical infrastructure asset to ASD (ReportCyber) as soon as practicable and within 12 hours of becoming aware (follow up in writing within 84 hours if given orally).",
+          "guidance": "Configure 24/7 SOC/on-call escalation so availability-impacting incidents trigger the 12-hour ASD statutory clock immediately.",
+          "levelOrCategory": "SOCI Reporting",
+          "prescriptiveSla": {
+            "criticalIncidentReportHours": 12
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "12-hour ASD SOCI incident escalation runbook & drill evidence.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "Mandatory 12-hour ASD critical incident report."
+            },
+            {
+              "controlNumber": "5.26",
+              "coverage": "partial",
+              "notes": "Rapid incident response."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "SOCI-INC-72H",
+          "clauseRef": "SOCI Act s 30BD",
+          "domain": "Mandatory ASD Cyber Incident Reporting",
+          "title": "72-Hour Other Cyber Security Incident Notification to ASD",
+          "description": "Report any other cyber security incident having a relevant impact (confidentiality, integrity, reliability, or non-significant availability impact) on a critical infrastructure asset to ASD within 72 hours of becoming aware.",
+          "guidance": "Ensure incident triage differentiates 12-hour critical availability impacts from 72-hour relevant impacts.",
+          "levelOrCategory": "SOCI Reporting",
+          "prescriptiveSla": {
+            "otherIncidentReportHours": 72
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "72-hour ASD SOCI reporting workflow & triage matrix.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.5",
+              "coverage": "delta_required",
+              "notes": "Mandatory 72-hour ASD relevant incident report."
+            },
+            {
+              "controlNumber": "5.25",
+              "coverage": "partial",
+              "notes": "Incident impact classification."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "SOCI-BOARD-01",
+          "clauseRef": "SOCI Act s 30AG",
+          "domain": "Governance & Annual Attestation",
+          "title": "Annual Board-Approved CIRMP Compliance Report to CISC",
+          "description": "Submit an annual CIRMP compliance report — formally approved by the Board / governing body — to the Cyber and Infrastructure Security Centre (CISC) within 90 days after the end of each financial year.",
+          "guidance": "Schedule Board CIRMP review in Q4/Q1 of the Australian financial year to meet the 90-day post-FY statutory submission window.",
+          "levelOrCategory": "SOCI Governance",
+          "prescriptiveSla": {
+            "postFySubmissionDays": 90
+          },
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Signed Board-approved CIRMP annual report & CISC submission receipt.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ5",
+              "coverage": "delta_required",
+              "notes": "Annual Board-approved CIRMP statutory attestation."
+            },
+            {
+              "controlNumber": "RQ9",
+              "coverage": "partial",
+              "notes": "Management review."
+            }
+          ],
+          "sortOrder": 6
+        }
+      ]
+    },
+    {
+      "code": "au_ai6_2025",
+      "name": "Australian NAIC Guidance for AI Adoption (AI6)",
+      "shortName": "AI Governance (AI6)",
+      "version": "Oct 2025 + Nov 2026 Frontier Watch",
+      "jurisdiction": "Australia",
+      "instrumentId": "NAIC-AI6-2025-10",
+      "sourceUrl": "https://www.industry.gov.au/publications/guidance-for-ai-adoption",
+      "effectiveDate": "2025-10-01",
+      "transitionNote": "NAIC's 6 essential practices (AI6, Oct 2025) superseded the original 2024 10-guardrail Voluntary AI Safety Standard. In November 2026 Australia announced targeted mandatory guardrails for frontier AI developers (tracked as Draft Watch).",
+      "scoringMode": "statutory_register",
+      "supportTier": "full",
+      "description": "Australia's National AI Centre (NAIC) 6 Essential Practices for responsible AI governance aligned with APP 1.7–1.9 ADM disclosures, plus scope screening for November 2026 frontier AI mandatory guardrails.",
+      "defaultEnabled": false,
+      "sortOrder": 8,
+      "requirements": [
+        {
+          "reqCode": "AI6-01",
+          "clauseRef": "NAIC AI6 · Practice 1",
+          "domain": "NAIC Guidance for AI Adoption (AI6 — Oct 2025)",
+          "title": "Accountability, Governance & AI System Inventory",
+          "description": "Establish clear executive accountability, an AI governance policy, and a live register of all AI/ML systems (in-house, third-party SaaS, and generative AI tools) with defined owners and risk tiers.",
+          "guidance": "Directly feeds your APP 1.7–1.9 Automated Decision-Making (ADM) inventory ahead of 10 December 2026.",
+          "levelOrCategory": "NAIC AI6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "AI Governance Policy & live AI System Inventory.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ5",
+              "coverage": "partial",
+              "notes": "Executive accountability."
+            },
+            {
+              "controlNumber": "5.9",
+              "coverage": "partial",
+              "notes": "AI system & model inventory."
+            }
+          ],
+          "sortOrder": 1
+        },
+        {
+          "reqCode": "AI6-02",
+          "clauseRef": "NAIC AI6 · Practice 2",
+          "domain": "NAIC Guidance for AI Adoption (AI6 — Oct 2025)",
+          "title": "Transparency, Explainability & APP 1.7–1.9 ADM Disclosure",
+          "description": "Inform users and affected individuals transparently when interacting with AI or when AI makes/substantially assists decisions affecting their rights or interests; document model capabilities, limitations, and provenance.",
+          "guidance": "Align public AI notices directly with Privacy Act APP 1.7–1.9 ADM disclosure obligations.",
+          "levelOrCategory": "NAIC AI6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "User AI transparency notices & Privacy Policy ADM disclosures.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.34",
+              "coverage": "partial",
+              "notes": "Privacy & ADM transparency."
+            }
+          ],
+          "sortOrder": 2
+        },
+        {
+          "reqCode": "AI6-03",
+          "clauseRef": "NAIC AI6 · Practice 3",
+          "domain": "NAIC Guidance for AI Adoption (AI6 — Oct 2025)",
+          "title": "AI Risk Assessment, Pre-Deployment Testing & Red-Teaming",
+          "description": "Assess AI-specific risks (bias, hallucination, prompt injection, data poisoning, security misuse) before deployment and conduct structured pre-release evaluation and testing.",
+          "guidance": "Require documented risk assessments and adversarial/prompt-injection tests prior to production AI rollouts.",
+          "levelOrCategory": "NAIC AI6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "AI Risk Assessment reports & pre-deployment evaluation logs.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ6",
+              "coverage": "partial",
+              "notes": "Risk assessment."
+            },
+            {
+              "controlNumber": "8.29",
+              "coverage": "partial",
+              "notes": "Security & safety testing before deployment."
+            }
+          ],
+          "sortOrder": 3
+        },
+        {
+          "reqCode": "AI6-04",
+          "clauseRef": "NAIC AI6 · Practice 4",
+          "domain": "NAIC Guidance for AI Adoption (AI6 — Oct 2025)",
+          "title": "Human Oversight, Intervention & Contestability",
+          "description": "Maintain meaningful human oversight commensurate with risk, clear escalation/override mechanisms, and accessible pathways for individuals to contest adverse AI-assisted outcomes.",
+          "guidance": "Document human-in-the-loop checkpoints and customer complaint/appeal workflows for high-impact AI decisions.",
+          "levelOrCategory": "NAIC AI6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "Human-oversight SOPs & AI outcome contestability process.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ8",
+              "coverage": "partial",
+              "notes": "Operational controls & oversight."
+            }
+          ],
+          "sortOrder": 4
+        },
+        {
+          "reqCode": "AI6-05",
+          "clauseRef": "NAIC AI6 · Practice 5",
+          "domain": "NAIC Guidance for AI Adoption (AI6 — Oct 2025)",
+          "title": "Data Governance, Privacy & AI Security Controls",
+          "description": "Apply strict data-quality, minimisation, copyright/IP, privacy (APP 3/6/11), and security controls across training, fine-tuning, RAG, and inference data pipelines; govern third-party AI vendors.",
+          "guidance": "Prohibit unapproved entry of confidential/personal data into public AI tools and enforce zero-training enterprise vendor agreements.",
+          "levelOrCategory": "NAIC AI6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "AI Acceptable Use Policy, enterprise AI DPAs & data-pipeline controls.",
+          "isoMappings": [
+            {
+              "controlNumber": "5.10",
+              "coverage": "partial",
+              "notes": "Acceptable use of AI tools."
+            },
+            {
+              "controlNumber": "5.20",
+              "coverage": "partial",
+              "notes": "AI supplier agreements."
+            },
+            {
+              "controlNumber": "5.34",
+              "coverage": "partial",
+              "notes": "Privacy in AI data pipelines."
+            }
+          ],
+          "sortOrder": 5
+        },
+        {
+          "reqCode": "AI6-06",
+          "clauseRef": "NAIC AI6 · Practice 6",
+          "domain": "NAIC Guidance for AI Adoption (AI6 — Oct 2025)",
+          "title": "Ongoing Monitoring, Drift Detection & Incident Response",
+          "description": "Continuously monitor deployed AI systems for accuracy drift, bias, misuse, and security incidents, with clear decommissioning triggers and incident reporting.",
+          "guidance": "Integrate AI safety/security incidents into your core Incident Response Plan.",
+          "levelOrCategory": "NAIC AI6",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": false,
+          "evidenceExpected": "AI monitoring metrics, periodic review logs & AI incident playbook.",
+          "isoMappings": [
+            {
+              "controlNumber": "8.16",
+              "coverage": "partial",
+              "notes": "Monitoring activities."
+            },
+            {
+              "controlNumber": "5.24",
+              "coverage": "partial",
+              "notes": "Incident management."
+            }
+          ],
+          "sortOrder": 6
+        },
+        {
+          "reqCode": "AI6-FRONTIER",
+          "clauseRef": "PM Announcement Nov 2026 (Draft)",
+          "domain": "Frontier AI Mandatory Guardrails (Nov 2026 Announcement)",
+          "title": "Frontier AI Developer Mandatory Guardrails Scope Check",
+          "description": "DRAFT WATCH (Announced November 2026): Australia announced targeted mandatory safety & security guardrails, independent model evaluation, rapid safety-incident reporting, and a dedicated AI safety regulator specifically for frontier AI developers (plus early-2027 large AI data-centre standards). Confirm whether your organisation develops frontier models or operates large-scale AI compute.",
+          "guidance": "Most standard enterprise AI deployers are out of scope for frontier mandates and remain governed by existing laws (Privacy Act, ACL) + NAIC AI6.",
+          "levelOrCategory": "Draft (Frontier AI)",
+          "prescriptiveSla": null,
+          "deadlineDate": null,
+          "isDraft": true,
+          "evidenceExpected": "Documented frontier-AI developer / large data-centre non-applicability determination.",
+          "isoMappings": [
+            {
+              "controlNumber": "RQ4",
+              "coverage": "partial",
+              "notes": "Emerging regulatory horizon tracking."
+            }
+          ],
+          "sortOrder": 7
+        }
+      ]
+    },
+    {
+      "code": "soc2_type2",
+      "name": "SOC 2 Type II (AICPA TSC)",
+      "shortName": "SOC 2 Type II",
+      "version": "2017 TSC + 2022 PoF",
+      "jurisdiction": "International",
+      "instrumentId": "AICPA TSP Section 100 / DC200",
+      "sourceUrl": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+      "effectiveDate": "2022-10-01",
+      "transitionNote": "Advisory AI prompt context only — dedicated CC1–CC9, Type II 3–12 month observation window, and DC200 system description modules are planned for a future release.",
+      "scoringMode": "window_attestation",
+      "supportTier": "ai_context_only",
+      "description": "Advisory AI prompt context only. Dedicated AICPA CC1–CC9 Trust Services Criteria, 3–12 month Type II audit windows, and DC200 System Description modules are not yet included in this release.",
+      "defaultEnabled": false,
+      "sortOrder": 9,
+      "requirements": []
+    },
+    {
+      "code": "gdpr",
+      "name": "GDPR (Regulation (EU) 2016/679)",
+      "shortName": "GDPR",
+      "version": "EU 2016/679",
+      "jurisdiction": "EU",
+      "instrumentId": "CELEX:32016R0679",
+      "sourceUrl": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+      "effectiveDate": "2018-05-25",
+      "transitionNote": "Advisory AI prompt context only — dedicated RoPA, DPIA, Art 28 DPA, DSAR, and 72-hour breach registers are planned for a future release.",
+      "scoringMode": "statutory_register",
+      "supportTier": "ai_context_only",
+      "description": "Advisory AI prompt context only. Dedicated GDPR statutory registers (Art 30 RoPA, Art 28 DPAs, Art 35 DPIAs, 1-month DSAR tracker, and 72-hour breach log) are not yet included in this release.",
+      "defaultEnabled": false,
+      "sortOrder": 10,
+      "requirements": []
+    }
+  ]
+}

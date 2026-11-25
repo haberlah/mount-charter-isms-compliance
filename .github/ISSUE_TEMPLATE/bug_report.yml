@@ -1,0 +1,34 @@
+name: Bug Report
+description: Report a defect in Mount Charter's UI, API, SQLite persistence, or macOS app bundle.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Concise description of the bug and what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Governance -> Risks
+        2. Click ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "macOS 15.x (Apple Silicon), Node v22.x, Mount Charter v3.0.0"
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I confirmed this report contains NO client documents, API keys, or private compliance data.
+          required: true

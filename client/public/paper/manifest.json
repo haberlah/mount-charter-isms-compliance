@@ -1,0 +1,106 @@
+{
+  "name": "paper",
+  "version": "0.7.0",
+  "files": {
+    "client/public/paper/paper.css": {
+      "source": "paper.css",
+      "sha256": "6dc970ef9564792e2453205d606f86036081f3fc505c28b8a8e7fe88c6056b8d",
+      "bytes": 88448
+    },
+    "client/public/paper/paper.tokens.css": {
+      "source": "paper.tokens.css",
+      "sha256": "957e674e471ac576f07f44c9718f8711dafc2eea18a9240f62cbb8dda557ed68",
+      "bytes": 4797
+    },
+    "client/public/paper/packs/workbench.css": {
+      "source": "packs/workbench.css",
+      "sha256": "29ee4d95e7d6a2fb1900bcfdfb01186900cf19da3a781731a8514b97a99cd5cf",
+      "bytes": 8107
+    },
+    "client/public/paper/paper.js": {
+      "source": "paper.js",
+      "sha256": "0f581f712462b7f3c16c58d06d456f57bb7a0c497d803a5c5851029b64d70a18",
+      "bytes": 41844
+    },
+    "client/public/paper/paper-mode.js": {
+      "source": "paper-mode.js",
+      "sha256": "4d8158d3244d8ebaafb576f26c696703a02a4f2488541f937c21502597b7f4e0",
+      "bytes": 991
+    },
+    "client/public/paper/icons.svg": {
+      "source": "icons.svg",
+      "sha256": "4c92415995d3efd6b32c01341e84530bf75c7b3fba736663873d0831359794b8",
+      "bytes": 8157
+    },
+    "client/public/paper/fonts/inter-latin-wght-normal.woff2": {
+      "source": "fonts/inter-latin-wght-normal.woff2",
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62",
+      "bytes": 48256
+    },
+    "client/public/paper/fonts/ibm-plex-mono-latin-500-normal.woff2": {
+      "source": "fonts/ibm-plex-mono-latin-500-normal.woff2",
+      "sha256": "01d285447409c8a588692162439a038b8cbd7871309ee20267b0d2d91c6e8e22",
+      "bytes": 14888
+    },
+    "client/public/paper/fonts/ibm-plex-mono-latin-600-normal.woff2": {
+      "source": "fonts/ibm-plex-mono-latin-600-normal.woff2",
+      "sha256": "0d1f0b8d0722224e32e9f28261bdc86c79115be73444ae5eceb73976a1bcdf83",
+      "bytes": 15620
+    },
+    "client/vendor/paper/elements/index.js": {
+      "source": "elements/index.js",
+      "sha256": "7fa4b392bc215c7e0a6bd5cec675f048d4f704e1f483352261bdf9636d7b4912",
+      "bytes": 484
+    },
+    "client/vendor/paper/elements/index.d.ts": {
+      "source": "elements/index.d.ts",
+      "sha256": "9ee0149c4bc438a18b9d36b07c26b51998a0653c6c72a4d44288dc4e45b7abd2",
+      "bytes": 2970
+    },
+    "client/vendor/paper/elements/paper-split.js": {
+      "source": "elements/paper-split.js",
+      "sha256": "7628a2e837160ba7b6fc1ed030ed6acf2f53a6c4233bb4c5ec4fbd57141de49a",
+      "bytes": 12007
+    },
+    "client/vendor/paper/elements/paper-tabs.js": {
+      "source": "elements/paper-tabs.js",
+      "sha256": "535656769d6d1e5fb67d4b59501f7d4996d9f7880966fa75dc415bc89e5577fa",
+      "bytes": 5120
+    },
+    "client/vendor/paper/elements/paper-theme-switch.js": {
+      "source": "elements/paper-theme-switch.js",
+      "sha256": "384159b6211d148870cc3c8b59096294f2d7ce499f06141606e40fc60150166e",
+      "bytes": 3353
+    },
+    "client/vendor/paper/elements/paper-toast-region.js": {
+      "source": "elements/paper-toast-region.js",
+      "sha256": "8cb48cbb76f62a9af0d4c3068fa90688a0311749761df73e376aa35c2b9e974b",
+      "bytes": 9435
+    },
+    "client/vendor/paper/behaviours/dialog-backdrop.js": {
+      "source": "behaviours/dialog-backdrop.js",
+      "sha256": "50e4365ad0675eb41dfb55ee29b56e67437971361094912278a75c9e048b4809",
+      "bytes": 941
+    },
+    "client/vendor/paper/behaviours/popover-placement.js": {
+      "source": "behaviours/popover-placement.js",
+      "sha256": "4ed58c40541f46f68596ae32225d25dfb37f59bb9a638d2addcb3fdd470f746e",
+      "bytes": 8336
+    },
+    "client/vendor/paper/behaviours/theme-meta.js": {
+      "source": "behaviours/theme-meta.js",
+      "sha256": "672721cb51ab372eeef1579f76a5c74d3d9e81d2eb26c90fd1594ba16f47346f",
+      "bytes": 1378
+    },
+    "client/vendor/paper/behaviours/tooltip-dismiss.js": {
+      "source": "behaviours/tooltip-dismiss.js",
+      "sha256": "f3b2ac247325ffcabe23961504ca9ff3a1be9332f13673fbc46c7c07c1535dc8",
+      "bytes": 901
+    },
+    "macos/PaperTokens.swift": {
+      "source": "PaperTokens.swift",
+      "sha256": "fc4919a0d55723de2f8df35882510ad617012e01fbbda9ce1c197e500207262b",
+      "bytes": 8100
+    }
+  }
+}

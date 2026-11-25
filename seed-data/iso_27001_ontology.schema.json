@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mount-charter.local/schemas/iso_27001_ontology.schema.json",
+  "title": "Mount Charter ISO/IEC 27001:2022 (+ Amd 1:2024) Control Ontology",
+  "type": "object",
+  "required": ["metadata", "controls"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "standard", "total_controls", "total_questions", "categories"],
+      "properties": {
+        "version": { "type": "string" },
+        "standard": { "type": "string" },
+        "total_controls": { "type": "integer", "minimum": 100 },
+        "total_questions": { "type": "integer", "minimum": 500 },
+        "categories": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["control_number", "control_name", "category", "questions"],
+        "properties": {
+          "control_number": { "type": "string" },
+          "control_name": { "type": "string", "minLength": 3 },
+          "category": { "type": "string" },
+          "questions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "question_id",
+                "question",
+                "guidance",
+                "auditor_focus",
+                "evidence_type",
+                "what_good_looks_like",
+                "red_flags",
+                "severity",
+                "primary_persona"
+              ],
+              "properties": {
+                "question_id": { "type": "integer", "minimum": 1 },
+                "question": { "type": "string", "minLength": 5 },
+                "guidance": { "type": "string" },
+                "auditor_focus": { "type": "string" },
+                "evidence_type": { "type": "string" },
+                "answer_type": { "type": "string" },
+                "what_good_looks_like": { "type": "string" },
+                "red_flags": { "type": "string" },
+                "nc_pattern": { "type": "string" },
+                "severity": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+                "primary_persona": { "type": "string", "enum": ["Auditor", "Advisor", "Analyst"] },
+                "related_controls": { "type": "string" },
+                "cps234_ref": { "type": "string" },
+                "cps230_ref": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
