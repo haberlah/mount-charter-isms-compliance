@@ -9,12 +9,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, "..");
 const MANIFEST_PATH = path.join(ROOT_DIR, "client", "public", "paper", "manifest.json");
-const PAPER_VERSION = "0.7.0";
+const PAPER_VERSION = "0.8.0";
 
 const VENDOR_FILES = [
   { src: "paper.css", dest: "client/public/paper/paper.css" },
   { src: "paper.tokens.css", dest: "client/public/paper/paper.tokens.css" },
   { src: "packs/workbench.css", dest: "client/public/paper/packs/workbench.css" },
+  { src: "packs/ai-connections.css", dest: "client/public/paper/packs/ai-connections.css" },
+  { src: "packs/ai-connections.esm.js", dest: "client/vendor/paper/packs/ai-connections.esm.js" },
+  { src: "packs/ai-connections.d.ts", dest: "client/vendor/paper/packs/ai-connections.d.ts" },
   { src: "paper.js", dest: "client/public/paper/paper.js" },
   { src: "paper-mode.js", dest: "client/public/paper/paper-mode.js" },
   { src: "icons.svg", dest: "client/public/paper/icons.svg" },

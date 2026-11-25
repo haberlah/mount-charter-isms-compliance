@@ -1,4 +1,4 @@
-/* Paper 0.7.0. Fonts: SIL Open Font License 1.1, see fonts/. Layers: tokens, base, components, utilities. Unlayered CSS overrides all of them. */
+/* Paper 0.8.0. Fonts: SIL Open Font License 1.1, see fonts/. Layers: tokens, base, components, utilities. Unlayered CSS overrides all of them. */
 @layer paper.tokens, paper.base, paper.components, paper.utilities;
 @font-face {
 font-family: "Inter";

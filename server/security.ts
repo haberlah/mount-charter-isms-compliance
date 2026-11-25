@@ -59,6 +59,21 @@ export function isLoopbackOrigin(
   }
 }
 
+export function verifyApiReadRequest(
+  req: Pick<Request, "headers">,
+  options: { expectedPort?: number | null } = {},
+): { ok: true } | { ok: false; status: number; error: string } {
+  const origin = typeof req.headers.origin === "string" ? req.headers.origin : undefined;
+  if (origin && !isLoopbackOrigin(origin, options.expectedPort)) {
+    return { ok: false, status: 403, error: "Non-loopback Origin rejected." };
+  }
+  const fetchSite = req.headers["sec-fetch-site"];
+  if (fetchSite && !["same-origin", "none"].includes(String(fetchSite))) {
+    return { ok: false, status: 403, error: "Cross-site API read rejected." };
+  }
+  return { ok: true };
+}
+
 export function verifyMutationRequest(
   req: Pick<Request, "headers">,
   expectedToken: string,
@@ -69,7 +84,7 @@ export function verifyMutationRequest(
     return { ok: false, status: 403, error: "Non-loopback Origin rejected." };
   }
   const fetchSite = req.headers["sec-fetch-site"];
-  if (fetchSite && !["same-origin", "same-site", "none"].includes(String(fetchSite))) {
+  if (fetchSite && !["same-origin", "none"].includes(String(fetchSite))) {
     return { ok: false, status: 403, error: "Cross-site mutation rejected." };
   }
   const provided = String(req.headers["x-mount-charter-token"] ?? "");
@@ -116,21 +131,28 @@ export function getKeychainSecret(account: string): string | null {
     if (!val) return null;
     return val.startsWith("b64:") ? Buffer.from(val.slice(4), "base64").toString("utf8") : val;
   }
-  try {
-    const out = execFileSync(
-      "security",
-      ["find-generic-password", "-s", KEYCHAIN_SERVICE, "-a", account, "-w"],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    );
-    const raw = out.trim();
-    if (!raw) return null;
-    if (raw.startsWith("b64:")) {
-      return Buffer.from(raw.slice(4), "base64").toString("utf8");
+  const services = [
+    KEYCHAIN_SERVICE,
+    process.env.AI_VAULT_SERVICE?.trim() || "com.local.ai-vault.shared",
+  ];
+  for (const svc of services) {
+    try {
+      const out = execFileSync(
+        "/usr/bin/security",
+        ["find-generic-password", "-s", svc, "-a", account, "-w"],
+        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      );
+      const raw = out.trim();
+      if (!raw) continue;
+      if (raw.startsWith("b64:")) {
+        return Buffer.from(raw.slice(4), "base64").toString("utf8");
+      }
+      return raw;
+    } catch {
+      // try next service
     }
-    return raw;
-  } catch {
-    return null;
   }
+  return null;
 }
 
 export function setKeychainSecret(account: string, value: string | null | undefined): boolean {
@@ -143,9 +165,13 @@ export function setKeychainSecret(account: string, value: string | null | undefi
   }
   if (!normalized) {
     try {
-      execFileSync("security", ["delete-generic-password", "-s", KEYCHAIN_SERVICE, "-a", account], {
-        stdio: "ignore",
-      });
+      execFileSync(
+        "/usr/bin/security",
+        ["delete-generic-password", "-s", KEYCHAIN_SERVICE, "-a", account],
+        {
+          stdio: "ignore",
+        },
+      );
     } catch {
       // Missing Keychain item is fine
     }
@@ -155,7 +181,7 @@ export function setKeychainSecret(account: string, value: string | null | undefi
   // or metacharacter can ever alter command parsing.
   const stored = `b64:${Buffer.from(normalized, "utf8").toString("base64")}`;
   const script = `add-generic-password -U -s "${KEYCHAIN_SERVICE}" -a "${account}" -w "${stored}"\n`;
-  const res = spawnSync("security", ["-i"], { input: script, encoding: "utf8" });
+  const res = spawnSync("/usr/bin/security", ["-i"], { input: script, encoding: "utf8" });
   return res.status === 0;
 }
 

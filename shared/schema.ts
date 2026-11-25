@@ -56,6 +56,8 @@ export const concreteAiProviderValues = [
   "claude_cli",
   "codex_cli",
   "gemini_cli",
+  "grok_cli",
+  "cursor_cli",
 ] as const;
 export const aiProviderValues = ["auto", ...concreteAiProviderValues] as const;
 export const aiRoutingPresetValues = ["balanced", "max_depth", "low_cost"] as const;

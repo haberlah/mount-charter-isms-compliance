@@ -224,6 +224,27 @@ export const PROVIDER_CATALOG: readonly ProviderMeta[] = [
     suggestedModels: ["gemini-2.5-pro", "gemini-2.5-flash"],
     description: "Uses your signed-in Google/Gemini account via the official `gemini` CLI.",
   },
+  {
+    id: "grok_cli",
+    name: "Grok Subscription (Official Grok CLI)",
+    mode: "subscription_cli",
+    cliBinary: "grok",
+    defaultScreeningModel: "auto",
+    defaultSynthesisModel: "auto",
+    suggestedModels: ["grok-4.6", "grok-4.5"],
+    description: "Uses your signed-in xAI Grok account via the official `grok` CLI.",
+  },
+  {
+    id: "cursor_cli",
+    name: "Cursor Subscription (Official Cursor CLI)",
+    mode: "subscription_cli",
+    cliBinary: "cursor-agent",
+    defaultScreeningModel: "auto",
+    defaultSynthesisModel: "auto",
+    suggestedModels: ["claude-sonnet-4-6", "gpt-5.4"],
+    description:
+      "Uses your signed-in Cursor Pro/Team subscription via the official `cursor-agent` CLI.",
+  },
 ] as const;
 
 const MODEL_CACHE_TTL_MS = 15 * 60 * 1000;
@@ -361,18 +382,21 @@ export async function fetchOpenRouterKeyInfo(): Promise<{
 }
 
 /**
- * Locate an official CLI binary safely across standard macOS & user PATH directories.
+ * Locate an official CLI binary safely across trusted macOS directories first,
+ * verifying executable permissions and owner/non-world-writable safety.
  */
 export function findCliBinary(binary: string): string | null {
   if (!/^[a-z0-9_-]{1,32}$/i.test(binary)) return null;
   const home = os.homedir();
   const candidates = [
-    ...(process.env.PATH || "").split(":").filter(Boolean),
     "/opt/homebrew/bin",
     "/usr/local/bin",
     path.join(home, ".local/bin"),
+    path.join(home, ".grok/bin"),
     path.join(home, ".npm-global/bin"),
+    ...(process.env.PATH || "").split(":").filter(Boolean),
   ];
+  const uid = typeof process.getuid === "function" ? process.getuid() : null;
   const seen = new Set<string>();
   for (const dir of candidates) {
     if (seen.has(dir)) continue;
@@ -380,6 +404,11 @@ export function findCliBinary(binary: string): string | null {
     const full = path.join(dir, binary);
     try {
       fs.accessSync(full, fs.constants.X_OK);
+      const real = fs.realpathSync(full);
+      const st = fs.statSync(real);
+      if (!st.isFile()) continue;
+      if ((st.mode & 0o002) !== 0) continue; // reject world-writable binary
+      if (uid !== null && st.uid !== uid && st.uid !== 0) continue;
       return full;
     } catch {
       // continue searching
@@ -388,16 +417,59 @@ export function findCliBinary(binary: string): string | null {
   return null;
 }
 
+const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
+
+function isBlockedSsrfHost(rawHost: string): boolean {
+  const host = rawHost.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    host === "169.254.169.254" ||
+    host === "100.100.100.200" ||
+    host === "0.0.0.0" ||
+    host === "fd00:ec2::254" ||
+    host === "metadata.google.internal" ||
+    host === "metadata.goog" ||
+    host === "metadata.azure.internal" ||
+    host.endsWith(".metadata.google.internal")
+  ) {
+    return true;
+  }
+  // Link-local 169.254.0.0/16 & CGNAT 100.64.0.0/10 & 0.0.0.0/8
+  if (/^169\.254\.\d+\.\d+$/.test(host) || /^0\.\d+\.\d+\.\d+$/.test(host)) {
+    return true;
+  }
+  const cgnat = host.match(/^100\.(\d+)\.\d+\.\d+$/);
+  if (cgnat) {
+    const octet = Number(cgnat[1]);
+    if (octet >= 64 && octet <= 127) return true;
+  }
+  // IPv4-mapped IPv6 (e.g. ::ffff:169.254.169.254 or hex form ::ffff:a9fe:a9fe)
+  if (host.startsWith("::ffff:")) {
+    const tail = host.slice(7);
+    if (isBlockedSsrfHost(tail) || /^a9fe:/i.test(tail) || /^6464:/i.test(tail)) return true;
+  }
+  // IPv6 link-local fe80::/10
+  if (/^fe[89ab][0-9a-f]:/i.test(host)) return true;
+  return false;
+}
+
 /**
- * Validate custom/provider base URL while blocking cloud metadata SSRF targets (169.254.169.254).
+ * Validate custom/provider base URL while blocking cloud metadata & link-local SSRF targets.
  */
-export function validateLlmBaseUrl(raw: string): string | null {
+export function validateLlmBaseUrl(
+  raw: string,
+  options: { loopbackOnly?: boolean } = {},
+): string | null {
   const safe = safeHttpUrl(raw);
   if (!safe) return null;
   try {
     const u = new URL(safe);
+    if (u.username || u.password) return null;
     const host = u.hostname.toLowerCase();
-    if (host === "169.254.169.254" || host === "metadata.google.internal") {
+    if (options.loopbackOnly) {
+      if (!LOOPBACK_HOSTS.has(host)) return null;
+      return safe.replace(/\/+$/, "");
+    }
+    if (isBlockedSsrfHost(host)) {
       return null;
     }
     return safe.replace(/\/+$/, "");
@@ -846,8 +918,16 @@ export async function fetchProviderModels(
         .map((m) => String(m.name || "").replace(/^models\//, ""))
         .filter((id) => id && !isNonChatModel(id));
     } else {
-      const rawBase = options?.baseUrl?.trim() || meta.defaultBaseUrl || "";
-      const validBase = validateLlmBaseUrl(rawBase);
+      // Pin named cloud providers to their official HTTPS origin — never send a named
+      // vendor's Keychain API key to an attacker- or user-supplied baseUrl.
+      const allowCustomBase =
+        provider === "custom_openai" || provider === "ollama" || provider === "lmstudio";
+      const rawBase = allowCustomBase
+        ? options?.baseUrl?.trim() || meta.defaultBaseUrl || ""
+        : meta.defaultBaseUrl || "";
+      const validBase = validateLlmBaseUrl(rawBase, {
+        loopbackOnly: meta.mode === "local_oss",
+      });
       if (!validBase) {
         return fallback("Set a valid http(s):// Base URL to fetch live models.");
       }
@@ -861,6 +941,7 @@ export async function fetchProviderModels(
       }
       const res = await fetch(`${validBase}/models`, {
         headers,
+        redirect: headers.Authorization ? "error" : "follow",
         signal: controller.signal,
       });
       if (!res.ok) return fallback(`${meta.name} /models returned HTTP ${res.status}.`);
@@ -1098,24 +1179,67 @@ export interface LlmInvocationResult {
   provider: ConcreteAiProvider;
 }
 
+const SAFE_CLI_MODEL_RE = /^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,79}$/;
+
+function buildSanitizedCliEnv(): NodeJS.ProcessEnv {
+  const allowKeys = [
+    "HOME",
+    "PATH",
+    "TMPDIR",
+    "USER",
+    "LOGNAME",
+    "SHELL",
+    "LANG",
+    "TERM",
+    "__CF_USER_TEXT_ENCODING",
+  ];
+  const env: NodeJS.ProcessEnv = {
+    NO_COLOR: "1",
+    DISABLE_AUTOUPDATER: "1",
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+    BROWSER: "/usr/bin/false",
+  };
+  for (const key of allowKeys) {
+    if (process.env[key]) env[key] = process.env[key];
+  }
+  for (const [k, v] of Object.entries(process.env)) {
+    if (k.startsWith("LC_") && v) env[k] = v;
+  }
+  return env;
+}
+
 function execCliPrompt(
   binaryPath: string,
   args: string[],
   stdinText: string | null,
   signal?: AbortSignal,
 ): Promise<string> {
+  const scratchDir = fs.mkdtempSync(path.join(os.tmpdir(), "mc-cli-"));
+  try {
+    fs.chmodSync(scratchDir, 0o700);
+  } catch {
+    // non-POSIX fallback
+  }
   return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      try {
+        fs.rmSync(scratchDir, { recursive: true, force: true });
+      } catch {
+        // ignore cleanup error
+      }
+    };
     const child = execFile(
       binaryPath,
       args,
       {
-        cwd: os.tmpdir(),
+        cwd: scratchDir,
         timeout: 180_000,
         maxBuffer: 8 * 1024 * 1024,
         signal,
-        env: { ...process.env, NO_COLOR: "1" },
+        env: buildSanitizedCliEnv(),
       },
       (err, stdout, stderr) => {
+        cleanup();
         if (err) {
           const detail = (stderr || err.message || "").trim().slice(0, 400);
           reject(new Error(`Subscription CLI failed: ${detail}`));
@@ -1319,21 +1443,63 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
       ? `${params.system}\n\n---\n\n${params.user}`
       : params.user;
 
+    const safeCliModel = model && model !== "auto" && SAFE_CLI_MODEL_RE.test(model) ? model : null;
+    if (model && model !== "auto" && !safeCliModel) {
+      throw new AIConfigurationError(`Invalid CLI model identifier: ${model.slice(0, 40)}`);
+    }
+
     let stdout = "";
     if (provider === "claude_cli") {
-      const cliArgs = ["-p", "--output-format", "text", "--tools", "", "--no-session-persistence"];
-      if (model && model !== "auto") cliArgs.push("--model", model);
+      const cliArgs = [
+        "-p",
+        "--output-format",
+        "text",
+        "--tools",
+        "",
+        "--no-session-persistence",
+        "--permission-mode",
+        "dontAsk",
+      ];
+      if (safeCliModel) cliArgs.push("--model", safeCliModel);
       stdout = await execCliPrompt(binPath, cliArgs, combinedPrompt, params.signal);
     } else if (provider === "codex_cli") {
-      const cliArgs = ["exec", "--skip-git-repo-check"];
-      if (model && model !== "auto") cliArgs.push("-m", model);
+      const cliArgs = [
+        "exec",
+        "--ephemeral",
+        "--skip-git-repo-check",
+        "-s",
+        "read-only",
+        "-c",
+        'forced_login_method="chatgpt"',
+      ];
+      if (safeCliModel) cliArgs.push("-m", safeCliModel);
       cliArgs.push("-");
       stdout = await execCliPrompt(binPath, cliArgs, combinedPrompt, params.signal);
+    } else if (provider === "grok_cli") {
+      const cliArgs = [
+        "--permission-mode",
+        "plan",
+        "--disable-web-search",
+        "--no-subagents",
+        "--tools",
+        "",
+        "--output-format",
+        "plain",
+        "-p",
+        "-",
+      ];
+      if (safeCliModel) cliArgs.push("-m", safeCliModel);
+      stdout = await execCliPrompt(binPath, cliArgs, combinedPrompt, params.signal);
+    } else if (provider === "cursor_cli") {
+      const cliArgs = ["-p", "--mode", "ask", "--sandbox", "enabled", "--output-format", "text"];
+      if (safeCliModel) cliArgs.push("--model", safeCliModel);
+      stdout = await execCliPrompt(binPath, cliArgs, combinedPrompt, params.signal);
     } else {
-      const cliArgs: string[] = [];
-      if (model && model !== "auto") cliArgs.push("-m", model);
-      cliArgs.push("-p", combinedPrompt);
-      stdout = await execCliPrompt(binPath, cliArgs, null, params.signal);
+      // Pipe prompt strictly via stdin (never argv / ps aux)
+      const cliArgs: string[] = ["--approval-mode", "plan", "--skip-trust"];
+      if (safeCliModel) cliArgs.push("-m", safeCliModel);
+      cliArgs.push("-p", "");
+      stdout = await execCliPrompt(binPath, cliArgs, combinedPrompt, params.signal);
     }
 
     params.onToken?.(stdout);
@@ -1351,11 +1517,13 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
   }
 
   // 3. OpenAI-Compatible REST API (OpenRouter, OpenAI, Gemini, xAI Grok, Meta Llama, Ollama, LM Studio, Custom)
-  const rawBase =
-    provider === "openrouter"
-      ? "https://openrouter.ai/api/v1"
-      : params.profile?.aiBaseUrl?.trim() || meta.defaultBaseUrl || "";
-  const baseUrl = validateLlmBaseUrl(rawBase);
+  // Pin named cloud providers to their official HTTPS origins — only custom_openai/ollama/lmstudio accept aiBaseUrl.
+  const allowCustomBase =
+    provider === "custom_openai" || provider === "ollama" || provider === "lmstudio";
+  const rawBase = allowCustomBase
+    ? params.profile?.aiBaseUrl?.trim() || meta.defaultBaseUrl || ""
+    : meta.defaultBaseUrl || "";
+  const baseUrl = validateLlmBaseUrl(rawBase, { loopbackOnly: meta.mode === "local_oss" });
   if (!baseUrl) {
     throw new AIConfigurationError(
       `Invalid or missing Base URL for ${meta.name}. Set a valid http(s):// endpoint in Settings → AI Providers & Subscriptions.`,
@@ -1391,19 +1559,28 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
   };
 
   if (provider === "openrouter") {
-    const fallbackModel =
-      params.tier === "screening" ? "google/gemini-2.5-flash" : "anthropic/claude-sonnet-4.6";
-    if (fallbackModel !== model) {
-      bodyObj.models = [model, fallbackModel];
-    }
-    if (params.profile?.aiZdrOnly !== false) {
-      bodyObj.provider = { data_collection: "deny" };
+    const zdrEnabled = params.profile?.aiZdrOnly !== false;
+    if (zdrEnabled) {
+      // Fail-closed strict Zero Data Retention: enforce ZDR endpoints, deny data collection,
+      // and disable silent non-ZDR fallback routing.
+      bodyObj.provider = {
+        data_collection: "deny",
+        zdr: true,
+        allow_fallbacks: false,
+      };
+    } else {
+      const fallbackModel =
+        params.tier === "screening" ? "google/gemini-2.5-flash" : "anthropic/claude-sonnet-4.6";
+      if (fallbackModel !== model) {
+        bodyObj.models = [model, fallbackModel];
+      }
     }
   }
 
   let response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers,
+    redirect: headers.Authorization ? "error" : "follow",
     signal: params.signal,
     body: JSON.stringify(bodyObj),
   });
@@ -1418,6 +1595,7 @@ export async function invokeLlm(params: LlmInvocationParams): Promise<LlmInvocat
     response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers,
+      redirect: headers.Authorization ? "error" : "follow",
       signal: params.signal,
       body: JSON.stringify(bodyObj),
     });

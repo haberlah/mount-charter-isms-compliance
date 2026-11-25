@@ -172,13 +172,16 @@ test("Cross-framework drift detection flags AU requirements contradicting failed
   assert.equal(req.driftWarnings[0].controlNumber, "8.8");
 });
 
-test("Multi-provider AI status lists all 11 providers and SSRF guard blocks cloud metadata endpoints", () => {
+test("Multi-provider AI status lists all 14 providers and SSRF guard blocks cloud metadata endpoints", () => {
   assert.equal(validateLlmBaseUrl("http://127.0.0.1:11434/v1"), "http://127.0.0.1:11434/v1");
   assert.equal(validateLlmBaseUrl("http://localhost:1234/v1"), "http://localhost:1234/v1");
   assert.equal(validateLlmBaseUrl("https://api.openai.com/v1"), "https://api.openai.com/v1");
   assert.equal(validateLlmBaseUrl("https://api.x.ai/v1"), "https://api.x.ai/v1");
   assert.equal(validateLlmBaseUrl("http://169.254.169.254/latest/meta-data"), null);
+  assert.equal(validateLlmBaseUrl("http://100.100.100.200/latest/meta-data"), null);
+  assert.equal(validateLlmBaseUrl("http://[::ffff:169.254.169.254]/latest"), null);
   assert.equal(validateLlmBaseUrl("http://metadata.google.internal/computeMetadata/v1"), null);
+  assert.equal(validateLlmBaseUrl("https://example.com/v1", { loopbackOnly: true }), null);
   assert.equal(validateLlmBaseUrl("file:///etc/passwd"), null);
   assert.equal(validateLlmBaseUrl("javascript:alert(1)"), null);
 
@@ -190,10 +193,12 @@ test("Multi-provider AI status lists all 11 providers and SSRF guard blocks clou
 
   const status = getAiProviderStatus(profile);
   assert.equal(status.configuredProvider, "auto");
-  assert.equal(status.providers.length, 12);
+  assert.equal(status.providers.length, 14);
   assert.ok(status.providers.some((p) => p.id === "openrouter" && p.mode === "api_key"));
   assert.ok(status.providers.some((p) => p.id === "ollama" && p.mode === "local_oss"));
   assert.ok(status.providers.some((p) => p.id === "claude_cli" && p.mode === "subscription_cli"));
+  assert.ok(status.providers.some((p) => p.id === "grok_cli" && p.mode === "subscription_cli"));
+  assert.ok(status.providers.some((p) => p.id === "cursor_cli" && p.mode === "subscription_cli"));
   assert.ok(status.providers.some((p) => p.id === "xai" && p.mode === "api_key"));
   assert.ok(status.providers.some((p) => p.id === "meta" && p.mode === "api_key"));
 

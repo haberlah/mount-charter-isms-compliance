@@ -8,6 +8,11 @@ import { Router } from "express";
 import { z } from "zod";
 import { AIConfigurationError, getAiProviderStatus, testApiConnectivity } from "../ai";
 import {
+  getMountCharterConnectionsSnapshot,
+  startMountCharterOpenRouterOAuth,
+  triggerMountCharterCliSso,
+} from "../ai-connections";
+import {
   fetchOpenRouterKeyInfo,
   fetchProviderModels,
   OPENROUTER_PRESET_MODELS,
@@ -144,8 +149,13 @@ settingsRouter.get("/settings/models", async (req, res) => {
     });
   }
 
+  const allowCustomBaseUrl =
+    concreteProvider === "custom_openai" ||
+    concreteProvider === "ollama" ||
+    concreteProvider === "lmstudio";
+
   const result = await fetchProviderModels(concreteProvider, {
-    baseUrl: baseUrlParam ?? profile.aiBaseUrl,
+    baseUrl: allowCustomBaseUrl ? (baseUrlParam ?? profile.aiBaseUrl) : null,
     preset,
     forceRefresh,
   });
@@ -158,12 +168,19 @@ settingsRouter.get("/settings/openrouter-key-info", async (_req, res) => {
 });
 
 settingsRouter.get("/settings/local-models", async (req, res) => {
-  const baseUrl =
+  const rawBaseUrl =
     typeof req.query.baseUrl === "string" && req.query.baseUrl.trim()
       ? req.query.baseUrl.trim()
       : "http://127.0.0.1:11434/v1";
-  const models = await probeLocalModels(baseUrl);
-  res.json({ baseUrl, models });
+  const validated = validateLlmBaseUrl(rawBaseUrl, { loopbackOnly: true });
+  if (!validated) {
+    return sendValidationError(
+      res,
+      "Local model server URL must be a loopback http://127.0.0.1 or http://[::1] endpoint.",
+    );
+  }
+  const models = await probeLocalModels(validated);
+  res.json({ baseUrl: validated, models });
 });
 
 settingsRouter.post("/settings/test-api", async (req, res) => {
@@ -192,4 +209,39 @@ settingsRouter.post("/settings/test-api", async (req, res) => {
       error: err instanceof Error ? err.message : "AI connectivity test failed",
     });
   }
+});
+
+// Unified AI Connections snapshot (Paper <paper-ai-connections> & <paper-ai-pill>)
+settingsRouter.get("/ai/connections", async (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const profile = storage.getProfile(workspaceId);
+  const forceRefresh = req.query.refresh === "1" || req.query.refresh === "true";
+  const snapshot = await getMountCharterConnectionsSnapshot(profile, { forceRefresh });
+  res.json(snapshot);
+});
+
+// 1-click OpenRouter OAuth PKCE browser sign-in
+settingsRouter.post("/ai/openrouter/oauth", async (_req, res) => {
+  try {
+    const result = await startMountCharterOpenRouterOAuth();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({
+      error: err instanceof Error ? err.message : "Failed to start OpenRouter sign-in",
+    });
+  }
+});
+
+// 1-click official CLI browser SSO login / sign-out
+settingsRouter.post("/ai/cli/:provider/:action", async (req, res) => {
+  const provider = String(req.params.provider || "");
+  const action = String(req.params.action || "");
+  if (action !== "login" && action !== "logout") {
+    return sendValidationError(res, "Action must be login or logout.");
+  }
+  const result = await triggerMountCharterCliSso(provider, action);
+  if (result.error) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
 });

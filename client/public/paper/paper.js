@@ -1,4 +1,4 @@
-/* Paper 0.7.0. Custom elements as a classic script; the same code as dist/elements/. */
+/* Paper 0.8.0. Custom elements as a classic script; the same code as dist/elements/. */
 "use strict";
 // elements/paper-tabs.js
 (() => {

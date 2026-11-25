@@ -14,6 +14,7 @@ import {
   createLaunchToken,
   isValidLoopbackHost,
   SECURITY_HEADERS,
+  verifyApiReadRequest,
   verifyMutationRequest,
 } from "./security";
 
@@ -72,9 +73,17 @@ export function createApp(
     });
   });
 
-  // 5. CSRF / Origin / Sec-Fetch-Site enforcement on all mutating /api/* routes
+  // 5. Strict Origin / Sec-Fetch-Site / CSRF enforcement on ALL /api/* routes (including GET)
   app.use("/api", (req, res, next) => {
-    if (!MUTATING_METHODS.has(req.method)) return next();
+    res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+    res.setHeader("Cache-Control", "no-store");
+    if (!MUTATING_METHODS.has(req.method)) {
+      const readCheck = verifyApiReadRequest(req, { expectedPort: options.expectedPort });
+      if (!readCheck.ok) {
+        return res.status(readCheck.status).json({ error: readCheck.error });
+      }
+      return next();
+    }
     const check = verifyMutationRequest(req, launchToken, {
       expectedPort: options.expectedPort,
     });

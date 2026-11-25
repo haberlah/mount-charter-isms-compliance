@@ -1,4 +1,4 @@
-/* Paper 0.7.0. Optional component pack. Load after paper.css. Sits in paper.components so utilities and unlayered CSS override it. */
+/* Paper 0.8.0. Optional component pack. Load after paper.css. Sits in paper.components so utilities and unlayered CSS override it. */
 @layer paper.tokens, paper.base, paper.components, paper.utilities;
 @layer paper.components {
 .pp-eval-bar {

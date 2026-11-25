@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Route, Switch, useLocation } from "wouter";
 import { CommandPalette, Icon } from "@/components/PaperUi";
+import { AiPillHost } from "@/components/settings/AiPillHost";
 import {
   apiRequest,
   getActiveWorkspaceId,
@@ -253,6 +254,8 @@ export default function App() {
           >
             <Icon name="command" />
           </button>
+
+          <AiPillHost />
 
           <button
             type="button"

@@ -1,25 +1,40 @@
 {
   "name": "paper",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "files": {
     "client/public/paper/paper.css": {
       "source": "paper.css",
-      "sha256": "6dc970ef9564792e2453205d606f86036081f3fc505c28b8a8e7fe88c6056b8d",
+      "sha256": "cc09ee77f5594346132013cef0dc8a13947a095c002b7cc7ae9b3bc91ab41c86",
       "bytes": 88448
     },
     "client/public/paper/paper.tokens.css": {
       "source": "paper.tokens.css",
-      "sha256": "957e674e471ac576f07f44c9718f8711dafc2eea18a9240f62cbb8dda557ed68",
+      "sha256": "2147282f3a47f3e60cbe5cc6c9712c13a96e2451f929e07aeec89b1c201f99f8",
       "bytes": 4797
     },
     "client/public/paper/packs/workbench.css": {
       "source": "packs/workbench.css",
-      "sha256": "29ee4d95e7d6a2fb1900bcfdfb01186900cf19da3a781731a8514b97a99cd5cf",
+      "sha256": "ad0745513f4036b5ec0e6dd48853622c3692796e4539a7e342f666e0ccb29b3c",
       "bytes": 8107
+    },
+    "client/public/paper/packs/ai-connections.css": {
+      "source": "packs/ai-connections.css",
+      "sha256": "1277d28af9cb94e18396266abb76cafd13c235cf7c769c3503e315fe46a2e870",
+      "bytes": 9571
+    },
+    "client/vendor/paper/packs/ai-connections.esm.js": {
+      "source": "packs/ai-connections.esm.js",
+      "sha256": "5361abf94e9746f6d10b22d350313c0ced986c1618e44504446e651fe9c59430",
+      "bytes": 29181
+    },
+    "client/vendor/paper/packs/ai-connections.d.ts": {
+      "source": "packs/ai-connections.d.ts",
+      "sha256": "fb153739195df3d041978ddae11daa5b262ca66e44f8ea0509342839546d72b1",
+      "bytes": 1445
     },
     "client/public/paper/paper.js": {
       "source": "paper.js",
-      "sha256": "0f581f712462b7f3c16c58d06d456f57bb7a0c497d803a5c5851029b64d70a18",
+      "sha256": "bace352c21f2bc00cc6f510207eea4ba69688c14ac268a180ab92863562a5fa5",
       "bytes": 41844
     },
     "client/public/paper/paper-mode.js": {
