@@ -12,7 +12,7 @@
         "version": { "type": "string" },
         "standard": { "type": "string" },
         "total_controls": { "type": "integer", "minimum": 100 },
-        "total_questions": { "type": "integer", "minimum": 500 },
+        "total_questions": { "type": "integer", "minimum": 200 },
         "categories": { "type": "array", "items": { "type": "string" } }
       }
     },
@@ -21,11 +21,77 @@
       "minItems": 100,
       "items": {
         "type": "object",
-        "required": ["control_number", "control_name", "category", "questions"],
+        "required": [
+          "control_number",
+          "control_name",
+          "category",
+          "short_summary",
+          "plain_english_summary",
+          "why_it_matters",
+          "key_deliverables",
+          "audit_focus_summary",
+          "iso27002_attributes",
+          "questions"
+        ],
         "properties": {
           "control_number": { "type": "string" },
           "control_name": { "type": "string", "minLength": 3 },
           "category": { "type": "string" },
+          "short_summary": { "type": "string", "minLength": 10, "maxLength": 120 },
+          "plain_english_summary": { "type": "string", "minLength": 40 },
+          "why_it_matters": { "type": "string", "minLength": 20 },
+          "key_deliverables": {
+            "type": "array",
+            "minItems": 2,
+            "items": { "type": "string", "minLength": 3 }
+          },
+          "audit_focus_summary": { "type": "string", "minLength": 20 },
+          "iso27002_attributes": {
+            "type": ["object", "null"],
+            "required": [
+              "control_types",
+              "info_sec_properties",
+              "cybersecurity_concepts",
+              "operational_capabilities",
+              "security_domains"
+            ],
+            "properties": {
+              "control_types": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "enum": ["Preventive", "Detective", "Corrective"] }
+              },
+              "info_sec_properties": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "enum": ["Confidentiality", "Integrity", "Availability"]
+                }
+              },
+              "cybersecurity_concepts": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "enum": ["Identify", "Protect", "Detect", "Respond", "Recover"]
+                }
+              },
+              "operational_capabilities": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string" }
+              },
+              "security_domains": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "enum": ["Governance_and_Ecosystem", "Protection", "Defence", "Resilience"]
+                }
+              }
+            }
+          },
           "questions": {
             "type": "array",
             "minItems": 1,

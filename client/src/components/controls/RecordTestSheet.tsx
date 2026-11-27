@@ -152,8 +152,8 @@ export function RecordTestSheet({
             <div className="pp-banner pp-banner--warn" role="status">
               <div className="pp-banner__body">
                 <div className="pp-banner__text">
-                  You have {dirtyQuestionCount} unsaved question draft(s). Save them first so Claude
-                  sees your latest answers.
+                  You have {dirtyQuestionCount} unsaved question draft(s). Save them first so the AI
+                  reviewer sees your latest answers.
                 </div>
               </div>
               <div className="pp-banner__actions">

@@ -1,0 +1,2736 @@
+{
+  "from_version": "2.1",
+  "to_version": "3.0",
+  "controls": {
+    "RQ4": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Internal and external issues"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Interested parties register"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "ISMS scope document"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Scope exclusions and justification"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Context review within 12 months"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Scope coverage of cloud, CI/CD and customer data flows"
+      },
+      "7": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Climate change relevance determination (Clause 4.1 Amd 1:2024)"
+      },
+      "8": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Interested-party climate requirements (Clause 4.2 Amd 1:2024 Note)"
+      }
+    },
+    "RQ5": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "C-suite attendance in ISMS governance"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Information security policy with executive approval"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "RACI matrix for security roles, responsibilities and authorities"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Security budget allocation and resource decisions"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Management commitment to continual improvement"
+      },
+      "6": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Communication of security objectives organisation-wide"
+      }
+    },
+    "RQ6": {
+      "1": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Documented risk assessment methodology"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Current risk register"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Risk treatment plan with control selection rationale"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Statement of Applicability covering all 93 Annex A controls"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Documented SoA exclusion justifications"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Control testing schedule (misplaced in RQ6; primary coverage moved to RQ9)"
+      },
+      "7": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Signed residual risk acceptance records"
+      },
+      "8": {
+        "target_question_id": 4,
+        "mode": "merged",
+        "legacy_label": "SMART and tracked information security objectives"
+      },
+      "9": {
+        "target_question_id": 5,
+        "mode": "merged",
+        "legacy_label": "Planning of changes to the ISMS (Clause 6.3)"
+      }
+    },
+    "RQ7": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Adequate ISMS resourcing"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Competence framework for security roles"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Security awareness training records and completion rates"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Internal and external ISMS communication plan"
+      },
+      "5": {
+        "target_question_id": 4,
+        "mode": "merged",
+        "legacy_label": "Control of documented information"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Competence verification for new hires and role changes"
+      }
+    },
+    "RQ8": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Operational security processes implemented"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Risk assessment at planned intervals"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Risk treatment implemented according to plan"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Control of outsourced/externally provided processes"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Operational security change management"
+      },
+      "6": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Risk reassessment triggered by significant changes"
+      }
+    },
+    "RQ9": {
+      "1": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Internal audit schedule and completed audit reports"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Audit coverage matrix across certification cycle"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Internal auditor independence"
+      },
+      "4": {
+        "target_question_id": 4,
+        "mode": "merged",
+        "legacy_label": "Management review meeting minutes"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Information security KPIs and performance metrics"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Analysis and evaluation of monitoring results"
+      },
+      "7": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Internal audit review of control design and operating effectiveness"
+      }
+    },
+    "RQ10": {
+      "1": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Nonconformity register"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Root cause analysis documentation"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Corrective action effectiveness verification"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "ISMS improvements made in the past 12 months"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Identification of improvement opportunities"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Application of lessons learned from incidents"
+      }
+    },
+    "6.1": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Pre-employment screening policy"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Screening proportional to role sensitivity"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Ongoing or periodic screening checks"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Screening of contractors and third parties"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Screening compliance with applicable laws"
+      }
+    },
+    "6.2": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Employment contracts include security responsibilities"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Security obligations communicated to new starters"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Post-employment obligations in contracts"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Equivalent terms applied to contractors"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Communication of changes to terms"
+      }
+    },
+    "6.3": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Security awareness programme"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Training completion rate"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Role-specific training provided"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Training effectiveness measurement"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Content updates for new threats"
+      },
+      "6": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Phishing simulation results"
+      }
+    },
+    "6.4": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Disciplinary process for security violations"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Disciplinary process communicated to all personnel"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Examples of disciplinary process application"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Disciplinary process applied to contractors"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Violation severity classification"
+      }
+    },
+    "6.5": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Post-employment confidentiality obligations"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Departing employees reminded of obligations"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Security management of role changes"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Secure knowledge transfer"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Enforcement of confidentiality obligations"
+      }
+    },
+    "6.6": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "NDAs required for employees and third parties"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "NDAs reflect organisational protection needs"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Regular review and update of NDAs"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Register of signed NDAs"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Appropriate use of mutual NDAs"
+      }
+    },
+    "6.7": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Remote working security policy"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Security controls for remote working"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Data protection when working remotely"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Remote worker security training"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Home working environment security assessment"
+      }
+    },
+    "6.8": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Process for reporting security events"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Personnel awareness of reporting procedures"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Protection for reporters"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Types of events to be reported"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Expected reporting timeframe"
+      }
+    },
+    "7.1": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Physical security perimeters defined"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Perimeter boundaries documented"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Regular perimeter vulnerability assessments"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Emergency exits secured while maintaining safety"
+      }
+    },
+    "7.2": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Access control to secure areas"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Visitor management"
+      }
+    },
+    "7.3": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Offices, rooms and facilities secured appropriately"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Meeting rooms and shared spaces secured"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Server rooms and data centres secured"
+      }
+    },
+    "7.4": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Physical security monitoring implemented"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Monitoring systems continuously operational"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Monitoring data retained and protected"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Response capability for detected events"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Cloud-based systems physical security assurance"
+      }
+    },
+    "7.5": {
+      "1": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Environmental protective controls in place"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Environmental threats assessed"
+      }
+    },
+    "7.6": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Secure area working rules defined"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Supervision of work in secure areas"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Control of recording devices in secure areas"
+      }
+    },
+    "7.7": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Clear desk and clear screen policy"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Clear desk compliance verification"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Secure storage facilities provided"
+      }
+    },
+    "7.8": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Equipment sited to reduce environmental risks"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Equipment protected from environmental risks"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Equipment positioned to prevent unauthorised viewing"
+      }
+    },
+    "7.9": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Protection of assets off-premises"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Tracking assets removed from premises"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Physical security guidance for off-site assets"
+      }
+    },
+    "7.10": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Storage media management"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Secure disposal of storage media"
+      }
+    },
+    "7.11": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Supporting utilities protected"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Supporting utilities monitored for failures"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Supporting utilities tested regularly"
+      }
+    },
+    "7.12": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Cabling security maintained"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Network cables protected from interception"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Cabling documented and labelled"
+      }
+    },
+    "7.13": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Equipment maintained according to specifications"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Maintenance access controlled"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Maintenance performed by authorised personnel only"
+      }
+    },
+    "7.14": {
+      "1": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Management of equipment moves and disposals"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Unattended equipment protection (misplaced ISO 2013 item; covered under 7.7 Clear Desk/Screen and 8.1 User Endpoint Devices)"
+      }
+    },
+    "5.1": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Documented information security policy with executive approval"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Topic-specific policies for key security areas"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Distribution and acknowledgement records for relevant personnel"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Evidence that policies are reviewed at planned intervals"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How policies address regulatory requirements"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "How policy exceptions are handled"
+      }
+    },
+    "5.2": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "RACI matrix or equivalent defining all security roles"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "CISO or ISO job description and reporting line"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Asset owner register showing security responsibilities"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How security responsibilities are verified during staff interviews"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How responsibilities are communicated during onboarding"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How responsibilities are updated when roles change"
+      }
+    },
+    "5.3": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Segregation of duties matrix showing incompatible roles"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How segregation is enforced in CI/CD pipeline"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How segregation is maintained for financial and payment systems"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Periodic review of access combinations for conflicts"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "How exceptions to segregation are handled"
+      }
+    },
+    "5.4": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "How management requires personnel to apply security policies"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Legacy policy compliance monitoring (deduplicated from 5.36 into management supervisory follow-through)"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Security included in performance evaluations"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How contractors are required to follow security policies"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Evidence of management communications about security"
+      }
+    },
+    "5.5": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Authority contact register"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Notification procedures for material security incidents"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Material weakness notification procedures"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How legal and regulatory changes are monitored and assessed"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Evidence of authority relationship maintenance"
+      }
+    },
+    "5.6": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "List of security forums and professional associations"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How personnel are supported to participate in security communities"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How external threat intelligence from groups is received and processed"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How intelligence from external sources has been acted upon"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Sharing lessons learned with the security community"
+      }
+    },
+    "5.7": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Threat intelligence collection process"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Threat intelligence sources utilised"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How threat intelligence is analysed and prioritised"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How threat intelligence feeds into risk assessment"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How actionable intelligence is communicated"
+      }
+    },
+    "5.8": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Project management methodology showing security integration"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Security requirements templates used in project initiation"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How threat modelling is performed for new projects"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Evidence of security architecture review for recent projects"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How security requirements are tracked through project lifecycle"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Mandatory security sign-off before go-live"
+      }
+    },
+    "5.9": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Complete information asset inventory"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How asset owners are assigned and documented"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How cloud services and SaaS applications are tracked"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Evidence of asset inventory review within the last 12 months"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How asset criticality is determined"
+      },
+      "6": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Automated asset discovery"
+      }
+    },
+    "5.10": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Acceptable use policy"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Data handling procedures by classification level"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Acknowledgement records for the acceptable use policy"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How compliance with acceptable use is monitored"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How acceptable use violations are handled"
+      }
+    },
+    "5.11": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Asset return process for departing personnel"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Assets tracked for return"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How asset return is verified and documented"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "What happens when assets cannot be returned"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How the asset return process applies to contractors"
+      }
+    },
+    "5.12": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Information classification scheme"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How classification addresses confidentiality, integrity, and availability"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How privacy requirements are incorporated into classification"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Who is responsible for classifying information"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How classification is reviewed and updated"
+      }
+    },
+    "5.13": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Information labelling procedures"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How electronic documents and emails are labelled"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How physical assets are labelled"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Automated classification and labelling"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How staff are trained on labelling requirements"
+      }
+    },
+    "5.14": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Information transfer policy and procedures"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Secure transfer mechanisms available"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How transfer agreements are managed with external parties"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How confidential information is transferred externally"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How removable media transfers are controlled"
+      }
+    },
+    "5.15": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Access control policy"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How least privilege is implemented"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Legacy access request workflow (rule alignment here; operational provisioning under 5.18)"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Legacy access review cadence (rule alignment here; operational recertification under 5.18)"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Access logging and monitoring alignment (detailed log ops under 8.15)"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How physical and logical access are coordinated"
+      }
+    },
+    "5.16": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Identity lifecycle management process"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How identities are verified before account creation"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How shared and generic accounts are controlled"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "SLA for account deprovisioning on termination"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "How dormant accounts are identified and managed"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How identity changes are managed for role changes and transfers"
+      }
+    },
+    "5.17": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Authentication policy including password and MFA requirements"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How initial authentication information is provided securely"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "MFA enrolment and authenticator lifecycle (technical enforcement covered under 8.5)"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Password reset process"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How users are educated on credential protection"
+      }
+    },
+    "5.18": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Access provisioning process"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How frequently access rights are reviewed"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "What triggers an access modification"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Access revocation SLA on termination"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Segregation between access request and approval"
+      }
+    },
+    "5.19": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Supplier security assessment process"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Critical supplier register"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Security requirements in supplier contracts (baseline pre-contract)"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Ongoing supplier security monitoring (register & tiering link; operational monitoring owned by 5.22)"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Regulatory requirements applied to suppliers"
+      }
+    },
+    "5.20": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Template security clauses in supplier agreements"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Incident notification requirements in agreements"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Audit rights in supplier agreements"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Supplier certification and assurance requirements"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Subcontractor security requirements"
+      }
+    },
+    "5.21": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "ICT supply chain risk identification and management"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Verification of ICT product security"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Software Bill of Materials (optional good practice, non-mandatory)"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Verification of software updates and patches"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Supply chain security incident readiness"
+      }
+    },
+    "5.22": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Ongoing monitoring of supplier services"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Supplier reassessment schedule"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Management of changes to supplier services"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Handling of supplier security incidents"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Security assessment at contract renewal"
+      }
+    },
+    "5.23": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Cloud service evaluation and selection criteria"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Shared responsibility matrix per major cloud provider"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Cloud security configuration management"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Documented exit strategy for cloud services"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Data protection in cloud environments"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Review of cloud provider certifications"
+      },
+      "7": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Multi-tenant isolation via CSP assurance and tenant segmentation"
+      }
+    },
+    "5.24": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Incident response plan"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Incident classification scheme"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Incident response role assignments"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Evidence of incident response testing"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Regulatory notification requirements in incident planning"
+      },
+      "6": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Coordination with legal, PR, and executives"
+      }
+    },
+    "5.25": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Security event triage process"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Criteria determining incident severity"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Event assessment coverage proportionate to risk"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Event assessment SLAs and escalation targets"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Documentation of event assessment decisions"
+      }
+    },
+    "5.26": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Incident containment execution"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Incident response playbooks"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Incident eradication process"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Incident recovery process"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Stakeholder notifications during active incidents"
+      }
+    },
+    "5.27": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Post-incident review execution"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Tracking lessons learned to completion"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Sharing lessons across the organisation"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Incident trend analysis"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Incorporating external incident learnings"
+      }
+    },
+    "5.28": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Evidence collection procedures"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Evidence integrity protection"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Chain-of-custody documentation"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Staff training on evidence handling"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Access to forensic expertise"
+      }
+    },
+    "5.29": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Maintaining security requirements during disruptions"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Adapting security controls during crisis situations"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Coordination between security and business continuity teams"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Restoring security posture after disruption"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Documenting security exceptions during disruption"
+      }
+    },
+    "5.30": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "ICT continuity or disaster recovery plan"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "RTO and RPO definitions for critical systems"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "DR and BC testing frequency"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Results from the most recent DR test"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Recovery verification coordinated with backup restoration"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Architectural resilience and geographic continuity alignment"
+      }
+    },
+    "5.31": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Compliance obligations register"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Tracking and updating compliance requirements"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Identifying contractual security obligations"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Verification of legal and regulatory compliance"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Responding to regulatory changes"
+      }
+    },
+    "5.32": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Intellectual property protection procedures"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Software licensing compliance management"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Open-source software governance"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Employee awareness of IP requirements"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Protection of third-party IP"
+      }
+    },
+    "5.33": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Records management policy"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Protection of records from loss and destruction"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Record integrity controls"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Secure disposal of expired records"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Record retrievability when required"
+      }
+    },
+    "5.34": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Privacy policy and PII handling procedures"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Documentation of PII processing"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Technical measures protecting PII"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Management of data subject rights"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Privacy breach notification process"
+      }
+    },
+    "5.35": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Independent security review programme"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Ensuring reviewer independence"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Tracking and remediating review findings"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Objective oversight and assurance arrangements"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Evidence of recent external or independent security assessment"
+      }
+    },
+    "5.36": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Monitoring compliance with security policies"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Frequency of policy compliance reviews"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Management of policy compliance exceptions"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Reporting compliance status to management"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Addressing policy compliance violations"
+      }
+    },
+    "5.37": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Documented operating procedures for critical processes"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Procedure accessibility to relevant personnel"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Periodic review and update of operating procedures"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Security steps embedded in operating procedures"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Verification of staff competence on procedures"
+      }
+    },
+    "8.1": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Endpoint security policy"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Endpoint encryption status"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Deployed endpoint protection"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Lost or stolen device handling"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Screen lock enforcement"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "USB and removable media controls"
+      }
+    },
+    "8.2": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Privileged access inventory"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Privileged access provisioning"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Privileged access review frequency"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Mandatory MFA for privileged accounts"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Privileged activity monitoring"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "PAM solution deployment (good practice, non-mandatory)"
+      }
+    },
+    "8.3": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Classification-based access restriction"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Need-to-know enforcement"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Controls on data extraction"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Database access control"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Auditability of access restrictions"
+      }
+    },
+    "8.4": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Source code repository access control"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Separate production code access control"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Code change tracking and attribution"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Build and deployment tool access control"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Software dependency management"
+      }
+    },
+    "8.5": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Implemented authentication technologies"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "MFA implementation scope"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Prohibition of default and weak passwords"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Handling of authentication failures"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Protection against credential attacks"
+      }
+    },
+    "8.6": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "System capacity monitoring"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Capacity planning"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Capacity threshold alerting"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Capacity scaling procedure"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 duplicate redundancy question (now owned by 8.14; preserved here for continuity)"
+      }
+    },
+    "8.7": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Anti-malware deployment across endpoints"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Automated signature and definition updates"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Email and web traffic malware scanning"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Malware detection handling"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "User awareness training for malware (cross-referenced to 6.3)"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 misplaced patch management process text (now owned by 8.8)"
+      },
+      "7": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 misplaced patching SLAs text (now owned by 8.8)"
+      },
+      "8": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 misplaced penetration testing cadence text (now owned by 8.29/8.8)"
+      },
+      "9": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 misplaced penetration test remediation text (now owned by 8.8/8.29)"
+      },
+      "10": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 misplaced vulnerability scanning text (now owned by 8.8)"
+      }
+    },
+    "8.8": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "1:1",
+        "legacy_label": "Vulnerability management programme"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Vulnerability prioritisation"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Vulnerability remediation SLAs"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 misplaced software installation restriction text (now owned by 8.19)"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Patch compliance monitoring"
+      }
+    },
+    "8.9": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Documented security baselines"
+      },
+      "2": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Configuration compliance monitoring"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Configuration change control"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Removal of default configurations"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Infrastructure as Code usage (good practice, non-mandatory)"
+      }
+    },
+    "8.10": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Data deletion policy"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Verification of complete deletion"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Secure deletion methods"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Deletion management from backups"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Data subject deletion requests"
+      }
+    },
+    "8.11": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Scope of data masking application"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Production data masking in non-production environments"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Documented masking rules"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Validation of masked data usefulness"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Masking compliance verification"
+      }
+    },
+    "8.12": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "DLP control implementation"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Monitored sensitive data types"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "DLP alert handling"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "DLP prevention versus detection mode"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Exfiltration channel coverage"
+      }
+    },
+    "8.13": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Backup policy"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Scheduled backup execution"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Backup restoration testing frequency"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Backup protection controls"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Geographically separate backup storage"
+      }
+    },
+    "8.14": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Redundancy for critical systems"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Single points of failure identification"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Failover testing frequency"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Geographic redundancy"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Alignment of redundancy with business needs"
+      }
+    },
+    "8.15": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Logged security events"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Required log information fields"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Centralised log aggregation"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Protection of logs from tampering"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Log retention period"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Legacy v2.1 duplicate clock synchronisation question (now owned by 8.17; preserved here for continuity)"
+      }
+    },
+    "8.16": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Continuous monitoring implementation"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Configured alerting rules"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Alert investigation process"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Anomaly detection capability"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Monitoring effectiveness review"
+      }
+    },
+    "8.17": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Synchronisation to approved time sources"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Clock synchronisation monitoring"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Time-zone consistency"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Documented time-synchronisation configuration"
+      }
+    },
+    "8.18": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are privileged utilities identified?"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is utility access restricted and logged?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are unnecessary utilities removed?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is approval required for utility usage?"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Are utility capabilities regularly audited?"
+      }
+    },
+    "8.19": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is software installation controlled?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are installation rights restricted?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Is software from trusted sources only?"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Is software tracked in inventory?"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "How is unauthorised software detected?"
+      }
+    },
+    "8.20": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are networks segmented?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are network devices securely configured?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is traffic filtered?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Are network services secured?"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Is network monitoring implemented?"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are wireless networks secured?"
+      }
+    },
+    "8.21": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are network services from secure providers?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are secure protocols enforced?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How are network service agreements managed?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How is network service provider security monitored?"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Are network services resilient and redundant?"
+      }
+    },
+    "8.22": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How is network segmentation implemented?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are critical systems on separate network segments?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How is inter-segment traffic controlled?"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is guest and corporate traffic segregated?"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How is cloud network segmentation managed?"
+      }
+    },
+    "8.23": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is web filtering implemented?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "What categories are blocked?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How are exceptions handled?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is web activity logged?"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is HTTPS traffic inspected? (Legacy v2.1 note: risk-based DNS/URL filtering applies; TLS inspection is optional)"
+      }
+    },
+    "8.24": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Provide your cryptography policy."
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "What algorithms are approved?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Is data encrypted at rest and in transit?"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How are cryptographic keys managed?"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are weak algorithms prohibited?"
+      }
+    },
+    "8.25": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Provide your secure SDLC documentation."
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How are security requirements captured?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is secure coding training provided?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is security code review performed?"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is security testing in CI/CD?"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Is security sign-off required for deployment?"
+      }
+    },
+    "8.26": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How are security requirements identified?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are requirements risk-based?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are regulatory requirements considered?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Are requirements tracked to completion?"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How are third-party app requirements assessed?"
+      }
+    },
+    "8.27": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are secure architecture principles documented?"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is security architecture review performed?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are defence-in-depth principles applied?"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are secure design patterns used?"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is threat modeling performed?"
+      }
+    },
+    "8.28": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are secure coding standards defined?"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is static analysis performed?"
+      },
+      "3": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are OWASP Top 10 vulnerabilities addressed?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is code peer reviewed?"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How are secrets managed?"
+      }
+    },
+    "8.29": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is security testing defined in SDLC?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is DAST performed?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "Is penetration testing performed?"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Are findings remediated before release?"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Does acceptance testing include security?"
+      }
+    },
+    "8.30": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are security requirements in development contracts?"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "1:1",
+        "legacy_label": "How is outsourced development monitored?"
+      },
+      "3": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "Is delivered code security tested?"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are IP rights protected?"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "merged",
+        "legacy_label": "How are security defects handled?"
+      }
+    },
+    "8.31": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are dev test and prod environments separated?"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is access appropriately restricted per environment?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is production data protected in non-production? (Legacy v2.1 note: test data selection and masking now sit primarily under 8.33)"
+      },
+      "4": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "How is code promoted between environments?"
+      },
+      "5": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are configuration differences documented?"
+      }
+    },
+    "8.32": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Provide your change management process."
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are changes assessed for security impact?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is testing performed before deployment?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Are changes approved before implementation?"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is there rollback capability?"
+      },
+      "6": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Are changes documented and auditable?"
+      }
+    },
+    "8.33": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How is test data managed?"
+      },
+      "2": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Is production data masked for testing?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is test data protected appropriately?"
+      },
+      "4": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "How is control testing planned? (Legacy v2.1 note: control testing planning now sits under RQ9 / 5.35)"
+      },
+      "5": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Are test environments secured?"
+      }
+    },
+    "8.34": {
+      "1": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are audit tests planned and agreed?"
+      },
+      "2": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Is auditor access controlled?"
+      },
+      "3": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "Are audit tools approved?"
+      },
+      "4": {
+        "target_question_id": 2,
+        "mode": "merged",
+        "legacy_label": "How is production impact minimised?"
+      },
+      "5": {
+        "target_question_id": 3,
+        "mode": "1:1",
+        "legacy_label": "Is audit evidence protected?"
+      },
+      "6": {
+        "target_question_id": 1,
+        "mode": "merged",
+        "legacy_label": "Are regulatory audit requirements addressed?"
+      }
+    }
+  }
+}

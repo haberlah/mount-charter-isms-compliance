@@ -94,7 +94,7 @@ export function ControlsPage() {
 
       if (q) {
         const hay =
-          `${c.controlNumber} ${c.name} ${c.category.name} ${c.cps234Reference || ""} ${c.cps230Reference || ""}`.toLowerCase();
+          `${c.controlNumber} ${c.name} ${c.shortSummary || ""} ${c.plainEnglishSummary || ""} ${c.category.name} ${c.cps234Reference || ""} ${c.cps230Reference || ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -346,6 +346,7 @@ export function ControlsPage() {
                   >
                     {c.name}
                   </div>
+                  {c.shortSummary && <div className="mw-control-tagline">{c.shortSummary}</div>}
                   <div className="mw-row mw-row--between">
                     <span className="mw-faint">
                       {c.questionnaireProgress.answered}/{c.questionnaireProgress.total} Qs ·{" "}

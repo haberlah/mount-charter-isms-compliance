@@ -2,11 +2,13 @@ import { createHash } from "node:crypto";
 import type { Workspace } from "@shared/schema";
 import { getBlob, putBlob } from "./blob-store";
 import { getDb } from "./db";
+import { loadOntologyMigrationMap, remapBackupResponsesForOntology } from "./ontology-migration";
 import { storage } from "./storage";
 import { buildZip, readZipSafely, type ZipInputEntry } from "./zip-writer";
 
 interface WorkspaceBackupManifest {
   formatVersion: "mount-charter-backup-v1";
+  ontologyVersion?: string;
   exportedAt: string;
   workspaceName: string;
   profile: Record<string, unknown>;
@@ -114,8 +116,13 @@ export function buildWorkspaceBackupZip(workspaceId: number): Buffer {
     });
   }
 
+  const ontVerRow = db.prepare("SELECT value FROM app_meta WHERE key = 'ontology_version'").get() as
+    | { value: string }
+    | undefined;
+
   const manifest: WorkspaceBackupManifest = {
     formatVersion: "mount-charter-backup-v1",
+    ontologyVersion: ontVerRow?.value || "3.0",
     exportedAt: new Date().toISOString(),
     workspaceName: ws.name,
     profile: profile as unknown as Record<string, unknown>,
@@ -225,9 +232,21 @@ export function restoreWorkspaceFromBackupZip(zipBuffer: Buffer): {
     });
   }
 
-  // Responses
+  // Responses (deterministically remap pre-v3.0 backups when running on v3.0 ontology)
+  const dbOntVerRow = getDb()
+    .prepare("SELECT value FROM app_meta WHERE key = 'ontology_version'")
+    .get() as { value: string } | undefined;
+  const isRunningV3 = Boolean(dbOntVerRow?.value?.startsWith("3."));
+  const responsesToRestore = isRunningV3
+    ? remapBackupResponsesForOntology(
+        manifest.responses || [],
+        manifest.ontologyVersion,
+        loadOntologyMigrationMap(),
+      )
+    : manifest.responses || [];
+
   let restoredResponses = 0;
-  for (const r of manifest.responses || []) {
+  for (const r of responsesToRestore) {
     const ctrl = storage.getControlByNumber(String(r.controlNumber || ""));
     if (!ctrl) continue;
     const wc = storage.ensureWorkspaceControl(ws.id, ctrl.id);

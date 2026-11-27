@@ -182,7 +182,7 @@ export function RequirementCard({ frameworkCode, req, documents }: RequirementCa
             className="pp-button pp-button--ghost pp-button--sm"
             onClick={() => setShowEvidenceForm((v) => !v)}
           >
-            <Icon name="link" />
+            <Icon name="link-2" />
             <span>Evidence ({req.evidenceLinks.length})</span>
           </button>
           {req.historyCount > 0 && (
@@ -199,6 +199,11 @@ export function RequirementCard({ frameworkCode, req, documents }: RequirementCa
 
       <div style={{ fontWeight: 500 }}>{req.title}</div>
       <div className="mw-muted pp-prose">{req.description}</div>
+      {req.guidance && (
+        <div className="mw-faint pp-prose" style={{ lineHeight: 1.45 }}>
+          <strong>In practice:</strong> {req.guidance}
+        </div>
+      )}
 
       {req.driftWarnings && req.driftWarnings.length > 0 && (
         <div className="pp-banner pp-banner--err" role="alert">

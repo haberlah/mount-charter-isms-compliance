@@ -196,6 +196,13 @@ export const frameworksRepository = {
       reqsByFw.set(fid, arr);
     }
 
+    const isoQuestionRow = db
+      .prepare(
+        "SELECT COALESCE(SUM(json_array_length(questionnaire_json, '$.questions')), 0) AS total_q FROM controls",
+      )
+      .get() as { total_q: number } | undefined;
+    const totalIsoQuestions = Number(isoQuestionRow?.total_q || 0);
+
     const nowMs = Date.now();
     const levelOrder: Record<E8AchievedLevel, number> = { ML0: 0, ML1: 1, ML2: 2, ML3: 3 };
     const levelByRank: E8AchievedLevel[] = ["ML0", "ML1", "ML2", "ML3"];
@@ -334,6 +341,7 @@ export const frameworksRepository = {
         targetLevel: fw.target_level != null ? String(fw.target_level) : null,
         notes: fw.notes != null ? String(fw.notes) : null,
         totalRequirements: inForceReqs.length,
+        totalQuestions: code === "iso27001_2022" ? totalIsoQuestions : undefined,
         draftCount,
         driftCount,
         metCount,

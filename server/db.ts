@@ -12,6 +12,7 @@ import {
   DEFAULT_SYNTHESIS_MODEL,
   getDbPath,
 } from "./config";
+import { loadOntologyMigrationMap, migrateOntologyResponsesV21ToV30 } from "./ontology-migration";
 
 interface FrameworksSeedFile {
   version: string;
@@ -53,10 +54,24 @@ interface FrameworksSeedFile {
   }>;
 }
 
+interface OntologyIso27002Attributes {
+  control_types: Array<"Preventive" | "Detective" | "Corrective">;
+  info_sec_properties: Array<"Confidentiality" | "Integrity" | "Availability">;
+  cybersecurity_concepts: Array<"Identify" | "Protect" | "Detect" | "Respond" | "Recover">;
+  operational_capabilities: string[];
+  security_domains: Array<"Governance_and_Ecosystem" | "Protection" | "Defence" | "Resilience">;
+}
+
 interface OntologyControl {
   control_number: string;
   control_name: string;
   category: string;
+  short_summary?: string;
+  plain_english_summary?: string;
+  why_it_matters?: string;
+  key_deliverables?: string[];
+  audit_focus_summary?: string;
+  iso27002_attributes?: OntologyIso27002Attributes | null;
   questions: Array<{
     question_id: number;
     question: string;
@@ -153,6 +168,13 @@ CREATE TABLE IF NOT EXISTS controls (
   control_number TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   description TEXT,
+  short_summary TEXT,
+  plain_english_summary TEXT,
+  why_it_matters TEXT,
+  key_deliverables_json TEXT NOT NULL DEFAULT '[]',
+  audit_focus_summary TEXT,
+  iso27002_attributes_json TEXT,
+  questionnaire_source TEXT NOT NULL DEFAULT 'seed',
   category_id INTEGER NOT NULL REFERENCES control_categories(id),
   owner_role TEXT,
   default_frequency TEXT DEFAULT 'Annual',
@@ -162,6 +184,33 @@ CREATE TABLE IF NOT EXISTS controls (
   annex_a_reference TEXT,
   questionnaire_json TEXT,
   questionnaire_generated_at TEXT
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS control_org_guides (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  control_id INTEGER NOT NULL REFERENCES controls(id) ON DELETE CASCADE,
+  profile_hash TEXT NOT NULL,
+  content_markdown TEXT NOT NULL,
+  model_used TEXT NOT NULL,
+  provider TEXT,
+  generated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  UNIQUE(workspace_id, control_id, profile_hash)
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS legacy_question_responses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  workspace_control_id INTEGER NOT NULL REFERENCES workspace_controls(id) ON DELETE CASCADE,
+  control_number TEXT NOT NULL,
+  legacy_question_id INTEGER NOT NULL,
+  mapped_question_id INTEGER,
+  ontology_version TEXT NOT NULL,
+  response_text TEXT NOT NULL,
+  evidence_references_json TEXT NOT NULL DEFAULT '[]',
+  original_updated_at TEXT,
+  archived_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  UNIQUE(workspace_control_id, ontology_version, legacy_question_id)
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS workspace_controls (
@@ -315,6 +364,7 @@ CREATE TABLE IF NOT EXISTS response_change_log (
   previous_response TEXT,
   new_response TEXT NOT NULL,
   change_source TEXT NOT NULL,
+  ontology_version TEXT,
   source_document_id INTEGER REFERENCES documents(id) ON DELETE SET NULL,
   source_match_id INTEGER REFERENCES document_question_matches(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
@@ -745,6 +795,17 @@ function runAdditiveMigrations(db: DatabaseSync): void {
   ensureColumn(db, "ai_interactions", "completion_tokens", "INTEGER NOT NULL DEFAULT 0");
   ensureColumn(db, "ai_interactions", "cost_usd", "REAL NOT NULL DEFAULT 0");
 
+  // v3.3 control-level plain-English explainers, ISO 27002:2022 attributes & safe v3.0 ontology tracking
+  ensureColumn(db, "controls", "short_summary", "TEXT");
+  ensureColumn(db, "controls", "plain_english_summary", "TEXT");
+  ensureColumn(db, "controls", "why_it_matters", "TEXT");
+  ensureColumn(db, "controls", "key_deliverables_json", "TEXT NOT NULL DEFAULT '[]'");
+  ensureColumn(db, "controls", "audit_focus_summary", "TEXT");
+  ensureColumn(db, "controls", "iso27002_attributes_json", "TEXT");
+  ensureColumn(db, "controls", "questionnaire_source", "TEXT NOT NULL DEFAULT 'seed'");
+  // Safe additive column on append-only log (ALTER TABLE ADD COLUMN does not fire BEFORE UPDATE triggers)
+  ensureColumn(db, "response_change_log", "ontology_version", "TEXT");
+
   // v3.1 provider-agnostic auto-detect default: upgrade untouched legacy Anthropic default rows once
   const autoMigRow = db
     .prepare("SELECT value FROM app_meta WHERE key = 'v3_1_provider_auto_default'")
@@ -812,18 +873,32 @@ function ensureSeeded(db: DatabaseSync): void {
 
     const upsertControl = db.prepare(`
       INSERT INTO controls (
-        control_number, name, description, category_id, owner_role,
+        control_number, name, description,
+        short_summary, plain_english_summary, why_it_matters,
+        key_deliverables_json, audit_focus_summary, iso27002_attributes_json,
+        questionnaire_source,
+        category_id, owner_role,
         default_frequency, start_quarter, cps234_reference, cps230_reference,
         annex_a_reference, questionnaire_json, questionnaire_generated_at
-      ) VALUES (?, ?, ?, ?, ?, 'Annual', 'Q1', ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'seed', ?, ?, 'Annual', 'Q1', ?, ?, ?, ?, ?)
       ON CONFLICT(control_number) DO UPDATE SET
         name = excluded.name,
         description = CASE WHEN ? = 1 THEN excluded.description ELSE COALESCE(controls.description, excluded.description) END,
+        short_summary = excluded.short_summary,
+        plain_english_summary = excluded.plain_english_summary,
+        why_it_matters = excluded.why_it_matters,
+        key_deliverables_json = excluded.key_deliverables_json,
+        audit_focus_summary = excluded.audit_focus_summary,
+        iso27002_attributes_json = excluded.iso27002_attributes_json,
         category_id = excluded.category_id,
         cps234_reference = excluded.cps234_reference,
         cps230_reference = excluded.cps230_reference,
         annex_a_reference = excluded.annex_a_reference,
-        questionnaire_json = CASE WHEN ? = 1 THEN excluded.questionnaire_json ELSE COALESCE(controls.questionnaire_json, excluded.questionnaire_json) END
+        questionnaire_json = CASE
+          WHEN controls.questionnaire_source = 'ai_generated' THEN controls.questionnaire_json
+          WHEN ? = 1 THEN excluded.questionnaire_json
+          ELSE COALESCE(controls.questionnaire_json, excluded.questionnaire_json)
+        END
     `);
 
     const controlIdByNumber = new Map<string, number>();
@@ -833,13 +908,28 @@ function ensureSeeded(db: DatabaseSync): void {
       const catId = categoryIdByName.get(ctrl.category);
       if (!catId) continue;
       const questionnaire = buildQuestionnaire(ctrl.questions);
-      const description = ctrl.questions[0]?.guidance || null;
+      const description = ctrl.plain_english_summary || ctrl.questions[0]?.guidance || null;
       const annexA = !ctrl.control_number.startsWith("RQ") ? `A.${ctrl.control_number}` : null;
       const refreshFlag = ontologyNeedsRefresh ? 1 : 0;
+      const isoAttrs = ctrl.iso27002_attributes
+        ? JSON.stringify({
+            controlTypes: ctrl.iso27002_attributes.control_types,
+            infoSecProperties: ctrl.iso27002_attributes.info_sec_properties,
+            cybersecurityConcepts: ctrl.iso27002_attributes.cybersecurity_concepts,
+            operationalCapabilities: ctrl.iso27002_attributes.operational_capabilities,
+            securityDomains: ctrl.iso27002_attributes.security_domains,
+          })
+        : null;
       upsertControl.run(
         ctrl.control_number,
         ctrl.control_name,
         description,
+        ctrl.short_summary ?? null,
+        ctrl.plain_english_summary ?? null,
+        ctrl.why_it_matters ?? null,
+        JSON.stringify(ctrl.key_deliverables ?? []),
+        ctrl.audit_focus_summary ?? null,
+        isoAttrs,
         catId,
         ownerRoleByName.get(ctrl.category) || "IS",
         collectUniqueRefs(ctrl.questions, "cps234_ref"),
@@ -852,6 +942,16 @@ function ensureSeeded(db: DatabaseSync): void {
       );
       const row = getControlId.get(ctrl.control_number) as { id: number } | undefined;
       if (row) controlIdByNumber.set(ctrl.control_number, row.id);
+    }
+
+    // Zero-data-loss v2.x -> v3.0 response migration when upgrading an existing database
+    const isUpgradingFromV2 = Boolean(metaRow?.value?.startsWith("2."));
+    const isTargetV3 = data.metadata.version.startsWith("3.");
+    if (isTargetV3 && isUpgradingFromV2) {
+      const migrationMap = loadOntologyMigrationMap();
+      if (migrationMap) {
+        migrateOntologyResponsesV21ToV30(db, migrationMap);
+      }
     }
 
     db.prepare(`

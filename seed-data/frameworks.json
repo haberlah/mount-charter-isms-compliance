@@ -1,12 +1,12 @@
 {
-  "version": "2.2.0",
+  "version": "3.0",
   "lastVerified": "2026-11-25",
   "frameworks": [
     {
       "code": "iso27001_2022",
       "name": "ISO/IEC 27001:2022 (+ Amd 1:2024)",
       "shortName": "ISO 27001:2022",
-      "version": "2022 + Amd 1:2024",
+      "version": "2022 + Amd 1:2024 (v3.0)",
       "jurisdiction": "International",
       "instrumentId": "ISO/IEC 27001:2022 + Amd 1:2024",
       "sourceUrl": "https://www.iso.org/standard/27001",
@@ -14,7 +14,7 @@
       "transitionNote": "Includes mandatory Amendment 1:2024 Climate Action Changes (Clauses 4.1 & 4.2) and Clause 6.3 Planning of Changes.",
       "scoringMode": "pass_fail",
       "supportTier": "full",
-      "description": "Primary ISMS engine: Clauses 4–10 (including Clause 6.3 & Amd 1:2024 Climate Change) and all 93 Annex A controls, Statement of Applicability, local evidence library, and immutable SQLite test runs.",
+      "description": "Primary ISMS backbone covering Clauses 4–10 (including Amd 1:2024 climate relevance & Clause 6.3 change planning) and all 93 Annex A controls with plain-English explainers, ISO 27002:2022 attributes, and streamlined assessment questions.",
       "defaultEnabled": true,
       "sortOrder": 1,
       "requirements": []
@@ -41,7 +41,7 @@
           "domain": "Patch Applications",
           "title": "48-hour critical/exploited patching for online & untrusted-content apps",
           "description": "Patches, updates or vendor mitigations for security vulnerabilities in online services and applications that handle untrusted content (browsers, Office, PDF, email, security tools) are applied within 48 hours of release when critical or exploited.",
-          "guidance": "Maintain an automated emergency patch ring for browsers, Office, PDF readers, and internet-facing apps. ISO 8.7:Q7's 7–14 day guidance does NOT satisfy this mandatory 48-hour SLA.",
+          "guidance": "Maintain an automated emergency patch ring for browsers, Office, PDF readers, and internet-facing apps. ISO 8.8 risk-based patching timelines do NOT satisfy this mandatory 48-hour Essential Eight SLA.",
           "levelOrCategory": "ML1",
           "prescriptiveSla": {
             "criticalPatchHours": 48
@@ -52,13 +52,8 @@
           "isoMappings": [
             {
               "controlNumber": "8.8",
-              "coverage": "partial",
-              "notes": "ISO A.8.8 lacks E8's strict 48h critical patch SLA."
-            },
-            {
-              "controlNumber": "8.7",
               "coverage": "rubric_conflict",
-              "notes": "E8 mandates 48h critical patching; stricter than ISO 8.7:Q7."
+              "notes": "Essential Eight mandates 48-hour patching for critical/exploited vulnerabilities — stricter than ISO 8.8 risk-based timelines."
             }
           ],
           "sortOrder": 1
@@ -276,13 +271,13 @@
           "isoMappings": [
             {
               "controlNumber": "8.8",
-              "coverage": "partial",
-              "notes": "48h internet-facing OS patching SLA."
+              "coverage": "rubric_conflict",
+              "notes": "Essential Eight mandates 48-hour internet-facing OS patching — stricter than ISO 8.8 risk-based timelines."
             },
             {
               "controlNumber": "8.20",
               "coverage": "partial",
-              "notes": "Network device firmware/OS patching."
+              "notes": "Network device firmware and operating system patching."
             }
           ],
           "sortOrder": 10
@@ -486,9 +481,9 @@
           "reqCode": "E8-MFA-ML1-01",
           "clauseRef": "Appendix A · MFA.1",
           "domain": "Multi-Factor Authentication",
-          "title": "MFA enforced for all users accessing organisational online services",
-          "description": "MFA is enforced for all users authenticating to organisational online services (email, SaaS, remote access/VPN) using at least something users have plus something they know/are.",
-          "guidance": "Verify 100% Conditional Access enforcement and block legacy basic-auth protocols.",
+          "title": "Phishing-resistant MFA enforced for all users accessing organisational online services",
+          "description": "Under ASD Nov 2023 ML1, phishing-resistant MFA (such as FIDO2/WebAuthn security keys or Windows Hello for Business) is enforced for all users authenticating to organisational online services (email, SaaS, remote access/VPN). Where phishing-resistant MFA is technically unavailable, use at least two independent factors.",
+          "guidance": "Enforce FIDO2/WebAuthn or certificate-based MFA via Conditional Access for all online services, and block legacy basic-auth and SMS-only fallbacks.",
           "levelOrCategory": "ML1",
           "prescriptiveSla": {
             "mfaAllOnlineServices": true
@@ -817,7 +812,7 @@
           "domain": "Restrict Administrative Privileges",
           "title": "Disable privileged accounts after 45 days of inactivity",
           "description": "Privileged accounts are automatically disabled after 45 days of inactivity (and immediately on role change/offboarding).",
-          "guidance": "Implement automated IdP/AD stale-admin detection and disablement at <= 45 days.",
+          "guidance": "Implement automated IdP/Active Directory stale-admin detection and disablement at <= 45 days of inactivity, plus immediate revocation on role change or offboarding (ASD Nov 2023 baseline).",
           "levelOrCategory": "ML2",
           "prescriptiveSla": {
             "inactiveAdminDisableDays": 45
@@ -915,7 +910,7 @@
           "domain": "Restrict Administrative Privileges",
           "title": "Session recording & annual privileged access re-certification",
           "description": "Privileged administrative sessions are recorded where supported and all privileged eligibility is formally re-validated at least annually.",
-          "guidance": "Retain immutable bastion/PAM session logs and annual manager sign-offs.",
+          "guidance": "Retain immutable bastion or privileged-session recordings where supported, and re-validate privileged eligibility at least annually with documented manager sign-off.",
           "levelOrCategory": "ML3",
           "prescriptiveSla": {
             "annualPrivilegedRecertification": true
@@ -938,7 +933,7 @@
           "domain": "Application Control",
           "title": "Block unapproved execution in workstation user-writable paths",
           "description": "Application control is implemented on workstations to prevent execution of unapproved executables, scripts, installers, and HTA/CHM files from user profiles and temporary folders.",
-          "guidance": "Deploy WDAC, AppLocker, or macOS Santa/Endpoint Security in enforced mode on user-writable directories.",
+          "guidance": "Deploy WDAC (Windows Defender Application Control), AppLocker, or macOS Santa/Endpoint Security in enforced mode on user-writable directories.",
           "levelOrCategory": "ML1",
           "prescriptiveSla": {
             "scope": "workstation_user_writable_paths"
@@ -1054,7 +1049,7 @@
           "domain": "Application Control",
           "title": "Centralised logging of allowed & blocked execution events",
           "description": "Allowed and blocked application execution events are centrally logged and monitored.",
-          "guidance": "Forward WDAC/AppLocker/Santa block events to SIEM.",
+          "guidance": "Forward WDAC (Windows Defender Application Control)/AppLocker/Santa block events to SIEM.",
           "levelOrCategory": "ML2",
           "prescriptiveSla": {
             "centralisedExecutionLogging": true
@@ -1122,8 +1117,8 @@
           "clauseRef": "Appendix C · AC.3",
           "domain": "Application Control",
           "title": "Continuous ruleset integrity & bypass-resistance testing",
-          "description": "Application control rulesets are protected from tampering and periodically tested against LOLBins and bypass techniques.",
-          "guidance": "Enable signed WDAC policies with UEFI lock where supported.",
+          "description": "Application control rulesets are protected from tampering and periodically tested against LOLBins (Living-off-the-Land Binaries) and bypass techniques.",
+          "guidance": "Enable signed WDAC (Windows Defender Application Control) policies with UEFI lock where supported.",
           "levelOrCategory": "ML3",
           "prescriptiveSla": {
             "signedImmutablePolicies": true
@@ -1214,8 +1209,8 @@
           "clauseRef": "Appendix B · OM.1",
           "domain": "Configure Microsoft Office Macro Settings",
           "title": "Block Office macros from making Win32 API calls",
-          "description": "Microsoft Office macros are blocked from making Win32 API calls (via Defender ASR rule).",
-          "guidance": "Set ASR rule 'Block Win32 API calls from Office macros' to Block mode.",
+          "description": "Microsoft Office macros are blocked from making Win32 API calls (via Defender ASR (Attack Surface Reduction) rule).",
+          "guidance": "Set ASR (Attack Surface Reduction) rule 'Block Win32 API calls from Office macros' to Block mode.",
           "levelOrCategory": "ML2",
           "prescriptiveSla": {
             "blockWin32ApiCalls": true
@@ -1260,7 +1255,7 @@
           "clauseRef": "Appendix B · OM.3",
           "domain": "Configure Microsoft Office Macro Settings",
           "title": "Antivirus / AMSI scanning of macros prior to execution",
-          "description": "Microsoft Office macros are scanned by antivirus (AMSI integration) before execution.",
+          "description": "Microsoft Office macros are scanned by antivirus (AMSI (Antimalware Scan Interface) integration) before execution.",
           "guidance": "Confirm Office Macro Runtime Scan Scope is enabled for all documents.",
           "levelOrCategory": "ML2",
           "prescriptiveSla": {
@@ -1432,7 +1427,7 @@
           "domain": "User Application Hardening",
           "title": "Block Office child processes, executable creation, code injection & OLE",
           "description": "Microsoft Office is configured to block creating child processes, creating executable content, injecting code into other processes, and activating untrusted OLE packages.",
-          "guidance": "Enforce Microsoft Defender ASR rules for Office child processes, executable content, and code injection.",
+          "guidance": "Enforce Microsoft Defender ASR (Attack Surface Reduction) rules for Office child processes, executable content, and code injection.",
           "levelOrCategory": "ML2",
           "prescriptiveSla": {
             "blockOfficeChildProcesses": true
@@ -1455,7 +1450,7 @@
           "domain": "User Application Hardening",
           "title": "Block PDF software from creating child processes",
           "description": "PDF viewers (e.g. Adobe Acrobat/Reader) are blocked from creating child processes and running untrusted JavaScript.",
-          "guidance": "Enable Defender ASR rule 'Block Adobe Reader from creating child processes' and lock PDF JavaScript settings.",
+          "guidance": "Enable Defender ASR (Attack Surface Reduction) rule 'Block Adobe Reader from creating child processes' and lock PDF JavaScript settings.",
           "levelOrCategory": "ML2",
           "prescriptiveSla": {
             "blockPdfChildProcesses": true
@@ -1816,7 +1811,7 @@
           "clauseRef": "APP 1.1–1.6 · s 13K",
           "domain": "Governance & Transparency (APP 1–2)",
           "title": "Open & transparent management of PI and compliant Privacy Policy",
-          "description": "Maintain practices, procedures, and systems to ensure APP compliance and handle inquiries/complaints; publish an up-to-date Privacy Policy covering kinds of PI, collection methods, purposes, access/correction, complaints, and overseas disclosure countries. Note: s 13K POLA 2024 introduces OAIC infringement notices for deficient policies.",
+          "description": "Maintain clear internal practices to comply with the APPs and handle privacy enquiries or complaints. Publish a current Privacy Policy covering personal information collected, purposes, access/correction, complaints, and overseas disclosure countries. Under POLA 2024 s 13K, deficient policies can attract OAIC infringement notices.",
           "guidance": "Review your public Privacy Policy at least annually against actual data flows and APP 1.4 mandatory items.",
           "levelOrCategory": "APP 1",
           "prescriptiveSla": {
@@ -1844,7 +1839,7 @@
           "clauseRef": "APP 1.7–1.9 (POLA 2024)",
           "domain": "POLA 2024 Reforms (Commencing 10 Dec 2026)",
           "title": "Automated Decision-Making (ADM) Privacy Policy Transparency",
-          "description": "Commencing 10 December 2026: Privacy Policy must disclose (a) the kinds of personal information used in computer programs (AI, ML, algorithms, or automated rule engines) that make or substantially/directly assist decisions reasonably expected to significantly affect rights or interests, and (b) whether decisions are made solely by such programs or substantially assisted by them.",
+          "description": "Commencing 10 December 2026: Disclose in your Privacy Policy the kinds of personal information used by automated computer programs (AI, ML, or rule engines) that make — or substantially assist — decisions significantly affecting individual rights or interests, and state whether decisions are solely automated or human-assisted.",
           "guidance": "Inventory every AI/ML model, automated HR/hiring/scoring/triage engine touching PI, classify sole vs substantially-assisted decisions, and update your Privacy Policy before 10 December 2026.",
           "levelOrCategory": "POLA 2024",
           "prescriptiveSla": {
@@ -1872,7 +1867,7 @@
           "clauseRef": "s 26GC (POLA 2024)",
           "domain": "POLA 2024 Reforms (Commencing 10 Dec 2026)",
           "title": "Children's Online Privacy Code Readiness (Best Interests & Under-15 Consent)",
-          "description": "Commencing by 10 December 2026 (Exposure Draft consulted 31 Mar–5 Jun 2026): Assess whether any online service/app/website is likely to be accessed by children (<18). In-scope services must embed best interests of the child, 'strictly necessary' data minimisation, age-assurance & parental consent for under-15s, child-appropriate notices, profiling transparency, and mandatory Privacy Impact Assessments (PIAs) for high-risk features.",
+          "description": "Commencing by 10 December 2026: Assess whether any online service is likely to be accessed by children (<18). In-scope services must prioritise children's best interests, apply strict data minimisation, obtain parental consent with age assurance for under-15s, provide child-friendly notices, and run PIAs for high-risk features.",
           "guidance": "Record a formal applicability determination even for B2B products; if minors may access the service, complete a child-focused PIA aligned to the OAIC Code.",
           "levelOrCategory": "POLA 2024",
           "prescriptiveSla": {
@@ -2364,7 +2359,7 @@
           "clauseRef": "Part 3 · Rules 2025",
           "domain": "Mandatory Ransomware Payment Reporting",
           "title": "Reporting Business Entity Scope Determination ($3M Turnover / SOCI)",
-          "description": "Determine whether the organisation is a 'reporting business entity' under the Cyber Security Act 2024 (Cth): any entity carrying on a business in Australia with >= AUD $3M annual turnover in the prior financial year, OR any responsible entity for a SOCI Act critical infrastructure asset regardless of turnover.",
+          "description": "Confirm whether your organisation is a 'reporting business entity' under the Cyber Security Act 2024 (Cth). Scope covers any entity carrying on a business in Australia with >= AUD $3M prior-year turnover, plus any responsible entity for a SOCI Act critical infrastructure asset regardless of turnover.",
           "guidance": "Document annual turnover / SOCI scope review in executive governance records so legal & incident teams know immediately if Part 3 applies.",
           "levelOrCategory": "In Force (30 May 2025)",
           "prescriptiveSla": {
@@ -2702,10 +2697,10 @@
         },
         {
           "reqCode": "CPS234-31",
-          "clauseRef": "CPS 234 §29, §31–33",
+          "clauseRef": "CPS 234 §26, §29, §31–33",
           "domain": "Testing Sufficiency & Internal Audit",
           "title": "Annual Sufficiency Review, Escalation & Internal Audit Review",
-          "description": "Review testing program sufficiency at least annually (and on material change, §31), escalate unremediated testing deficiencies to Board/senior management (§29), and ensure Internal Audit reviews control testing design and operating effectiveness (§32–33).",
+          "description": "Review control-testing sufficiency at least annually and on material change (§31), review and test incident response plans annually (§26), escalate deficiencies (§29), and have Internal Audit review both information security controls and testing effectiveness (§32–33).",
           "guidance": "Maintain formal annual testing-sufficiency sign-off and Internal Audit CPS 234 review reports.",
           "levelOrCategory": "CPS 234",
           "prescriptiveSla": {
@@ -2733,7 +2728,7 @@
           "clauseRef": "CPS 234 §35",
           "domain": "Mandatory APRA Notifications",
           "title": "72-Hour Material Information Security Incident Notification to APRA",
-          "description": "Notify APRA as soon as possible and in any case no later than 72 hours after becoming aware of an information security incident that (a) materially affected or had the potential to materially affect the entity/beneficiaries, OR (b) has been notified to another domestic or foreign regulator (e.g. OAIC, ASIC).",
+          "description": "Notify APRA as soon as possible and within 72 hours of becoming aware of an information security incident that either (a) materially affected — or could materially affect — the entity or beneficiaries, or (b) was notified to another domestic or foreign regulator (such as OAIC or ASIC).",
           "guidance": "Embed both trigger §35(a) AND trigger §35(b) (other-regulator notification) into your Incident Response Plan.",
           "levelOrCategory": "CPS 234",
           "prescriptiveSla": {
@@ -2792,10 +2787,10 @@
       "shortName": "APRA CPS 230",
       "version": "F2023L01016 (In Force 1 Jul 2025)",
       "jurisdiction": "Australia",
-      "instrumentId": "F2023L01016",
-      "sourceUrl": "https://www.legislation.gov.au/F2023L01016/latest/text",
+      "instrumentId": "APRA CPS 230 (Effective 1 Jul 2025)",
+      "sourceUrl": "https://www.apra.gov.au/operational-risk-management",
       "effectiveDate": "2025-07-01",
-      "transitionNote": "Commenced 1 July 2025; transitional window for pre-existing Material Service Provider contracts closed 1 July 2026.",
+      "transitionNote": "Commenced 1 July 2025 across APRA-regulated entities (sector-specific determinations apply); pre-existing Material Service Provider contracts have transition relief until 1 July 2026 or earlier renewal.",
       "scoringMode": "statutory_register",
       "supportTier": "full",
       "description": "APRA Prudential Standard CPS 230 combining ISO 27001 cross-mapping (paras 12–60) with first-class assessments for Critical Operations, Board-approved Tolerance Levels (24h breach notice), annual severe-but-plausible scenario testing, and Material Service Provider governance.",
@@ -2804,10 +2799,10 @@
       "requirements": [
         {
           "reqCode": "CPS230-20",
-          "clauseRef": "CPS 230 §20–23",
+          "clauseRef": "CPS 230 §13–14, §20–23",
           "domain": "Governance & Operational Risk",
           "title": "Board Accountability for Operational Risk, Continuity & Service Providers",
-          "description": "The Board is ultimately accountable for oversight of operational risk management, approving tolerance levels for critical operations, reviewing severe-but-plausible scenario testing outcomes, and overseeing material service provider risks.",
+          "description": "The Board is ultimately accountable for operational risk oversight, approving critical operation tolerance levels, reviewing severe-but-plausible scenario test outcomes, and overseeing material service provider (MSP) risks.",
           "guidance": "Maintain explicit Board approval minutes for operational risk appetite, tolerance levels, and material service provider policy.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": null,
@@ -2825,10 +2820,10 @@
         },
         {
           "reqCode": "CPS230-27",
-          "clauseRef": "CPS 230 §27, §35–37",
+          "clauseRef": "CPS 230 §34–36",
           "domain": "Critical Operations & Mapping",
           "title": "Critical Operations Register & End-to-End Process/Dependency Mapping",
-          "description": "Identify and maintain a register of all critical operations (including minimum prescribed operations under §36) and map end-to-end processes, people, technology, data, facilities, and third/fourth-party dependencies supporting each critical operation.",
+          "description": "Maintain a register of all critical operations and map end-to-end dependencies — including people, technology, data, facilities, and third- or fourth-party providers — supporting each critical operation.",
           "guidance": "Map dependencies far enough down the chain to expose concentration risk and single points of failure.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": null,
@@ -2851,10 +2846,10 @@
         },
         {
           "reqCode": "CPS230-38",
-          "clauseRef": "CPS 230 §38–39, §42",
+          "clauseRef": "CPS 230 §35, §38, §41",
           "domain": "Tolerance Levels & 24h Breach Notice",
           "title": "Board-Approved Tolerance Levels & 24-Hour APRA Breach Notification",
-          "description": "Establish Board-approved tolerance levels for each critical operation (maximum tolerable disruption duration, maximum data loss, and minimum service levels during disruption) and notify APRA as soon as possible and within 24 hours if a disruption exceeds tolerance levels.",
+          "description": "Set Board-approved tolerance levels for each critical operation (maximum outage duration, maximum data loss, and minimum service levels). Notify APRA as soon as possible and within 24 hours if a disruption breaches tolerance.",
           "guidance": "Clearly distinguish operational tolerance levels from technical RTO/RPO targets and wire a 24-hour APRA escalation clock into BCP playbooks.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": {
@@ -2884,10 +2879,10 @@
         },
         {
           "reqCode": "CPS230-33",
-          "clauseRef": "CPS 230 §31–33",
+          "clauseRef": "CPS 230 §28–32",
           "domain": "Operational Risk Incidents",
           "title": "72-Hour Material Operational Risk Incident Notification to APRA",
-          "description": "Record and analyse operational risk incidents and near-misses, and notify APRA as soon as possible and within 72 hours of becoming aware of an operational risk incident likely to have a material financial impact or materially impair the entity's ability to maintain critical operations.",
+          "description": "Record and investigate operational risk incidents and near-misses, remediate material weaknesses (§31), and notify APRA within 72 hours of any operational incident likely to have a material financial impact or impair critical operations (§32).",
           "guidance": "Harmonise incident notification runbooks across CPS 230 §33 (72h), CPS 230 §42 (24h tolerance breach), and CPS 234 §35 (72h cyber).",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": {
@@ -2912,10 +2907,10 @@
         },
         {
           "reqCode": "CPS230-43",
-          "clauseRef": "CPS 230 §40–46",
+          "clauseRef": "CPS 230 §38, §42–45, §60",
           "domain": "Business Continuity & Scenario Testing",
           "title": "Annual Severe-but-Plausible Scenario Testing & Internal Audit BCP Assurance",
-          "description": "Maintain a credible BCP capable of operating within tolerance levels, test it at least annually under severe-but-plausible scenarios (including third-party/cloud failure and cyberattack), review the BCP annually, and obtain systematic Internal Audit assurance.",
+          "description": "Maintain a credible Business Continuity Plan (BCP) able to keep critical operations within tolerance. Test the BCP at least annually under severe-but-plausible scenarios (§45) — including cloud/vendor failure and cyberattack — with Internal Audit assurance (§60).",
           "guidance": "Go beyond simple tabletop walkthroughs — test actual failover, comms, and vendor unavailability against tolerance limits.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": {
@@ -2940,10 +2935,10 @@
         },
         {
           "reqCode": "CPS230-49",
-          "clauseRef": "CPS 230 §47–52, §53(b)",
+          "clauseRef": "CPS 230 §48–51, §58",
           "domain": "Material Service Providers (MSPs)",
           "title": "MSP Register, Fourth-Party Risk Mapping & Annual APRA Submission",
-          "description": "Maintain a comprehensive Service Provider Management Policy and Material Service Provider (MSP) Register (covering prescribed §50 categories such as core technology, risk management, internal audit, and fourth-party dependencies), and submit the MSP register to APRA annually.",
+          "description": "Maintain a Service Provider Risk Policy and Material Service Provider (MSP) Register covering prescribed categories (core technology, risk, internal audit) and fourth-party dependencies (§51, §58). Submit the MSP register to APRA annually.",
           "guidance": "Note: The transitional period for pre-existing MSP contracts closed on 1 July 2026 — all active MSPs must now be fully compliant.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": {
@@ -2969,10 +2964,10 @@
         },
         {
           "reqCode": "CPS230-55",
-          "clauseRef": "CPS 230 §54–56",
+          "clauseRef": "CPS 230 §53–57",
           "domain": "Material Service Providers (MSPs)",
           "title": "Mandatory APRA Contract Clauses (Access/On-Site Rights) & Orderly Exit Plans",
-          "description": "Maintain legally binding agreements with all MSPs containing mandatory §55 clauses (including APRA access to documentation/information, on-site inspection rights, and no impediment to APRA's statutory functions) plus documented, tested orderly exit & transition plans (§56(d)).",
+          "description": "Execute formal agreements with all MSPs including mandatory §54 clauses (APRA access to records, on-site inspection rights, incident notice) plus documented, tested exit and transition plans (§57).",
           "guidance": "Audit every MSP contract against a §55 clause checklist and document realistic exit timelines for hyperscale cloud and core SaaS vendors.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": {
@@ -2998,10 +2993,10 @@
         },
         {
           "reqCode": "CPS230-59",
-          "clauseRef": "CPS 230 §59–60",
+          "clauseRef": "CPS 230 §56, §58–60",
           "domain": "Material Service Providers (MSPs)",
           "title": "20-Business-Day MSP Contract / Pre-Offshoring APRA Notices & Internal Audit",
-          "description": "Notify APRA as soon as possible and within 20 business days after entering into or materially changing an MSP arrangement, notify/consult APRA prior to entering into material offshoring arrangements with heightened risk, and have Internal Audit review material service provider arrangements (§60).",
+          "description": "Notify APRA within 20 business days of entering or materially changing an MSP arrangement (§59), consult APRA before heightened-risk offshoring (§56), and ensure Internal Audit reviews MSP governance (§60).",
           "guidance": "Integrate the 20-business-day APRA notification gate directly into procurement and vendor-onboarding sign-off workflows.",
           "levelOrCategory": "CPS 230",
           "prescriptiveSla": {
@@ -3032,7 +3027,7 @@
       "shortName": "SOCI Act / CIRMP",
       "version": "C2018A00029 + ERP Act 2024",
       "jurisdiction": "Australia",
-      "instrumentId": "C2018A00029 / C2024A00099",
+      "instrumentId": "C2018A00029 / C2024A00100",
       "sourceUrl": "https://www.legislation.gov.au/C2018A00029/latest/text",
       "effectiveDate": "2025-04-04",
       "transitionNote": "ERP Act 2024 Schedule 1 (s 9(7)) and 2025–2026 CIRMP rules bring business-critical data storage systems directly into critical infrastructure asset scope.",
@@ -3073,7 +3068,7 @@
           "clauseRef": "SOCI Act Part 2A",
           "domain": "Critical Infrastructure Risk Management Program (CIRMP)",
           "title": "All-Hazards CIRMP (Cyber, Physical, Personnel & Supply Chain)",
-          "description": "Establish, maintain, and comply with a written Critical Infrastructure Risk Management Program (CIRMP) addressing all four statutory hazard vectors: cyber & information security, personnel, supply chain, and physical/natural hazards.",
+          "description": "Establish and maintain a written Critical Infrastructure Risk Management Program (CIRMP) addressing all four statutory hazard domains: cyber and information security, personnel, supply chain, and physical or natural hazards.",
           "guidance": "Align the cyber hazard pillar to a recognised standard (ISO/IEC 27001, Essential Eight, NIST CSF, or AESCSF) per CIRMP Rules.",
           "levelOrCategory": "SOCI CIRMP",
           "prescriptiveSla": null,
@@ -3186,7 +3181,7 @@
           "clauseRef": "SOCI Act s 30AG",
           "domain": "Governance & Annual Attestation",
           "title": "Annual Board-Approved CIRMP Compliance Report to CISC",
-          "description": "Submit an annual CIRMP compliance report — formally approved by the Board / governing body — to the Cyber and Infrastructure Security Centre (CISC) within 90 days after the end of each financial year.",
+          "description": "Submit an annual CIRMP (Critical Infrastructure Risk Management Program) compliance report, formally approved by the Board, to the Cyber and Infrastructure Security Centre (CISC) within 90 days of financial year-end.",
           "guidance": "Schedule Board CIRMP review in Q4/Q1 of the Australian financial year to meet the 90-day post-FY statutory submission window.",
           "levelOrCategory": "SOCI Governance",
           "prescriptiveSla": {

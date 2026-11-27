@@ -120,7 +120,7 @@ export async function generateControlQuestionnaire(
   profile: WorkspaceProfile | null = null,
 ): Promise<{ questionnaire: ControlQuestionnaire; tokensUsed: number; model: string }> {
   const orgContext = buildOrganisationContext(profile);
-  const prompt = `Generate 5-6 ISO/IEC 27001:2022 (+ Amd 1:2024) assessment questions for control ${controlNumber}: ${controlName}.
+  const prompt = `Generate 2-4 focused, non-overlapping ISO/IEC 27001:2022 (+ Amd 1:2024) assessment questions for control ${controlNumber}: ${controlName}.
 Description: ${controlDescription || "Standard ISO/IEC 27001:2022 control"}.
 ${orgContext}
 Return ONLY a JSON object matching:
@@ -132,7 +132,7 @@ Return ONLY a JSON object matching:
       "guidance": "Practical implementation guidance",
       "auditor_focus": "What an external certification auditor verifies",
       "evidence_type": "POLICY|REGISTER|RECORD|MATRIX|DOCUMENT",
-      "answer_type": "text",
+      "answer_type": "Document",
       "what_good_looks_like": "Concrete maturity criteria",
       "red_flags": "Common weaknesses",
       "nc_pattern": "Typical non-conformity pattern",
@@ -762,7 +762,13 @@ export function selectFanOutCandidates(params: {
     )
     .map((c) => {
       const qText = (c.aiQuestionnaire?.questions || []).map((q) => q.question).join(" ");
-      const corpus = `${c.controlNumber} ${c.name} ${c.description || ""} ${c.category.name} ${qText}`;
+      const explainerText = [
+        c.shortSummary || "",
+        c.plainEnglishSummary || "",
+        c.whyItMatters || "",
+        (c.keyDeliverables || []).join(" "),
+      ].join(" ");
+      const corpus = `${c.controlNumber} ${c.name} ${c.description || ""} ${explainerText} ${c.category.name} ${qText}`;
       return { control: c, score: overlapScore(docTerms, corpus) };
     })
     .filter((x) => x.score > 0.35)
@@ -1239,5 +1245,65 @@ Return ONLY a JSON array (empty [] if none materially addressed):
     totalCostUsd,
     modelsUsed: Array.from(modelsSet),
     provider: providerName,
+  };
+}
+
+export async function streamControlOrgGuide(params: {
+  controlNumber: string;
+  controlName: string;
+  categoryName: string;
+  plainEnglishSummary: string | null;
+  whyItMatters: string | null;
+  keyDeliverables: string[];
+  auditFocusSummary: string | null;
+  activeFrameworkNotes: string[];
+  profile: WorkspaceProfile | null;
+  signal?: AbortSignal;
+  onToken?: (text: string) => void;
+}): Promise<{
+  contentMarkdown: string;
+  tokensUsed: number;
+  promptTokens: number;
+  completionTokens: number;
+  costUsd: number;
+  provider: string;
+  model: string;
+}> {
+  const orgContext = buildOrganisationContext(params.profile);
+  const systemPrompt = `You are a pragmatic Australian ISO/IEC 27001:2022 Lead Auditor and security architect.
+Explain what a specific ISO/IEC 27001:2022 control means specifically for the user's organisation in clear, direct Australian English.
+Never copy verbatim ISO standard text. Be concrete, concise (~180-260 words total), and structured into three short markdown sections:
+### What this means for your stack
+### Concrete artefacts to produce
+### Fastest audit pitfall to avoid`;
+
+  const userPrompt = `Control: ${params.controlNumber} — ${params.controlName} (${params.categoryName})
+Plain-English summary: ${params.plainEnglishSummary || "(Not provided)"}
+Why it matters: ${params.whyItMatters || "(Not provided)"}
+Expected deliverables: ${params.keyDeliverables.join(", ") || "(Standard documentation)"}
+Audit focus: ${params.auditFocusSummary || "(Standard Stage 1 & 2 verification)"}
+${params.activeFrameworkNotes.length > 0 ? `Active Australian framework intersections:\n- ${params.activeFrameworkNotes.join("\n- ")}` : ""}
+${orgContext}
+
+Tailor the guidance directly to this organisation's size, industry, deployment model, and tech stack. Avoid generic filler.`;
+
+  const res = await invokeLlm({
+    profile: params.profile,
+    tier: "screening",
+    system: systemPrompt,
+    user: userPrompt,
+    maxTokens: 900,
+    signal: params.signal,
+    onToken: params.onToken,
+  });
+
+  return {
+    contentMarkdown: res.text.trim(),
+    tokensUsed: res.tokensUsed,
+    promptTokens: res.promptTokens,
+    completionTokens: res.completionTokens,
+    costUsd: res.costUsd,
+    provider: res.provider,
+    model: res.model,
   };
 }

@@ -204,7 +204,7 @@ export function SoaTab({ controls, profile }: SoaTabProps) {
     const q = soaSearch.trim().toLowerCase();
     if (!q) return controls;
     return controls.filter((c) =>
-      `${c.controlNumber} ${c.name} ${c.category.name} ${c.cps234Reference || ""} ${c.cps230Reference || ""}`
+      `${c.controlNumber} ${c.name} ${c.shortSummary || ""} ${c.category.name} ${c.cps234Reference || ""} ${c.cps230Reference || ""}`
         .toLowerCase()
         .includes(q),
     );
@@ -488,6 +488,11 @@ export function SoaTab({ controls, profile }: SoaTabProps) {
                       <td>
                         <div className="mw-stack" style={{ gap: 2 }}>
                           <span>{c.name}</span>
+                          {c.shortSummary && (
+                            <span className="mw-faint" style={{ lineHeight: 1.35 }}>
+                              {c.shortSummary}
+                            </span>
+                          )}
                           <div className="mw-row mw-row--wrap" style={{ gap: 4 }}>
                             <span className="mw-faint">{c.category.name}</span>
                             {(c.linkedRiskCodes || []).map((rc) => (
@@ -719,6 +724,14 @@ export function SoaTab({ controls, profile }: SoaTabProps) {
             </button>
           </div>
           <div className="pp-dialog__body mw-stack">
+            {targetControl && (targetControl.plainEnglishSummary || targetControl.shortSummary) && (
+              <div className="mw-quote" style={{ fontSize: "var(--paper-size-secondary)" }}>
+                <strong>
+                  {targetControl.controlNumber} — {targetControl.name}:
+                </strong>{" "}
+                {targetControl.plainEnglishSummary || targetControl.shortSummary}
+              </div>
+            )}
             <p className="mw-muted">
               ISO/IEC 27001:2022 Clause 6.1.3(d) requires documented justification for both
               inclusions and exclusions in your Statement of Applicability.

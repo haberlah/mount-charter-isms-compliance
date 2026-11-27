@@ -307,7 +307,7 @@ export interface ParsedAiAnalysis {
 }
 
 /**
- * Shared structured renderer for Claude test analyses across ControlDetail & Audit Trail
+ * Shared structured renderer for AI test analyses across ControlDetail & Audit Trail
  * (renders observations, recommendations, and all persona_specific Auditor/Advisor/Analyst fields).
  */
 export function AiAnalysisCard({
@@ -504,9 +504,9 @@ export function CommandPalette({
     const ctrlItems = controls.map((c) => ({
       id: `ctrl-${c.controlNumber}`,
       title: `${c.controlNumber} — ${c.name}`,
-      meta: c.category.name,
+      meta: c.shortSummary || c.category.name,
       search:
-        `${c.controlNumber} ${c.name} ${c.category.name} ${c.cps234Reference || ""} ${c.cps230Reference || ""}`.toLowerCase(),
+        `${c.controlNumber} ${c.name} ${c.shortSummary || ""} ${c.category.name} ${c.cps234Reference || ""} ${c.cps230Reference || ""}`.toLowerCase(),
       path: `/controls/${encodeURIComponent(c.controlNumber)}`,
     }));
     const docItems = documents.map((d) => ({

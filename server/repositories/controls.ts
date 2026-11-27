@@ -1,19 +1,24 @@
+import { createHash } from "node:crypto";
 import type {
   Control,
   ControlCategory,
   ControlDetailResponse,
+  ControlFrameworkContext,
   ControlFrequency,
+  ControlOrgGuide,
   ControlQuestionnaire,
   ControlStartQuarter,
   ControlSummary,
   ControlUrgency,
   DocumentStatus,
   ImplementationStatus,
+  MappingCoverage,
   Persona,
   QuestionResponse,
   TestRun,
   TestStatus,
   WorkspaceControl,
+  WorkspaceProfile,
 } from "@shared/schema";
 import {
   calculateNextDueDate,
@@ -33,6 +38,23 @@ import {
 } from "./common";
 import { governanceRepository } from "./governance";
 import { workspaceRepository } from "./workspaces";
+
+export function computeProfileHash(
+  profile: WorkspaceProfile | null,
+  enabledFrameworkCodes: string[],
+): string {
+  const payload = JSON.stringify({
+    companyName: profile?.companyName ?? "",
+    industry: profile?.industry ?? "",
+    companySize: profile?.companySize ?? "",
+    techStack: profile?.techStack ?? "",
+    deploymentModel: profile?.deploymentModel ?? "",
+    riskAppetite: profile?.riskAppetite ?? "Moderate",
+    additionalContext: profile?.additionalContext ?? "",
+    frameworks: [...enabledFrameworkCodes].sort(),
+  });
+  return createHash("sha256").update(payload).digest("hex").slice(0, 16);
+}
 
 export const controlsRepository = {
   listCategories(): ControlCategory[] {
@@ -170,9 +192,69 @@ export const controlsRepository = {
   saveControlQuestionnaire(controlId: number, questionnaire: ControlQuestionnaire): void {
     getDb()
       .prepare(
-        "UPDATE controls SET questionnaire_json = ?, questionnaire_generated_at = ? WHERE id = ?",
+        "UPDATE controls SET questionnaire_json = ?, questionnaire_generated_at = ?, questionnaire_source = 'ai_generated' WHERE id = ?",
       )
       .run(JSON.stringify(questionnaire), new Date().toISOString(), controlId);
+  },
+
+  getControlOrgGuide(
+    workspaceId: number,
+    controlId: number,
+    profileHash: string,
+  ): ControlOrgGuide | null {
+    const row = getDb()
+      .prepare(
+        `SELECT * FROM control_org_guides
+         WHERE workspace_id = ? AND control_id = ? AND profile_hash = ?`,
+      )
+      .get(workspaceId, controlId, profileHash) as Record<string, unknown> | undefined;
+    if (!row) return null;
+    return {
+      id: Number(row.id),
+      workspaceId: Number(row.workspace_id),
+      controlId: Number(row.control_id),
+      profileHash: String(row.profile_hash),
+      contentMarkdown: String(row.content_markdown),
+      modelUsed: String(row.model_used),
+      provider: row.provider != null ? String(row.provider) : null,
+      generatedAt: String(row.generated_at),
+    };
+  },
+
+  saveControlOrgGuide(params: {
+    workspaceId: number;
+    controlId: number;
+    profileHash: string;
+    contentMarkdown: string;
+    modelUsed: string;
+    provider?: string | null;
+  }): ControlOrgGuide {
+    const now = new Date().toISOString();
+    getDb()
+      .prepare(`
+        INSERT INTO control_org_guides (
+          workspace_id, control_id, profile_hash, content_markdown, model_used, provider, generated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(workspace_id, control_id, profile_hash) DO UPDATE SET
+          content_markdown = excluded.content_markdown,
+          model_used = excluded.model_used,
+          provider = excluded.provider,
+          generated_at = excluded.generated_at
+      `)
+      .run(
+        params.workspaceId,
+        params.controlId,
+        params.profileHash,
+        params.contentMarkdown,
+        params.modelUsed,
+        params.provider ?? null,
+        now,
+      );
+    return controlsRepository.getControlOrgGuide(
+      params.workspaceId,
+      params.controlId,
+      params.profileHash,
+    )!;
   },
 
   listControlsWithStatus(workspaceId: number): ControlSummary[] {
@@ -197,11 +279,18 @@ export const controlsRepository = {
           WHERE workspace_id = ?
         ),
         resp_counts AS (
-          SELECT workspace_control_id,
-                 COUNT(*) AS answered_count
-          FROM question_responses
-          WHERE workspace_id = ? AND TRIM(response_text) != ''
-          GROUP BY workspace_control_id
+          SELECT qr.workspace_control_id,
+                 COUNT(DISTINCT qr.question_id) AS answered_count
+          FROM question_responses qr
+          JOIN workspace_controls wc2 ON wc2.id = qr.workspace_control_id
+          JOIN controls c2 ON c2.id = wc2.control_id
+          WHERE qr.workspace_id = ?
+            AND TRIM(qr.response_text) != ''
+            AND EXISTS (
+              SELECT 1 FROM json_each(c2.questionnaire_json, '$.questions') jq
+              WHERE CAST(json_extract(jq.value, '$.question_id') AS INTEGER) = qr.question_id
+            )
+          GROUP BY qr.workspace_control_id
         ),
         doc_counts AS (
           SELECT dcl.workspace_control_id, COUNT(*) AS doc_count
@@ -421,10 +510,76 @@ export const controlsRepository = {
       previousResponse: r.previous_response != null ? String(r.previous_response) : null,
       newResponse: String(r.new_response),
       changeSource: String(r.change_source),
+      ontologyVersion: r.ontology_version != null ? String(r.ontology_version) : null,
       sourceDocumentId: r.source_document_id != null ? Number(r.source_document_id) : null,
       sourceMatchId: r.source_match_id != null ? Number(r.source_match_id) : null,
       createdAt: String(r.created_at),
     }));
+
+    const enabledFwRows = db
+      .prepare(`
+        SELECT f.code
+        FROM workspace_frameworks wf
+        JOIN frameworks f ON f.id = wf.framework_id
+        WHERE wf.workspace_id = ? AND wf.enabled = 1
+        ORDER BY f.sort_order ASC
+      `)
+      .all(workspaceId) as Array<{ code: string }>;
+    const enabledFrameworkCodes = enabledFwRows.map((r) => String(r.code));
+
+    const activeFrameworkContext: ControlFrameworkContext[] = (
+      db
+        .prepare(`
+          SELECT f.code AS framework_code,
+                 f.short_name AS framework_short_name,
+                 fr.req_code,
+                 fr.clause_ref,
+                 fr.title,
+                 cfm.coverage,
+                 cfm.mapping_notes,
+                 fr.prescriptive_sla_json
+          FROM control_framework_mappings cfm
+          JOIN framework_requirements fr ON fr.id = cfm.requirement_id
+          JOIN frameworks f ON f.id = fr.framework_id
+          JOIN workspace_frameworks wf ON wf.framework_id = f.id
+            AND wf.workspace_id = ? AND wf.enabled = 1
+          WHERE cfm.control_id = ?
+            AND fr.is_draft = 0
+            AND f.code != 'iso27001_2022'
+          ORDER BY
+            CASE cfm.coverage
+              WHEN 'rubric_conflict' THEN 1
+              WHEN 'delta_required' THEN 2
+              WHEN 'full' THEN 3
+              ELSE 4
+            END,
+            f.sort_order ASC,
+            fr.sort_order ASC
+        `)
+        .all(workspaceId, summary.id) as Array<Record<string, unknown>>
+    ).map((r) => ({
+      frameworkCode: String(r.framework_code),
+      frameworkShortName: String(r.framework_short_name),
+      reqCode: String(r.req_code),
+      clauseRef: r.clause_ref != null ? String(r.clause_ref) : null,
+      title: String(r.title),
+      coverage: r.coverage as MappingCoverage,
+      mappingNotes: r.mapping_notes != null ? String(r.mapping_notes) : null,
+      prescriptiveSla: safeJsonParse<Record<string, unknown> | null>(
+        r.prescriptive_sla_json as string | null,
+        null,
+      ),
+    }));
+
+    const profile = workspaceRepository.getProfile(workspaceId);
+    const profileHash = computeProfileHash(profile, enabledFrameworkCodes);
+    const orgGuide = controlsRepository.getControlOrgGuide(workspaceId, summary.id, profileHash);
+
+    const legacyRow = db
+      .prepare(
+        "SELECT COUNT(*) AS cnt FROM legacy_question_responses WHERE workspace_id = ? AND workspace_control_id = ?",
+      )
+      .get(workspaceId, wcId) as { cnt: number } | undefined;
 
     return {
       ...summary,
@@ -434,6 +589,10 @@ export const controlsRepository = {
       linkedDocuments,
       matches,
       changeLog,
+      activeFrameworkContext,
+      enabledFrameworkCodes,
+      orgGuide,
+      legacyResponsesCount: Number(legacyRow?.cnt || 0),
     };
   },
 

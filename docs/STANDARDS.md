@@ -1,7 +1,7 @@
 # Supported Standards & Legislative Register
 
-**Last verified:** 25 November 2026  
-**Seed catalog version:** `3.0.0` (`seed-data/frameworks.json` & `seed-data/iso_27001_ontology.json`)
+**Last verified:** 27 November 2026  
+**Seed catalog version:** `3.0` (`seed-data/frameworks.json` & `seed-data/iso_27001_ontology.json`)
 
 Mount Charter enforces **truth-in-advertising support tiers**: every framework explicitly declares whether it has a first-class assessment engine (`full`) or is used strictly as advisory context for AI reviews (`ai_context_only`).
 
@@ -11,12 +11,12 @@ Mount Charter enforces **truth-in-advertising support tiers**: every framework e
 
 | Code | Framework | Jurisdiction | Authoritative Instrument | Effective Date | Support Tier | Requirements |
 | --- | --- | --- | --- | --- | --- | --- |
-| `iso27001_2022` | ISO/IEC 27001:2022 (+ Amd 1:2024) | International | ISO/IEC 27001:2022 + Amd 1:2024 | 2024-02-23 | `full` (Core Engine) | 100 controls · 506 Qs |
+| `iso27001_2022` | ISO/IEC 27001:2022 (+ Amd 1:2024) | International | ISO/IEC 27001:2022 + Amd 1:2024 | 2024-02-23 | `full` (Core Engine) | 100 controls · 262 Qs |
 | `acsc_e8_2023` | ACSC Essential Eight & ASD Essentials | Australia | ASD Essential Eight Maturity Model (Nov 2023) | 2023-11-01 | `full` (Weakest-Link ML0–ML3) | 72 discrete criteria |
 | `au_privacy_act` | Privacy Act 1988, APPs & POLA Act 2024 | Australia | C2004C00253 / C2024A00128 | 2024-12-10 | `full` (Statutory Register) | 19 in-force + 2 draft |
 | `au_cyber_security_act_2024` | Cyber Security Act 2024 (Cth) | Australia | C2024A00098 | 2025-05-30 | `full` (Statutory Register) | 7 in-force |
 | `apra_cps234` | APRA Prudential Standard CPS 234 | Australia | F2018L01745 | 2019-07-01 | `full` (Statutory Deltas + ISO refs) | 8 in-force |
-| `apra_cps230` | APRA Prudential Standard CPS 230 | Australia | F2023L01016 | 2025-07-01 | `full` (Statutory Deltas + ISO refs) | 8 in-force |
+| `apra_cps230` | APRA Prudential Standard CPS 230 | Australia | APRA CPS 230 (Effective 1 Jul 2025) | 2025-07-01 | `full` (Statutory Deltas + ISO refs) | 8 in-force |
 | `au_soci_act` | Security of Critical Infrastructure Act 2018 | Australia | C2018A00029 / C2024A00100 | 2025-04-04 | `full` (Statutory Register) | 6 in-force |
 | `au_ai6_2025` | NAIC Guidance for AI Adoption (`AI6`) | Australia | NAIC Guidance for AI Adoption (Oct 2025) | 2025-10-21 | `full` (Voluntary + Watch) | 6 in-force + 1 draft |
 | `soc2_type2` | AICPA SOC 2 Type II | International | AICPA Trust Services Criteria (2017 / 2022) | 2022-10-01 | `ai_context_only` | Advisory tag only |

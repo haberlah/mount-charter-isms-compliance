@@ -9,7 +9,13 @@ import {
   updateWorkspaceControlSchema,
 } from "@shared/schema";
 import { Router } from "express";
-import { AIConfigurationError, generateControlQuestionnaire, streamControlAnalysis } from "../ai";
+import {
+  AIConfigurationError,
+  generateControlQuestionnaire,
+  streamControlAnalysis,
+  streamControlOrgGuide,
+} from "../ai";
+import { computeProfileHash } from "../repositories/controls";
 import { storage } from "../storage";
 import { getParam, resolveWorkspaceId, sendValidationError } from "./helpers";
 
@@ -282,6 +288,98 @@ controlsRouter.post("/controls/:controlNumber/analyse-stream", async (req, res) 
     if (!abortController.signal.aborted) {
       sendEvent("error", {
         error: err instanceof Error ? err.message : "AI analysis failed",
+      });
+    }
+  } finally {
+    if (!res.writableEnded) res.end();
+  }
+});
+
+controlsRouter.post("/controls/:controlNumber/explain-stream", async (req, res) => {
+  const workspaceId = resolveWorkspaceId(req);
+  const detail = storage.getControlDetail(workspaceId, getParam(req.params.controlNumber));
+  if (!detail) return res.status(404).json({ error: "Control not found" });
+
+  const force = Boolean(req.body?.force);
+  const profile = storage.getProfile(workspaceId);
+  const profileHash = computeProfileHash(profile, detail.enabledFrameworkCodes);
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const sendEvent = (event: string, data: unknown) => {
+    if (!res.writableEnded) {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    }
+  };
+
+  if (!force) {
+    const cached = storage.getControlOrgGuide(workspaceId, detail.id, profileHash);
+    if (cached) {
+      sendEvent("token", { text: cached.contentMarkdown });
+      sendEvent("complete", { guide: cached, cached: true });
+      res.end();
+      return;
+    }
+  }
+
+  const abortController = new AbortController();
+  req.on("close", () => abortController.abort());
+
+  try {
+    const activeFrameworkNotes = detail.activeFrameworkContext.slice(0, 6).map((ctx) => {
+      const slaNote = ctx.coverage === "rubric_conflict" ? " [STRICTER AU SLA OVERRIDE]" : "";
+      return `${ctx.frameworkShortName} ${ctx.reqCode} (${ctx.title})${slaNote}${ctx.mappingNotes ? `: ${ctx.mappingNotes}` : ""}`;
+    });
+
+    const result = await streamControlOrgGuide({
+      controlNumber: detail.controlNumber,
+      controlName: detail.name,
+      categoryName: detail.category.name,
+      plainEnglishSummary: detail.plainEnglishSummary,
+      whyItMatters: detail.whyItMatters,
+      keyDeliverables: detail.keyDeliverables,
+      auditFocusSummary: detail.auditFocusSummary,
+      activeFrameworkNotes,
+      profile,
+      signal: abortController.signal,
+      onToken: (text) => sendEvent("token", { text }),
+    });
+
+    const guide = storage.saveControlOrgGuide({
+      workspaceId,
+      controlId: detail.id,
+      profileHash,
+      contentMarkdown: result.contentMarkdown,
+      modelUsed: result.model,
+      provider: result.provider,
+    });
+
+    storage.logAiInteraction({
+      workspaceId,
+      interactionType: "control_org_explainer",
+      controlId: detail.id,
+      inputSummary: `Org-tailored control explainer for ${detail.controlNumber}`,
+      outputSummary: `${result.contentMarkdown.length} chars cached`,
+      modelUsed: result.model,
+      provider: result.provider,
+      tokensUsed: result.tokensUsed,
+      promptTokens: result.promptTokens,
+      completionTokens: result.completionTokens,
+      costUsd: result.costUsd,
+    });
+
+    sendEvent("complete", {
+      guide,
+      cached: false,
+      tokensUsed: result.tokensUsed,
+      costUsd: result.costUsd,
+    });
+  } catch (err) {
+    if (!abortController.signal.aborted) {
+      sendEvent("error", {
+        error: err instanceof Error ? err.message : "Failed to generate organisation explanation",
       });
     }
   } finally {

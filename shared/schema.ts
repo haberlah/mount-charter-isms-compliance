@@ -41,6 +41,7 @@ export const interactionTypeValues = [
   "soa_scoping",
   "policy_redline",
   "vendor_assurance",
+  "control_org_explainer",
   "connectivity_test",
 ] as const;
 export const concreteAiProviderValues = [
@@ -227,11 +228,48 @@ export interface ControlCategory {
   sortOrder: number;
 }
 
+export interface Iso27002Attributes {
+  controlTypes: Array<"Preventive" | "Detective" | "Corrective">;
+  infoSecProperties: Array<"Confidentiality" | "Integrity" | "Availability">;
+  cybersecurityConcepts: Array<"Identify" | "Protect" | "Detect" | "Respond" | "Recover">;
+  operationalCapabilities: string[];
+  securityDomains: Array<"Governance_and_Ecosystem" | "Protection" | "Defence" | "Resilience">;
+}
+
+export interface ControlFrameworkContext {
+  frameworkCode: string;
+  frameworkShortName: string;
+  reqCode: string;
+  clauseRef: string | null;
+  title: string;
+  coverage: MappingCoverage;
+  mappingNotes: string | null;
+  prescriptiveSla: Record<string, unknown> | null;
+}
+
+export interface ControlOrgGuide {
+  id: number;
+  workspaceId: number;
+  controlId: number;
+  profileHash: string;
+  contentMarkdown: string;
+  modelUsed: string;
+  provider: string | null;
+  generatedAt: string;
+}
+
 export interface Control {
   id: number;
   controlNumber: string;
   name: string;
   description: string | null;
+  shortSummary: string | null;
+  plainEnglishSummary: string | null;
+  whyItMatters: string | null;
+  keyDeliverables: string[];
+  auditFocusSummary: string | null;
+  iso27002Attributes: Iso27002Attributes | null;
+  questionnaireSource: "seed" | "ai_generated";
   categoryId: number;
   ownerRole: string | null;
   defaultFrequency: ControlFrequency | null;
@@ -405,6 +443,7 @@ export interface ResponseChangeLogEntry {
   previousResponse: string | null;
   newResponse: string;
   changeSource: string;
+  ontologyVersion?: string | null;
   sourceDocumentId: number | null;
   sourceMatchId: number | null;
   createdAt: string;
@@ -438,6 +477,10 @@ export interface ControlDetailResponse extends ControlSummary {
   >;
   matches: DocumentQuestionMatch[];
   changeLog: ResponseChangeLogEntry[];
+  activeFrameworkContext: ControlFrameworkContext[];
+  enabledFrameworkCodes: string[];
+  orgGuide: ControlOrgGuide | null;
+  legacyResponsesCount: number;
 }
 
 export interface UrgencyBoardItem {
@@ -642,6 +685,8 @@ export interface FrameworkSummary {
   notes: string | null;
   /** Count of in-force requirements (excludes isDraft items) */
   totalRequirements: number;
+  /** For ISO 27001: dynamic count of active assessment questions across all 100 controls */
+  totalQuestions?: number;
   /** Count of forward-looking draft/exposure-draft items excluded from readiness % */
   draftCount: number;
   /** Count of requirements whose linked ISO controls have drifted (failed/blocked/excluded) */

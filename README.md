@@ -42,12 +42,12 @@ Every framework in Mount Charter declares an **honest support tier** (`full` fir
 
 | Framework | Jurisdiction | Authoritative Instrument | Support Tier | Scope |
 | --- | --- | --- | --- | --- |
-| **ISO/IEC 27001:2022 (+ Amd 1:2024)** | International | ISO/IEC 27001:2022 + Amd 1:2024 | First-Class Core | 100 controls (`RQ4`–`RQ10` incl. Climate & Clause 6.3 + 93 Annex A) · 506 questions · SoA |
+| **ISO/IEC 27001:2022 (+ Amd 1:2024)** | International | ISO/IEC 27001:2022 + Amd 1:2024 | First-Class Core | 100 controls (`RQ4`–`RQ10` incl. Climate & Clause 6.3 + 93 Annex A) · plain-English explainers · 262 streamlined questions · SoA |
 | **ACSC Essential Eight** | Australia | ASD Maturity Model (Nov 2023) + Oct 2026 ASD Essentials note | First-Class (Weakest-Link) | 72 discrete criteria (`ML1`–`ML3`) across all 8 strategies |
 | **Privacy Act 1988 & POLA Act 2024** | Australia | `C2004C00253` / `C2024A00128` | First-Class Statutory | 19 in-force obligations (incl. 10 Dec 2026 ADM `APP 1.7`–`1.9` & COPC) + 2 `isDraft` Tranche 2 watch items |
 | **Cyber Security Act 2024 (Cth)** | Australia | `C2024A00098` | First-Class Statutory | 7 duties incl. 72h ransomware payment reporting & Smart Device (IoT) Rules 2025 |
 | **APRA CPS 234** | Australia | `F2018L01745` | First-Class Deltas + ISO refs | 8 statutory deltas (72h incident, 10-day material weakness, tripartite testing) |
-| **APRA CPS 230** | Australia | `F2023L01016` | First-Class Deltas + ISO refs | 8 statutory deltas (24h disruption, critical ops tolerances, MSP exit plans) |
+| **APRA CPS 230** | Australia | APRA CPS 230 (Effective 1 Jul 2025) | First-Class Deltas + ISO refs | 8 statutory deltas (24h disruption, critical ops tolerances, MSP exit plans) |
 | **SOCI Act 2018 (+ ERP Act 2024)** | Australia | `C2018A00029` / `C2024A00100` | First-Class Statutory | 6 obligations (business-critical data, CIRMP, 12h/72h ASD reporting) |
 | **NAIC Guidance for AI Adoption (`AI6`)** | Australia | NAIC Oct 2025 | First-Class + Watch | 6 essential practices + 1 `isDraft` Nov 2026 Frontier AI watch item |
 | **SOC 2 Type II / EU GDPR** | Int'l / EU | AICPA TSC / Reg. (EU) 2016/679 | `ai_context_only` | Explicitly labelled as AI prompt context only (never counted as audited) |

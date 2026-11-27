@@ -69,8 +69,9 @@ mount-charter-isms-compliance/
 │   └── policy-templates.ts          # 6 AU ISMS starter policy templates & 8 starter risks
 ├── shared/schema.ts                 # Shared TypeScript domain interfaces & Zod v4 schemas
 ├── seed-data/
-│   ├── iso_27001_ontology.json      # 100 controls, 506 questions (+ Amd 1:2024 & APRA refs)
+│   ├── iso_27001_ontology.json      # v3.0: 100 controls with plain-English explainers, ISO 27002 attributes & 262 focused Qs
 │   ├── iso_27001_ontology.schema.json
+│   ├── ontology_v2_1_to_v3_0_map.json # Deterministic 506-question lossless v2.1 -> v3.0 migration map
 │   ├── frameworks.json              # 10 frameworks, 129 discrete requirements & ISO mappings
 │   └── frameworks.schema.json
 ├── macos/                           # Swift WKWebView shell, shield-peak icon, build-app.sh
@@ -90,7 +91,7 @@ Mount Charter uses a **normalized relational multi-framework ontology** in SQLit
    - Each framework carries `jurisdiction`, `instrument_id`, `source_url`, `effective_date`, `transition_note`, `scoring_mode`, and `support_tier`.
    - Requirements carry `clause_ref`, `domain`, `level_or_category`, `prescriptive_sla_json`, `deadline_date`, and `is_draft`.
    - Draft / exposure-draft watch items (`is_draft = 1`) are excluded from in-force `readinessPercentage` denominators so forward-looking bills never distort current statutory compliance.
-   - Cross-mappings (`control_framework_mappings`) declare explicit semantic coverage: `full`, `partial`, `delta_required`, or `rubric_conflict` (for example, Essential Eight's 48-hour critical patching SLA overriding ISO A.8.7 risk-based guidance).
+   - Cross-mappings (`control_framework_mappings`) declare explicit semantic coverage: `full`, `partial`, `delta_required`, or `rubric_conflict` (for example, Essential Eight's 48-hour critical patching SLA overriding ISO A.8.8 risk-based timelines).
 3. **Per-Workspace Assessments, Evidence & Immutable History (`workspace_frameworks`, `workspace_requirement_assessments`, `requirement_evidence_links`, `requirement_assessment_log`):**
    - Every requirement status change appends an immutable row to `requirement_assessment_log` (`framework_code` + `req_code` denormalized so catalog upgrades never break historical audit trails).
    - Requirements link directly to local Evidence Library documents (`document_id`) or validated external URLs.

@@ -1,8 +1,19 @@
+import { parseApraRefs } from "@shared/apra-paragraphs";
 import type { ControlDetailResponse, DocumentQuestionMatch } from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { ConfirmDialog, Icon, SeverityBadge } from "@/components/PaperUi";
 import { apiRequest, invalidateWorkspaceQueries, showToast } from "@/lib/api";
+
+function formatEvidenceHint(raw: string): string {
+  if (!raw) return "Document";
+  return raw
+    .split(/[;|,]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((token) => token.charAt(0).toUpperCase() + token.slice(1).toLowerCase())
+    .join(" / ");
+}
 
 interface AssessmentTabProps {
   detail: ControlDetailResponse;
@@ -79,31 +90,18 @@ export function AssessmentTab({
   };
 
   const questions = detail.aiQuestionnaire?.questions || [];
+  const enabledSet = new Set(detail.enabledFrameworkCodes || []);
+  const showCps234 = enabledSet.has("apra_cps234");
+  const showCps230 = enabledSet.has("apra_cps230");
 
   return (
     <div className="mw-stack">
-      {detail.linkedDocuments.length === 0 && questions.length > 0 && (
-        <div className="pp-banner pp-banner--info" role="note">
-          <div className="pp-banner__body">
-            <div className="pp-banner__text">
-              No evidence document linked to {detail.controlNumber} yet. Switch to the{" "}
-              <strong>Evidence</strong> tab to upload or link policies and generate AI draft
-              responses.
-            </div>
-          </div>
-          <div className="pp-banner__actions">
-            <button type="button" className="pp-button pp-button--sm" onClick={onGoEvidenceTab}>
-              Add Evidence
-            </button>
-          </div>
-        </div>
-      )}
-
       {questions.length === 0 ? (
         <div className="pp-state">
           <div className="pp-state__title">No questionnaire loaded</div>
           <div className="pp-state__text">
-            Generate an ISO/IEC 27001:2022 (+ Amd 1:2024) assessment questionnaire using Claude.
+            Generate an ISO/IEC 27001:2022 (+ Amd 1:2024) assessment questionnaire using your
+            configured AI provider.
           </div>
           <button
             type="button"
@@ -141,6 +139,8 @@ export function AssessmentTab({
           const savedVal =
             detail.responses.find((r) => r.question_id === q.question_id)?.response_text ?? "";
           const isDirty = dirtyQuestions.has(q.question_id) && draft !== savedVal;
+          const qCps234 = showCps234 ? parseApraRefs(q.cps234_ref, "cps234") : [];
+          const qCps230 = showCps230 ? parseApraRefs(q.cps230_ref, "cps230") : [];
 
           return (
             <article
@@ -148,13 +148,17 @@ export function AssessmentTab({
               className={`mw-question-card${isDirty ? " mw-question-card--dirty" : ""}`}
             >
               <div className="mw-row mw-row--between mw-row--wrap">
-                <div className="mw-row mw-row--wrap">
-                  <span className="pp-badge">Q{q.question_id}</span>
-                  <SeverityBadge severity={q.severity} />
-                  <span className="pp-badge">{q.evidence_type}</span>
-                  <span className="mw-faint">{q.primary_persona}</span>
+                <div className="mw-row mw-row--wrap" style={{ gap: 8 }}>
+                  <span className="mw-mono" style={{ fontWeight: 600 }}>
+                    Q{q.question_id}
+                  </span>
+                  <span className="mw-faint">Expected: {formatEvidenceHint(q.evidence_type)}</span>
                 </div>
-                {isDirty && <span className="pp-status pp-status--warn">Unsaved</span>}
+                {isDirty ? (
+                  <span className="pp-status pp-status--warn">Unsaved</span>
+                ) : savedVal.trim() ? (
+                  <span className="mw-faint">✓ Saved</span>
+                ) : null}
               </div>
 
               <div className="pp-prose" style={{ fontWeight: 500 }}>
@@ -162,8 +166,14 @@ export function AssessmentTab({
               </div>
 
               <details className="pp-disclosure pp-disclosure--plain">
-                <summary>Auditor guidance, criteria &amp; NC pattern</summary>
-                <div className="pp-disclosure__body mw-stack mw-stack--sm mw-muted pp-prose">
+                <summary>Auditor rubric &amp; guidance</summary>
+                <div className="pp-disclosure__body mw-rubric-kv mw-muted pp-prose">
+                  <div>
+                    <strong>Audit severity:</strong>{" "}
+                    <span style={{ marginLeft: 4 }}>
+                      <SeverityBadge severity={q.severity} />
+                    </span>
+                  </div>
                   {q.guidance && (
                     <div>
                       <strong>Guidance:</strong> {q.guidance}
@@ -194,15 +204,13 @@ export function AssessmentTab({
                       <strong>Related controls:</strong> {q.related_controls}
                     </div>
                   )}
-                  {(q.cps234_ref || q.cps230_ref) && (
+                  {(qCps234.length > 0 || qCps230.length > 0) && (
                     <div>
-                      <strong>APRA mapping:</strong>{" "}
+                      <strong>Active APRA mapping:</strong>{" "}
                       {[
-                        q.cps234_ref ? `CPS 234 §${q.cps234_ref}` : "",
-                        q.cps230_ref ? `CPS 230 §${q.cps230_ref}` : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
+                        ...qCps234.map((g) => `CPS 234 §${g.code} (${g.label})`),
+                        ...qCps230.map((g) => `CPS 230 §${g.code} (${g.label})`),
+                      ].join(" · ")}
                     </div>
                   )}
                 </div>
@@ -317,15 +325,26 @@ export function AssessmentTab({
                       ? "Saved"
                       : "Not answered yet"}
                 </span>
-                <button
-                  type="button"
-                  className="pp-button pp-button--sm"
-                  disabled={!isDirty || savingQuestionId === q.question_id}
-                  aria-busy={savingQuestionId === q.question_id}
-                  onClick={() => void onSaveResponse(q.question_id, draft)}
-                >
-                  {savingQuestionId === q.question_id ? "Saving…" : "Save Response"}
-                </button>
+                <div className="mw-row">
+                  {detail.linkedDocuments.length === 0 && (
+                    <button
+                      type="button"
+                      className="pp-button pp-button--ghost pp-button--sm"
+                      onClick={onGoEvidenceTab}
+                    >
+                      Link Evidence
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className={`pp-button pp-button--sm${isDirty ? " pp-button--primary" : ""}`}
+                    disabled={!isDirty || savingQuestionId === q.question_id}
+                    aria-busy={savingQuestionId === q.question_id}
+                    onClick={() => void onSaveResponse(q.question_id, draft)}
+                  >
+                    {savingQuestionId === q.question_id ? "Saving…" : "Save Response"}
+                  </button>
+                </div>
               </div>
             </article>
           );

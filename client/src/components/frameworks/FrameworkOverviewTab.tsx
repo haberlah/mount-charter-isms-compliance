@@ -89,7 +89,7 @@ export function FrameworkOverviewTab({
                   <td className="mw-nowrap">
                     {f.code === "iso27001_2022" ? (
                       <Link href="/controls" className="mw-table-link">
-                        100 controls · 506 Qs
+                        100 controls · {f.totalQuestions ?? 262} Qs
                       </Link>
                     ) : f.supportTier === "full" ? (
                       <>

@@ -1,9 +1,11 @@
+import { parseApraRefs } from "@shared/apra-paragraphs";
 import type { ControlDetailResponse, ControlSummary, DocumentRecord } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { AssessmentTab } from "@/components/controls/AssessmentTab";
 import { ControlEvidenceTab } from "@/components/controls/ControlEvidenceTab";
+import { ControlOverviewCard } from "@/components/controls/ControlOverviewCard";
 import { ControlPropertiesInspector } from "@/components/controls/ControlPropertiesInspector";
 import { RecordTestSheet } from "@/components/controls/RecordTestSheet";
 import { TestHistoryTab } from "@/components/controls/TestHistoryTab";
@@ -189,6 +191,13 @@ export function ControlDetailPage({
   }
 
   const questions = detail.aiQuestionnaire?.questions || [];
+  const enabledSet = new Set(detail.enabledFrameworkCodes || []);
+  const headerCps234 = enabledSet.has("apra_cps234")
+    ? parseApraRefs(detail.cps234Reference, "cps234")
+    : [];
+  const headerCps230 = enabledSet.has("apra_cps230")
+    ? parseApraRefs(detail.cps230Reference, "cps230")
+    : [];
 
   return (
     <div className="mw-stack mw-stack--lg" style={{ maxWidth: 1120 }}>
@@ -201,11 +210,21 @@ export function ControlDetailPage({
           <div className="mw-row mw-row--wrap" style={{ marginBottom: 4 }}>
             <span className="pp-badge">{detail.category.name}</span>
             {detail.ownerRole && <span className="pp-badge">Owner: {detail.ownerRole}</span>}
-            {detail.cps234Reference && (
-              <span className="pp-badge pp-badge--accent">CPS 234 §{detail.cps234Reference}</span>
+            {headerCps234.length > 0 && (
+              <span
+                className="pp-badge pp-badge--accent"
+                title={headerCps234.map((g) => `§${g.code} ${g.label}: ${g.summary}`).join("\n")}
+              >
+                CPS 234 §{headerCps234.map((g) => g.code).join("; ")}
+              </span>
             )}
-            {detail.cps230Reference && (
-              <span className="pp-badge">CPS 230 §{detail.cps230Reference}</span>
+            {headerCps230.length > 0 && (
+              <span
+                className="pp-badge"
+                title={headerCps230.map((g) => `§${g.code} ${g.label}: ${g.summary}`).join("\n")}
+              >
+                CPS 230 §{headerCps230.map((g) => g.code).join("; ")}
+              </span>
             )}
           </div>
           <h1 className="pp-page-header__title">
@@ -267,6 +286,13 @@ export function ControlDetailPage({
 
       <div className="mw-detail-layout">
         <div className="mw-stack">
+          <ControlOverviewCard
+            key={detail.controlNumber}
+            detail={detail}
+            controlNumber={controlNumber}
+            onGoEvidenceTab={() => setActiveTab("evidence")}
+          />
+
           <PaperTabs
             label="Control sections"
             value={activeTab}
